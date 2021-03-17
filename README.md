@@ -1,6 +1,6 @@
 # Obsidian Admonition
 
-Adds admotion block-styled content to Obsidian.md
+Adds admonition block-styled content to Obsidian.md
 
 ## Usage
 
@@ -92,7 +92,7 @@ The admonitions are each styled with with the following classes, which can be ov
 }
 ```
 
-Additionally, each admonition type will receive the ```css .admonition-<type>``` class:
+Additionally, each admonition type will receive the ```.admonition-<type>``` class:
 
 ```css
 /* Example of .admonition-note */
@@ -109,7 +109,7 @@ Additionally, each admonition type will receive the ```css .admonition-<type>```
 }
 ```
 
-The admonition icons are defined as variables on the ```css :root``` with the name ```css --admonition-icon--<type>```. Override this variable to customize the icon.
+The admonition icons are defined as variables on the ```:root``` with the name ```--admonition-icon--<type>```. Override this variable to customize the icon.
 
 ## Installation
 
