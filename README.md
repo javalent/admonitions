@@ -114,6 +114,12 @@ The admonition icons are svgs defined as variables on the ```:root``` with the n
 --admonition-icon--quote: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M14 17h3l2-4V7h-6v6h3M6 17h3l2-4V7H5v6h3l-2 4z'/></svg>");
 ```
 
+## Todo
+- Add the ability to collapse the admonition
+- Custom admonitions
+- Settings tab to customize icon and color of included admonitions
+- Longterm - ability to render markdown inside an admonition
+
 ## Installation
 
 ### From GitHub
