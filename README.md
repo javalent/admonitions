@@ -99,6 +99,9 @@ Additionally, each admonition type will receive the ```css .admonition-<type>```
 .admonition-note {
     border-color: #448aff;
 }
+.admonition-note > .admonition-title {
+    background-color: rgba(68, 138, 255, 0.1);
+}
 .admonition-note > .admonition-title::before {
     background-color: #448aff;
     -webkit-mask-image: var(--admonition-icon--note);
