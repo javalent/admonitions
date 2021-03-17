@@ -1,0 +1,63 @@
+interface Admonition {
+    [key: string]: string;
+}
+const admonitions = [
+    "note",
+    "seealso",
+    "abstract",
+    "summary",
+    "info",
+    "todo",
+    "tip",
+    "hint",
+    "important",
+    "success",
+    "check",
+    "done",
+    "question",
+    "help",
+    "faq",
+    "warning",
+    "caution",
+    "attention",
+    "failure",
+    "fail",
+    "missing",
+    "danger",
+    "error",
+    "bug",
+    "example",
+    "quote",
+    "cite"
+] as const;
+
+const ADMONITION_MAP: Record<typeof admonitions[number], string> = {
+    note: "note",
+    seealso: "note",
+    abstract: "abstract",
+    summary: "abstract",
+    info: "info",
+    todo: "todo",
+    tip: "tip",
+    hint: "tip",
+    important: "tip",
+    success: "success",
+    check: "check",
+    done: "done",
+    question: "question",
+    help: "question",
+    faq: "question",
+    warning: "warning",
+    caution: "warning",
+    attention: "warning",
+    failure: "failure",
+    fail: "failure",
+    missing: "failure",
+    danger: "danger",
+    error: "danger",
+    bug: "bug",
+    example: "example",
+    quote: "quote",
+    cite: "quote"
+};
+export default ADMONITION_MAP as Admonition;
