@@ -7,7 +7,7 @@ on:
       - "*" # Push events to matching any tag format, i.e. 1.0, 20.15.10
 
 env:
-  PLUGIN_NAME: obsidian-dice-roller # Change this to the name of your plugin-id folder
+  PLUGIN_NAME: obsidian-admonition # Change this to the name of your plugin-id folder
 
 jobs:
   build:
