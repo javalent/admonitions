@@ -109,7 +109,10 @@ Additionally, each admonition type will receive the ```.admonition-<type>``` cla
 }
 ```
 
-The admonition icons are defined as variables on the ```:root``` with the name ```--admonition-icon--<type>```. Override this variable to customize the icon.
+The admonition icons are svgs defined as variables on the ```:root``` with the name ```--admonition-icon--<type>```. Override this variable to customize the icon. Example:
+```css
+--admonition-icon--quote: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M14 17h3l2-4V7h-6v6h3M6 17h3l2-4V7H5v6h3l-2 4z'/></svg>");
+```
 
 ## Installation
 
