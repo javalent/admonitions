@@ -43,13 +43,49 @@ export default class Admonition extends Plugin {
                 let type =
                     ADMONITION_MAP[classType.split("language-").pop().trim()];
                 if (!type) return;
-                const {
-                    title = type[0].toUpperCase() + type.slice(1).toLowerCase(),
-                    content = block.innerText
-                } = Object.fromEntries(
-                    block.innerText.split("\n").map((l) => l.split(": "))
+                let params = Object.fromEntries(
+                    block.innerText
+                        .split("\n")
+                        .map((l) => l.split(":").map((s) => s.trim()))
                 );
-                this.buildAdmonition(block.parentElement, type, title, content);
+                let {
+                    title = type[0].toUpperCase() + type.slice(1).toLowerCase(),
+                    content = block.innerText,
+                    collapse
+                } = params;
+                console.log(
+                    "🚀 ~ file: main.ts ~ line 56 ~ Admonition ~ codeBlocks.forEach ~ params",
+                    params,
+                    block.innerText
+                        .split("\n")
+                        .map((l) => l.split(":").map((s) => s.trim()))
+                );
+
+                if (
+                    Object.prototype.hasOwnProperty.call(params, "title") &&
+                    params.title === undefined &&
+                    params.collapse
+                ) {
+                    title = "";
+                }
+                if (
+                    Object.prototype.hasOwnProperty.call(params, "collapse") &&
+                    (params.collapse.length == 0 ||
+                        params.collapse === undefined)
+                ) {
+                    collapse = "closed";
+                }
+                console.log(
+                    "🚀 ~ file: main.ts ~ line 69 ~ Admonition ~ codeBlocks.forEach ~ params.collapse",
+                    collapse
+                );
+                this.buildAdmonition(
+                    block.parentElement,
+                    type,
+                    title,
+                    content,
+                    collapse
+                );
             }
         });
     }
@@ -57,13 +93,30 @@ export default class Admonition extends Plugin {
         el: HTMLElement,
         type: string,
         title: string,
-        content: string
+        content: string,
+        collapse?: string
     ) {
-        let admonition = createDiv({
-            cls: `admonition admonition-${type}`
+        let attrs,
+            els = [
+                "div" as keyof HTMLElementTagNameMap,
+                "div" as keyof HTMLElementTagNameMap
+            ];
+        if (collapse && ["open", "closed"].includes(collapse)) {
+            els = [
+                "details" as keyof HTMLElementTagNameMap,
+                "summary" as keyof HTMLElementTagNameMap
+            ];
+            attrs = {
+                [collapse]: true
+            };
+        }
+
+        let admonition = createEl(els[0], {
+            cls: `admonition admonition-${type}`,
+            attr: attrs
         });
-        admonition.createDiv({
-            cls: "admonition-title",
+        admonition.createEl(els[1], {
+            cls: `admonition-title ${!title.trim().length ? "no-title" : ""}`,
             text: title
         });
         admonition.createEl("p", {

@@ -29,7 +29,23 @@ content: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et euism
 
 <img src="https://i.imgur.com/pBTJAFa.png">
 
+Leave the title field blank to only display the admonition.
+````markdown
+```note
+title:
+content: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et euismod nulla.
+```
+````
+
+<img src="https://i.imgur.com/pNU2MB7.png">
+
 **Please note that when the title is included, you _must_ specificy the content as well.**
+
+### Collapsible
+
+Use `collapse: open` or `collapse: closed` to create a collapsible admonition.
+
+<img width='640px' src="https://thumbs.gfycat.com/UniqueVillainousHarpseal-size_restricted.gif">
 
 ## Admonition Types
 
@@ -54,7 +70,11 @@ See [this](https://squidfunk.github.io/mkdocs-material/reference/admonitions/) f
 
 ## Customization
 
-The admonitions are each styled with with the following classes, which can be override to custom their appearance:
+This is all of the CSS applied to the admonitions. Override these classes to customize the look.
+
+### Base Classes
+
+Every admonition receives the following CSS classes:
 
 ```css
 .admonition {
@@ -66,7 +86,7 @@ The admonitions are each styled with with the following classes, which can be ov
     background-color: var(--background-secondary);
     border-left: 0.2rem solid;
     border-radius: 0.1rem;
-    box-shadow: var(--background-modifier-box-shadow);
+    box-shadow: 0 0.2rem 0.5rem var(--background-modifier-box-shadow);
 }
 .admonition-title::before {
     position: absolute;
@@ -92,7 +112,9 @@ The admonitions are each styled with with the following classes, which can be ov
 }
 ```
 
-Additionally, each admonition type will receive the ```.admonition-<type>``` class:
+### Type Specific
+
+Additionally, each admonition type will receive the `.admonition-<type>` class:
 
 ```css
 /* Example of .admonition-note */
@@ -109,28 +131,87 @@ Additionally, each admonition type will receive the ```.admonition-<type>``` cla
 }
 ```
 
-The admonition icons are svgs defined as variables on the ```:root``` with the name ```--admonition-icon--<type>```. Override this variable to customize the icon. Example:
+#### Type Icons
+
+The admonition icons are svgs defined as variables on the `:root` with the name `--admonition-icon--<type>`. Override this variable to customize the icon. Example:
+
 ```css
 --admonition-icon--quote: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M14 17h3l2-4V7h-6v6h3M6 17h3l2-4V7H5v6h3l-2 4z'/></svg>");
 ```
 
+### Collapsible
+
+If an icon is collapsible, it will receive the following CSS:
+
+```css
+details.admonition:not([open]) {
+    padding-bottom: 0;
+    box-shadow: none;
+}
+details.admonition > summary {
+    outline: none;
+    list-style: none;
+    display: block;
+    min-height: 1rem;
+    padding: 0.4rem 1.8rem 0.4rem 2rem;
+    border-top-left-radius: 0.1rem;
+    border-top-right-radius: 0.1rem;
+    cursor: pointer;
+}
+details.admonition > summary::-webkit-details-marker {
+    display: none;
+}
+
+details.admonition > summary:after {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 20px;
+    height: 20px;
+    background-color: currentColor;
+    -webkit-mask-image: var(--admonition-details-icon);
+    mask-image: var(--admonition-details-icon);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    transform: rotate(0deg);
+    transition: transform 0.25s;
+    content: "";
+}
+details.admonition[open] > summary:after {
+    transform: rotate(90deg);
+}
+```
+
+### No Title
+
+An icon without a title will have this CSS:
+
+```css
+.admonition-title.no-title {
+    display: none;
+}
+```
+
 ## Todo
-- Add the ability to collapse the admonition
-- Custom admonitions
-- Settings tab to customize icon and color of included admonitions
-- Longterm - ability to render markdown inside an admonition
+
+-   Add the ability to collapse the admonition
+-   Custom admonitions
+-   Settings tab to customize icon and color of included admonitions
+-   Longterm - ability to render markdown inside an admonition
 
 ## Installation
 
 ### From GitHub
-- Download the Latest Release from the Releases section of the GitHub Repository
-- Copy the `main.js`, `styles.css` and `manifest.json` files from the release to your vault's plugins folder: `<vault>/.obsidian/plugins/`  
-Note: On some machines the `.obsidian` folder may be hidden. On MacOS you should be able to press `Command+Shift+Dot` to show the folder in Finder.
-- Reload Obsidian
-- If prompted about Safe Mode, you can disable safe mode and enable the plugin.
-Otherwise head to Settings, third-party plugins, make sure safe mode is off and
-enable the plugin from there.
 
+-   Download the Latest Release from the Releases section of the GitHub Repository
+-   Copy the `main.js`, `styles.css` and `manifest.json` files from the release to your vault's plugins folder: `<vault>/.obsidian/plugins/`  
+    Note: On some machines the `.obsidian` folder may be hidden. On MacOS you should be able to press `Command+Shift+Dot` to show the folder in Finder.
+-   Reload Obsidian
+-   If prompted about Safe Mode, you can disable safe mode and enable the plugin.
+    Otherwise head to Settings, third-party plugins, make sure safe mode is off and
+    enable the plugin from there.
 
 ## Warning
 

@@ -1,5 +1,5 @@
 interface Admonition {
-    [key: string]: string;
+    [admonitionType: string]: string;
 }
 const admonitions = [
     "note",
