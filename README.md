@@ -45,6 +45,8 @@ content: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et euism
 
 Use `collapse: open` or `collapse: closed` to create a collapsible admonition.
 
+`collapse: open` will startthe admonition opened on render.
+
 <img width='640px' src="https://thumbs.gfycat.com/UniqueVillainousHarpseal-size_restricted.gif">
 
 ## Admonition Types
