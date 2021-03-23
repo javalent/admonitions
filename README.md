@@ -1,6 +1,8 @@
 # Obsidian Admonition
 
-Adds admonition block-styled content to Obsidian.md
+Adds admonition block-styled content to Obsidian.md, styled after [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/reference/admonitions/)
+
+![](https://raw.githubusercontent.com/valentine195/obsidian-admonition/master/images/all.gif)
 
 ## Usage
 
@@ -12,9 +14,19 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et euismod nulla.
 ```
 ````
 
-This will then render as the admonition:
+Becomes:
 
-<img src="https://i.imgur.com/295CZkD.png">
+![](https://raw.githubusercontent.com/valentine195/obsidian-admonition/master/images/default.png)
+
+## Options
+
+````markdown
+```<type>               # Admonition type. See below for a list of available types.
+title:                  # Admonition title. Leave blank to remove the title element and display only the content.
+collapse:               # Create a collapsible admonition. Use "open" to initially render the admonition open.
+content:                # Actual text of admonition. Only required if "title" or "collapse" is used.
+```
+````
 
 ### Titles
 
@@ -27,9 +39,10 @@ content: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et euism
 ```
 ````
 
-<img src="https://i.imgur.com/pBTJAFa.png">
+![](https://raw.githubusercontent.com/valentine195/obsidian-admonition/master/images/title.png)
 
 Leave the title field blank to only display the admonition.
+
 ````markdown
 ```note
 title:
@@ -37,17 +50,21 @@ content: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et euism
 ```
 ````
 
-<img src="https://i.imgur.com/pNU2MB7.png">
+![](https://raw.githubusercontent.com/valentine195/obsidian-admonition/master/images/no-title.png)
 
-**Please note that when the title is included, you _must_ specificy the content as well.**
+**Please note that when the title is included, you _must_ specify the content as well.**
 
 ### Collapsible
 
-Use `collapse: open` or `collapse: closed` to create a collapsible admonition.
+Use the `collapse` parameter to create a collapsible admonition.
 
-`collapse: open` will startthe admonition opened on render.
+`collapse: open` will start the admonition opened on render, but allow collapse on click.
 
-<img width='640px' src="https://thumbs.gfycat.com/UniqueVillainousHarpseal-size_restricted.gif">
+If a blank title is provided, the collapse parameter will not do anything.
+
+![](https://raw.githubusercontent.com/valentine195/obsidian-admonition/master/images/collapse.gif)
+
+**Please note that when the title is included, you _must_ specify the content as well.**
 
 ## Admonition Types
 
