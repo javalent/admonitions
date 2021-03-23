@@ -21,7 +21,7 @@ Becomes:
 ## Options
 
 ````markdown
-```<type>               # Admonition type. See below for a list of available types.
+```<type> # Admonition type. See below for a list of available types.
 title:                  # Admonition title.
 collapse:               # Create a collapsible admonition.
 content:                # Actual text of admonition. Only required if "title" or "collapse" is used.
@@ -160,7 +160,7 @@ The admonition icons are svgs defined as variables on the `:root` with the name 
 
 ### Collapsible
 
-If an icon is collapsible, it will receive the following CSS:
+If an admonition is collapsible, it will receive the following CSS:
 
 ```css
 details.admonition:not([open]) {
@@ -215,10 +215,10 @@ An icon without a title will have this CSS:
 
 ## Todo
 
--   Add the ability to collapse the admonition
--   Custom admonitions
--   Settings tab to customize icon and color of included admonitions
--   Longterm - ability to render markdown inside an admonition
+-   [x] Add the ability to collapse the admonition
+-   [ ] Custom admonitions
+-   [ ] Settings tab to customize icon and color of all admonitions
+-   [ ] Longterm - ability to render markdown inside an admonition
 
 ## Installation
 
