@@ -64,7 +64,7 @@ If a blank title is provided, the collapse parameter will not do anything.
 
 ![](https://raw.githubusercontent.com/valentine195/obsidian-admonition/master/images/collapse.gif)
 
-**Please note that when the title is included, you _must_ specify the content as well.**
+**Please note that when the collapse parameter is included, you _must_ specify the content as well.**
 
 ## Admonition Types
 
