@@ -22,8 +22,8 @@ Becomes:
 
 ````markdown
 ```<type>               # Admonition type. See below for a list of available types.
-title:                  # Admonition title. Leave blank to remove the title element and display only the content.
-collapse:               # Create a collapsible admonition. Use "open" to initially render the admonition open.
+title:                  # Admonition title.
+collapse:               # Create a collapsible admonition.
 content:                # Actual text of admonition. Only required if "title" or "collapse" is used.
 ```
 ````
