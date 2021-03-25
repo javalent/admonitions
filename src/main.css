@@ -49,10 +49,6 @@
     display: none;
 }
 
-.admonition-content {
-    margin-bottom: 0.6rem;
-}
-
 .admonition > .admonition-title.no-title + .admonition-content {
     margin: 1em 0;
 }

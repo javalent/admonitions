@@ -28,6 +28,12 @@ content:                # Actual text of admonition. Only required if "title" or
 ```
 ````
 
+### Content
+
+Content is the actual text of the admonition.
+
+**Note: As of 0.2.0, this is no longer required.**
+
 ### Titles
 
 The admonition will render with the type of admonition by default. If you wish to customize the title, you can do so this way:
@@ -218,7 +224,7 @@ An icon without a title will have this CSS:
 -   [x] Add the ability to collapse the admonition
 -   [ ] Custom admonitions
 -   [ ] Settings tab to customize icon and color of all admonitions
--   [ ] Longterm - ability to render markdown inside an admonition
+-   [x] Ability to render markdown inside an admonition
 
 ## Installation
 

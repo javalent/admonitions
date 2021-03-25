@@ -1,4 +1,10 @@
-import { MarkdownPostProcessorContext, Notice, Plugin } from "obsidian";
+import {
+    MarkdownPostProcessorContext,
+    MarkdownRenderChild,
+    MarkdownRenderer,
+    Notice,
+    Plugin
+} from "obsidian";
 
 import "./main.css";
 
@@ -92,65 +98,136 @@ export default class ObsidianAdmonition extends Plugin {
 
         //render admonition element
         codeBlocks.forEach((block) => {
-            if (block) {
-                let type =
-                    ADMONITION_MAP[
-                        Array.prototype.find
-                            .call(block.classList, (cls: string) =>
-                                classMap.includes(cls)
-                            )
-                            .split("language-")
-                            .pop()
-                            .trim()
-                    ];
-                if (!type) {
-                    new Notice("There was an error rendering the admonition.");
-                    return;
-                }
-                let params = Object.fromEntries(
-                    block.innerText
-                        .split("\n")
-                        .map((l) => l.split(":").map((s) => s.trim()))
-                );
-                let {
-                    title = type[0].toUpperCase() + type.slice(1).toLowerCase(),
-                    content = block.innerText,
-                    collapse
-                } = params;
+            try {
+                if (block) {
+                    let type =
+                        ADMONITION_MAP[
+                            Array.prototype.find
+                                .call(block.classList, (cls: string) =>
+                                    classMap.includes(cls)
+                                )
+                                .split("language-")
+                                .pop()
+                                .trim()
+                        ];
+                    if (!type) {
+                        new Notice(
+                            "There was an error rendering the admonition."
+                        );
+                        return;
+                    }
 
-                if (
-                    Object.prototype.hasOwnProperty.call(params, "title") &&
-                    params.title === undefined &&
-                    params.collapse
-                ) {
-                    title = "";
-                }
-                if (
-                    Object.prototype.hasOwnProperty.call(params, "collapse") &&
-                    (params.collapse.length == 0 ||
-                        params.collapse === undefined ||
-                        collapse !== "open")
-                ) {
-                    collapse = "closed";
-                }
+                    /**
+                     * Find title and collapse parameters.
+                     */
+                    let innerText = block.innerText;
+                    let matchedParameters =
+                        innerText.match(
+                            /^\b(title|collapse)\b:([\s\S]*?)$/gm
+                        ) || [];
 
-                this.buildAdmonition(
-                    block.parentElement,
-                    type,
-                    title,
-                    content,
-                    collapse
+                    let params = Object.fromEntries(
+                        matchedParameters.map((p) =>
+                            p.split(/:\s?/).map((s) => s.trim())
+                        )
+                    );
+
+                    let {
+                        title = type[0].toUpperCase() +
+                            type.slice(1).toLowerCase(),
+                        collapse
+                    } = params;
+
+                    /**
+                     * Get the content. Content should be everything that is not the title or collapse parameters.
+                     * Remove any "content: " fields (legacy from < v0.2.0)
+                     */
+                    let content = innerText.replace(
+                        /^\b(title|collapse)\b:([\s\S]*?)$/gm,
+                        ""
+                    );
+                    content = content.replace(/^\bcontent\b:\s?/gm, "");
+
+                    /**
+                     * If the admonition should collapse, but something other than open or closed was provided, set to closed.
+                     */
+                    if (
+                        Object.prototype.hasOwnProperty.call(
+                            params,
+                            "collapse"
+                        ) &&
+                        (params.collapse.length == 0 ||
+                            params.collapse === undefined ||
+                            collapse !== "open")
+                    ) {
+                        collapse = "closed";
+                    }
+                    /**
+                     * If the admonition should collapse, but title was blanked, set the default title.
+                     */
+                    if (
+                        Object.prototype.hasOwnProperty.call(params, "title") &&
+                        (params.title === undefined ||
+                            params.title.length === 0) &&
+                        collapse
+                    ) {
+                        title =
+                            type[0].toUpperCase() + type.slice(1).toLowerCase();
+                        new Notice(
+                            "An admonition must have a title if it is collapsible."
+                        );
+                    }
+
+                    /**
+                     * Build the correct admonition element.
+                     * Collapsible -> <details> <summary> Title </summary> <div> Content </div> </details>
+                     * Regular -> <div> <div> Title </div> <div> Content </div> </div>
+                     */
+                    let admonitionElement = this.getAdmonitionElement(
+                        type,
+                        title,
+                        collapse
+                    );
+
+                    /**
+                     * Create a unloadable component.
+                     */
+                    let admonitionContent = admonitionElement.createDiv({
+                        cls: "admonition-content"
+                    });
+                    let markdownRenderChild = new MarkdownRenderChild();
+                    markdownRenderChild.containerEl = admonitionElement;
+
+                    /**
+                     * Render the content as markdown and append it to the admonition.
+                     */
+                    MarkdownRenderer.renderMarkdown(
+                        content,
+                        admonitionContent,
+                        this.app.workspace.getActiveFile()?.path,
+                        markdownRenderChild
+                    );
+
+                    /**
+                     * Replace the <pre> tag with the new admonition.
+                     */
+                    block.parentElement.parentElement.replaceChild(
+                        admonitionElement,
+                        block.parentElement
+                    );
+                }
+            } catch (e) {
+                new Notice(
+                    "There was an error rendering the admonition element."
                 );
             }
         });
     }
-    buildAdmonition(
-        el: HTMLElement,
+    getAdmonitionElement(
         type: string,
         title: string,
-        content: string,
         collapse?: string
-    ) {
+    ): HTMLElement {
         let attrs,
             els: Array<keyof HTMLElementTagNameMap> = ["div", "div"];
         if (collapse) {
@@ -168,12 +245,8 @@ export default class ObsidianAdmonition extends Plugin {
             cls: `admonition-title ${!title.trim().length ? "no-title" : ""}`,
             text: title
         });
-        admonition.createEl("p", {
-            cls: "admonition-content",
-            text: content
-        });
 
-        el.parentElement.replaceChild(admonition, el);
+        return admonition;
     }
     onunload() {
         console.log("Obsidian Admonition unloaded");
