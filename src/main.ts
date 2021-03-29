@@ -50,16 +50,7 @@ export default class ObsidianAdmonition extends Plugin {
                 this.postprocessor.bind(this, type)
             )
         );
-        //this.registerMarkdownPostProcessor(this.postprocessor.bind(this));
     }
-    /*     postprocessor(
-        type: string,
-        src: string,
-        el: HTMLElement,
-        ctx: MarkdownPostProcessorContext
-    ) {
-        console.log(...arguments);
-    } */
     postprocessor(
         type: string,
         src: string,
