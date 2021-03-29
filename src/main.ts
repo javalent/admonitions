@@ -182,28 +182,35 @@ export default class ObsidianAdmonition extends Plugin {
         title: string,
         collapse?: string
     ): HTMLElement {
-        let attrs,
-            els: Array<keyof HTMLElementTagNameMap> = ["div", "div"];
+        let admonition;
         if (collapse) {
-            els = ["details", "summary"];
+            let attrs;
             if (collapse === "open") {
                 attrs = { open: "open" };
             } else {
                 attrs = {};
             }
-            /* attrs = {
-                [collapse]: true
-            }; */
+            admonition = createEl("details", {
+                cls: `admonition admonition-${type}`,
+                attr: attrs
+            });
+            admonition.createEl("summary", {
+                cls: `admonition-title ${
+                    !title.trim().length ? "no-title" : ""
+                }`,
+                text: title
+            });
+        } else {
+            admonition = createDiv({
+                cls: `admonition admonition-${type}`
+            });
+            admonition.createDiv({
+                cls: `admonition-title ${
+                    !title.trim().length ? "no-title" : ""
+                }`,
+                text: title
+            });
         }
-
-        let admonition = createEl(els[0], {
-            cls: `admonition admonition-${type}`,
-            attr: attrs
-        });
-        admonition.createEl(els[1], {
-            cls: `admonition-title ${!title.trim().length ? "no-title" : ""}`,
-            text: title
-        });
 
         return admonition;
     }
