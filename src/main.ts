@@ -39,189 +39,124 @@ const ADMONITION_MAP: {
     quote: "quote",
     cite: "quote"
 };
-const classMap = Object.keys(ADMONITION_MAP).map((k) => `language-${k}`);
 
-/** Fast Intersection taken from
- * https://codeburst.io/optimizing-array-analytics-in-javascript-part-two-search-intersection-and-cross-products-79b4a6d68da0
- */
-const fastIntersection = (...arrays: any[]) => {
-    // if we process the arrays from shortest to longest
-    // then we will identify failure points faster, i.e. when
-    // one item is not in all arrays
-    const ordered =
-            arrays.length === 1
-                ? arrays
-                : arrays.sort((a1, a2) => a1.length - a2.length),
-        shortest = ordered[0],
-        set = new Set(), // used for bookeeping, Sets are faster
-        result = []; // the intersection, conversion from Set is slow
-    // for each item in the shortest array
-    for (let i = 0; i < shortest.length; i++) {
-        const item = shortest[i];
-        // see if item is in every subsequent array
-        let every = true; // don't use ordered.every ... it is slow
-        for (let j = 1; j < ordered.length; j++) {
-            if (ordered[j].includes(item)) continue;
-            every = false;
-            break;
-        }
-        // ignore if not in every other array, or if already captured
-        if (!every || set.has(item)) continue;
-        // otherwise, add to bookeeping set and the result
-        set.add(item);
-        result[result.length] = item;
-    }
-    return result;
-};
 export default class ObsidianAdmonition extends Plugin {
     async onload(): Promise<void> {
         console.log("Obsidian Admonition loaded");
 
-        this.registerMarkdownPostProcessor(this.postprocessor.bind(this));
-    }
-    postprocessor(el: HTMLElement, ctx: MarkdownPostProcessorContext) {
-        //don't process if no code elements in element;
-        let codeBlocks = el.querySelectorAll("code");
-        if (!codeBlocks.length) return;
-
-        //don't process if the code block is not an admonition type
-        codeBlocks = Array.prototype.filter.call(
-            codeBlocks,
-            (element: HTMLElement) =>
-                element &&
-                fastIntersection(
-                    Array.prototype.slice.call(element.classList),
-                    classMap
-                ).length > 0
+        Object.keys(ADMONITION_MAP).forEach((type) =>
+            this.registerMarkdownCodeBlockProcessor(
+                type,
+                this.postprocessor.bind(this, type)
+            )
         );
-        if (!codeBlocks.length) return;
+        //this.registerMarkdownPostProcessor(this.postprocessor.bind(this));
+    }
+    /*     postprocessor(
+        type: string,
+        src: string,
+        el: HTMLElement,
+        ctx: MarkdownPostProcessorContext
+    ) {
+        console.log(...arguments);
+    } */
+    postprocessor(
+        type: string,
+        src: string,
+        el: HTMLElement,
+        ctx: MarkdownPostProcessorContext
+    ) {
+        try {
+            /**
+             * Find title and collapse parameters.
+             */
+            let matchedParameters =
+                src.match(/^\b(title|collapse)\b:([\s\S]*?)$/gm) || [];
 
-        //render admonition element
-        codeBlocks.forEach((block) => {
-            try {
-                if (block) {
-                    let type =
-                        ADMONITION_MAP[
-                            Array.prototype.find
-                                .call(block.classList, (cls: string) =>
-                                    classMap.includes(cls)
-                                )
-                                .split("language-")
-                                .pop()
-                                .trim()
-                        ];
-                    if (!type) {
-                        new Notice(
-                            "There was an error rendering the admonition."
-                        );
-                        return;
-                    }
+            let params = Object.fromEntries(
+                matchedParameters.map((p) =>
+                    p.split(/:\s?/).map((s) => s.trim())
+                )
+            );
 
-                    /**
-                     * Find title and collapse parameters.
-                     */
-                    let innerText = block.innerText;
-                    let matchedParameters =
-                        innerText.match(
-                            /^\b(title|collapse)\b:([\s\S]*?)$/gm
-                        ) || [];
+            let {
+                title = type[0].toUpperCase() + type.slice(1).toLowerCase(),
+                collapse
+            } = params;
 
-                    let params = Object.fromEntries(
-                        matchedParameters.map((p) =>
-                            p.split(/:\s?/).map((s) => s.trim())
-                        )
-                    );
+            /**
+             * Get the content. Content should be everything that is not the title or collapse parameters.
+             * Remove any "content: " fields (legacy from < v0.2.0)
+             */
+            let content = src.replace(
+                /^\b(title|collapse)\b:([\s\S]*?)$/gm,
+                ""
+            );
+            content = content.replace(/^\bcontent\b:\s?/gm, "");
 
-                    let {
-                        title = type[0].toUpperCase() +
-                            type.slice(1).toLowerCase(),
-                        collapse
-                    } = params;
-
-                    /**
-                     * Get the content. Content should be everything that is not the title or collapse parameters.
-                     * Remove any "content: " fields (legacy from < v0.2.0)
-                     */
-                    let content = innerText.replace(
-                        /^\b(title|collapse)\b:([\s\S]*?)$/gm,
-                        ""
-                    );
-                    content = content.replace(/^\bcontent\b:\s?/gm, "");
-
-                    /**
-                     * If the admonition should collapse, but something other than open or closed was provided, set to closed.
-                     */
-                    if (
-                        Object.prototype.hasOwnProperty.call(
-                            params,
-                            "collapse"
-                        ) &&
-                        (params.collapse.length == 0 ||
-                            params.collapse === undefined ||
-                            collapse !== "open")
-                    ) {
-                        collapse = "closed";
-                    }
-                    /**
-                     * If the admonition should collapse, but title was blanked, set the default title.
-                     */
-                    if (
-                        Object.prototype.hasOwnProperty.call(params, "title") &&
-                        (params.title === undefined ||
-                            params.title.length === 0) &&
-                        collapse
-                    ) {
-                        title =
-                            type[0].toUpperCase() + type.slice(1).toLowerCase();
-                        new Notice(
-                            "An admonition must have a title if it is collapsible."
-                        );
-                    }
-
-                    /**
-                     * Build the correct admonition element.
-                     * Collapsible -> <details> <summary> Title </summary> <div> Content </div> </details>
-                     * Regular -> <div> <div> Title </div> <div> Content </div> </div>
-                     */
-                    let admonitionElement = this.getAdmonitionElement(
-                        type,
-                        title,
-                        collapse
-                    );
-
-                    /**
-                     * Create a unloadable component.
-                     */
-                    let admonitionContent = admonitionElement.createDiv({
-                        cls: "admonition-content"
-                    });
-                    let markdownRenderChild = new MarkdownRenderChild();
-                    markdownRenderChild.containerEl = admonitionElement;
-
-                    /**
-                     * Render the content as markdown and append it to the admonition.
-                     */
-                    MarkdownRenderer.renderMarkdown(
-                        content,
-                        admonitionContent,
-                        this.app.workspace.getActiveFile()?.path,
-                        markdownRenderChild
-                    );
-
-                    /**
-                     * Replace the <pre> tag with the new admonition.
-                     */
-                    block.parentElement.parentElement.replaceChild(
-                        admonitionElement,
-                        block.parentElement
-                    );
-                }
-            } catch (e) {
+            /**
+             * If the admonition should collapse, but something other than open or closed was provided, set to closed.
+             */
+            if (
+                Object.prototype.hasOwnProperty.call(params, "collapse") &&
+                (params.collapse.length == 0 ||
+                    params.collapse === undefined ||
+                    collapse !== "open")
+            ) {
+                collapse = "closed";
+            }
+            /**
+             * If the admonition should collapse, but title was blanked, set the default title.
+             */
+            if (
+                Object.prototype.hasOwnProperty.call(params, "title") &&
+                (params.title === undefined || params.title.length === 0) &&
+                collapse
+            ) {
+                title = type[0].toUpperCase() + type.slice(1).toLowerCase();
                 new Notice(
-                    "There was an error rendering the admonition element."
+                    "An admonition must have a title if it is collapsible."
                 );
             }
-        });
+
+            /**
+             * Build the correct admonition element.
+             * Collapsible -> <details> <summary> Title </summary> <div> Content </div> </details>
+             * Regular -> <div> <div> Title </div> <div> Content </div> </div>
+             */
+            let admonitionElement = this.getAdmonitionElement(
+                type,
+                title,
+                collapse
+            );
+
+            /**
+             * Create a unloadable component.
+             */
+            let admonitionContent = admonitionElement.createDiv({
+                cls: "admonition-content"
+            });
+            let markdownRenderChild = new MarkdownRenderChild();
+            markdownRenderChild.containerEl = admonitionElement;
+
+            /**
+             * Render the content as markdown and append it to the admonition.
+             */
+            MarkdownRenderer.renderMarkdown(
+                content,
+                admonitionContent,
+                //@ts-expect-error
+                ctx.sourcePath,
+                markdownRenderChild
+            );
+
+            /**
+             * Replace the <pre> tag with the new admonition.
+             */
+            el.parentElement.replaceChild(admonitionElement, el);
+        } catch (e) {
+            new Notice("There was an error rendering the admonition element.");
+        }
     }
     getAdmonitionElement(
         type: string,
@@ -232,9 +167,14 @@ export default class ObsidianAdmonition extends Plugin {
             els: Array<keyof HTMLElementTagNameMap> = ["div", "div"];
         if (collapse) {
             els = ["details", "summary"];
-            attrs = {
+            if (collapse === "open") {
+                attrs = { open: "open" };
+            } else {
+                attrs = {};
+            }
+            /* attrs = {
                 [collapse]: true
-            };
+            }; */
         }
 
         let admonition = createEl(els[0], {
