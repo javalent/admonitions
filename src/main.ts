@@ -6,6 +6,14 @@ import {
     Plugin
 } from "obsidian";
 
+import fromEntries from "object.fromentries";
+if (!Object.fromEntries) {
+    //incorrect @types definition
+    //I tested that this correctly shims without error
+    //@ts-expect-error
+    fromEntries.shim();
+}
+
 import "./main.css";
 
 const ADMONITION_MAP: {
@@ -136,7 +144,6 @@ export default class ObsidianAdmonition extends Plugin {
             MarkdownRenderer.renderMarkdown(
                 content,
                 admonitionContent,
-                //@ts-expect-error
                 ctx.sourcePath,
                 markdownRenderChild
             );
@@ -144,9 +151,30 @@ export default class ObsidianAdmonition extends Plugin {
             /**
              * Replace the <pre> tag with the new admonition.
              */
-            el.parentElement.replaceChild(admonitionElement, el);
+            el.replaceWith(admonitionElement);
         } catch (e) {
-            new Notice("There was an error rendering the admonition element.");
+            console.error(e);
+            const pre = createEl("pre");
+            const textError = getComputedStyle(document.body).getPropertyValue(
+                "--text-error"
+            )
+                ? getComputedStyle(document.body).getPropertyValue(
+                      "--text-error"
+                  )
+                : "#ff3333";
+
+            pre.createEl("code", {
+                attr: {
+                    style: `color: ${textError.trim()} !important`
+                }
+            }).createSpan({
+                text:
+                    "There was an error rendering the admonition:" +
+                    "\n\n" +
+                    src
+            });
+
+            el.replaceWith(pre);
         }
     }
     getAdmonitionElement(
