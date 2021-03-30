@@ -230,21 +230,22 @@ An icon without a title will have this CSS:
 
 ## 1.0.0
 
-- Community plugin release
-- Bug fixes
+-   Community plugin release
+-   Bug fixes
 
 ## 0.2.0
 
-- Uses Obsidian's native markdown renderer to render admonition content
-- Removed requirement to use the `content:` tag if `title:` or `collapse:` is set
+-   Uses Obsidian's native markdown renderer to render admonition content
+-   Removed requirement to use the `content:` tag if `title:` or `collapse:` is set
 
 ## 0.0.5
 
-- Added `collapse:` parameter to create collapsible admonitions
+-   Added `collapse:` parameter to create collapsible admonitions
 
 ## 0.0.1
 
-- Release
+-   Release
+
 # Installation
 
 ## From within Obsidian
@@ -276,3 +277,10 @@ You can follow the same procedure to update the plugin
 
 This plugin comes with no guarantee of stability and bugs may delete data.
 Please ensure you have automated backups.
+
+# TTRPG plugins
+
+If you're using Obsidian to run/plan a TTRPG, you may find my other plugin useful:
+
+-   [Obsidian Leaflet](https://github.com/valentine195/obsidian-leaflet-plugin) - Add interactive maps to Obsidian.md notes
+-   [Dice Roller](https://github.com/valentine195/obsidian-dice-roller) - Roll & re-roll dice in notes
