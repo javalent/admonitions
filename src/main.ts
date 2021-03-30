@@ -6,7 +6,7 @@ import {
     Plugin
 } from "obsidian";
 
-import fromEntries from "object.fromentries";
+import fromEntries from "object.fromentries/index";
 if (!Object.fromEntries) {
     //incorrect @types definition
     //I tested that this correctly shims without error
@@ -155,17 +155,10 @@ export default class ObsidianAdmonition extends Plugin {
         } catch (e) {
             console.error(e);
             const pre = createEl("pre");
-            const textError = getComputedStyle(document.body).getPropertyValue(
-                "--text-error"
-            )
-                ? getComputedStyle(document.body).getPropertyValue(
-                      "--text-error"
-                  )
-                : "#ff3333";
 
             pre.createEl("code", {
                 attr: {
-                    style: `color: ${textError.trim()} !important`
+                    style: `color: var(--text-error) !important`
                 }
             }).createSpan({
                 text:
