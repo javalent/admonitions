@@ -32,7 +32,7 @@ content:                # Actual text of admonition. Only required if "title" or
 
 Content is the actual text of the admonition.
 
-**Note: As of 0.2.0, this is no longer required.**
+**Note: As of 0.2.0, this is no longer required. Anything other than `title:` and `collapse:` will be included as the content.**
 
 ### Titles
 
@@ -226,19 +226,53 @@ An icon without a title will have this CSS:
 -   [ ] Settings tab to customize icon and color of all admonitions
 -   [x] Ability to render markdown inside an admonition
 
-## Installation
+# Version History
 
-### From GitHub
+## 1.0.0
+
+- Community plugin release
+- Bug fixes
+
+## 0.2.0
+
+- Uses Obsidian's native markdown renderer to render admonition content
+- Removed requirement to use the `content:` tag if `title:` or `collapse:` is set
+
+## 0.0.5
+
+- Added `collapse:` parameter to create collapsible admonitions
+
+## 0.0.1
+
+- Release
+# Installation
+
+## From within Obsidian
+
+From Obsidian v0.9.8, you can activate this plugin within Obsidian by doing the following:
+
+-   Open Settings > Third-party plugin
+-   Make sure Safe mode is **off**
+-   Click Browse community plugins
+-   Search for this plugin
+-   Click Install
+-   Once installed, close the community plugins window and activate the newly installed plugin
+
+## From GitHub
 
 -   Download the Latest Release from the Releases section of the GitHub Repository
--   Copy the `main.js`, `styles.css` and `manifest.json` files from the release to your vault's plugins folder: `<vault>/.obsidian/plugins/`  
+-   Extract the plugin folder from the zip to your vault's plugins folder: `<vault>/.obsidian/plugins/`  
     Note: On some machines the `.obsidian` folder may be hidden. On MacOS you should be able to press `Command+Shift+Dot` to show the folder in Finder.
 -   Reload Obsidian
 -   If prompted about Safe Mode, you can disable safe mode and enable the plugin.
     Otherwise head to Settings, third-party plugins, make sure safe mode is off and
     enable the plugin from there.
 
-## Warning
+### Updates
+
+You can follow the same procedure to update the plugin
+
+# Warning
 
 This plugin comes with no guarantee of stability and bugs may delete data.
 Please ensure you have automated backups.
