@@ -9,7 +9,7 @@ Adds admonition block-styled content to Obsidian.md, styled after [Material for 
 Place a code block with the admonition type:
 
 ````markdown
-```note
+```ad-note
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et euismod nulla.
 ```
 ````
@@ -21,7 +21,7 @@ Becomes:
 ## Options
 
 ````markdown
-```<type> # Admonition type. See below for a list of available types.
+```ad-<type> # Admonition type. See below for a list of available types.
 title:                  # Admonition title.
 collapse:               # Create a collapsible admonition.
 content:                # Actual text of admonition. Only required if "title" or "collapse" is used.
@@ -39,7 +39,7 @@ Content is the actual text of the admonition.
 The admonition will render with the type of admonition by default. If you wish to customize the title, you can do so this way:
 
 ````markdown
-```note
+```ad-note
 title: Title
 content: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et euismod nulla.
 ```
@@ -50,7 +50,7 @@ content: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et euism
 Leave the title field blank to only display the admonition.
 
 ````markdown
-```note
+```ad-note
 title:
 content: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et euismod nulla.
 ```
@@ -227,6 +227,10 @@ An icon without a title will have this CSS:
 -   [x] Ability to render markdown inside an admonition
 
 # Version History
+
+## 2.0.0
+
+-   To maintain compatibility with other plugins, admonition types must now be prefixed with `ad-` (as in, `ad-note`).
 
 ## 1.0.0
 

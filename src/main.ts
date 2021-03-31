@@ -54,10 +54,11 @@ export default class ObsidianAdmonition extends Plugin {
 
         Object.keys(ADMONITION_MAP).forEach((type) =>
             this.registerMarkdownCodeBlockProcessor(
-                type,
+                `ad-${type}`,
                 this.postprocessor.bind(this, type)
             )
         );
+
     }
     postprocessor(
         type: string,
