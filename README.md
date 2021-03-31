@@ -2,11 +2,12 @@
 
 Adds admonition block-styled content to Obsidian.md, styled after [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/reference/admonitions/)
 
+**Please note, as of 2.0.0, all admonitions must be prefixed with `ad-`**
+
 ![](https://raw.githubusercontent.com/valentine195/obsidian-admonition/master/images/all.gif)
 
 ## Usage
 
-**Please note, as of 2.0.0, all admonitions must be prefixed with `ad-`**
 
 Place a code block with the admonition type:
 
