@@ -6,13 +6,34 @@ import {
     Plugin
 } from "obsidian";
 
-import fromEntries from "object.fromentries/index";
-if (!Object.fromEntries) {
-    //incorrect @types definition
-    //I tested that this correctly shims without error
-    //@ts-expect-error
-    fromEntries.shim();
-}
+Object.fromEntries =
+    Object.fromEntries ||
+    /** Polyfill taken from https://github.com/tc39/proposal-object-from-entries/blob/master/polyfill.js */
+    function <T = any>(
+        entries: Iterable<readonly [PropertyKey, T]>
+    ): { [k: string]: T } {
+        const obj = {};
+
+        for (const pair of entries) {
+            if (Object(pair) !== pair) {
+                throw new TypeError(
+                    "iterable for fromEntries should yield objects"
+                );
+            }
+            // Consistency with Map: contract is that entry has "0" and "1" keys, not
+            // that it is an array or iterable.
+            const { "0": key, "1": val } = pair;
+
+            Object.defineProperty(obj, key, {
+                configurable: true,
+                enumerable: true,
+                writable: true,
+                value: val
+            });
+        }
+
+        return obj;
+    };
 
 import "./main.css";
 
@@ -58,7 +79,6 @@ export default class ObsidianAdmonition extends Plugin {
                 this.postprocessor.bind(this, type)
             )
         );
-
     }
     postprocessor(
         type: string,
