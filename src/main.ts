@@ -5,6 +5,8 @@ import {
     Notice,
     Plugin
 } from "obsidian";
+import { Admonition, ObsidianAdmonitionPlugin } from "../@types/types";
+import { findIconDefinition, icon } from "./icons";
 
 Object.fromEntries =
     Object.fromEntries ||
@@ -36,44 +38,105 @@ Object.fromEntries =
     };
 
 import "./main.css";
+import AdmonitionSetting from "./settings";
 
 const ADMONITION_MAP: {
-    [admonitionType: string]: string;
+    [admonitionType: string]: Admonition;
 } = {
-    note: "note",
-    seealso: "note",
-    abstract: "abstract",
-    summary: "abstract",
-    info: "info",
-    todo: "todo",
-    tip: "tip",
-    hint: "tip",
-    important: "tip",
-    success: "success",
-    check: "check",
-    done: "done",
-    question: "question",
-    help: "question",
-    faq: "question",
-    warning: "warning",
-    caution: "warning",
-    attention: "warning",
-    failure: "failure",
-    fail: "failure",
-    missing: "failure",
-    danger: "danger",
-    error: "danger",
-    bug: "bug",
-    example: "example",
-    quote: "quote",
-    cite: "quote"
+    note: { type: "note", color: "68, 138, 255", icon: "pencil-alt" },
+    seealso: { type: "note", color: "68, 138, 255", icon: "pencil-alt" },
+    abstract: { type: "abstract", color: "0, 176, 255", icon: "book" },
+    summary: { type: "abstract", color: "0, 176, 255", icon: "book" },
+    info: { type: "info", color: "0, 184, 212", icon: "info-circle" },
+    todo: { type: "info", color: "0, 184, 212", icon: "info-circle" },
+    tip: { type: "tip", color: "0, 191, 165", icon: "fire" },
+    hint: { type: "tip", color: "0, 191, 165", icon: "fire" },
+    important: { type: "tip", color: "0, 191, 165", icon: "fire" },
+    success: { type: "success", color: "0, 200, 83", icon: "check-circle" },
+    check: { type: "success", color: "0, 200, 83", icon: "check-circle" },
+    done: { type: "success", color: "0, 200, 83", icon: "check-circle" },
+    question: {
+        type: "question",
+        color: "100, 221, 23",
+        icon: "question-circle"
+    },
+    help: { type: "question", color: "100, 221, 23", icon: "question-circle" },
+    faq: { type: "question", color: "100, 221, 23", icon: "question-circle" },
+    warning: {
+        type: "warning",
+        color: "255, 145, 0",
+        icon: "exclamation-triangle"
+    },
+    caution: {
+        type: "warning",
+        color: "255, 145, 0",
+        icon: "exclamation-triangle"
+    },
+    attention: {
+        type: "warning",
+        color: "255, 145, 0",
+        icon: "exclamation-triangle"
+    },
+    failure: { type: "failure", color: "255, 82, 82", icon: "times-circle" },
+    fail: { type: "failure", color: "255, 82, 82", icon: "times-circle" },
+    missing: { type: "failure", color: "255, 82, 82", icon: "times-circle" },
+    danger: { type: "danger", color: "255, 23, 68", icon: "bolt" },
+    error: { type: "danger", color: "255, 23, 68", icon: "bolt" },
+    bug: { type: "bug", color: "245, 0, 87", icon: "bug" },
+    example: { type: "example", color: "124, 77, 255", icon: "list-ol" },
+    quote: { type: "quote", color: "158, 158, 158", icon: "quote-right" },
+    cite: { type: "quote", color: "158, 158, 158", icon: "quote-right" }
 };
+export default class ObsidianAdmonition
+    extends Plugin
+    implements ObsidianAdmonitionPlugin {
+    admonitions: { [admonitionType: string]: Admonition } = {};
+    userAdmonitions: { [admonitionType: string]: Admonition } = {};
+    async saveSettings() {
+        await this.saveData(this.userAdmonitions);
+    }
+    async loadSettings() {
+        this.userAdmonitions = await this.loadData();
 
-export default class ObsidianAdmonition extends Plugin {
+        this.admonitions = {
+            ...ADMONITION_MAP,
+            ...this.userAdmonitions
+        };
+    }
+    async addAdmonition(admonition: Admonition): Promise<void> {
+        this.userAdmonitions = {
+            ...this.userAdmonitions,
+            [admonition.type]: admonition
+        };
+        this.admonitions = {
+            ...ADMONITION_MAP,
+            ...this.userAdmonitions
+        };
+        this.registerMarkdownCodeBlockProcessor(
+            `ad-${admonition.type}`,
+            this.postprocessor.bind(this, admonition.type)
+        );
+        await this.saveSettings();
+    }
+
+    async removeAdmonition(admonition: Admonition) {
+        if (this.userAdmonitions[admonition.type]) {
+            delete this.userAdmonitions[admonition.type];
+        }
+        this.admonitions = {
+            ...ADMONITION_MAP,
+            ...this.userAdmonitions
+        };
+        await this.saveSettings();
+    }
     async onload(): Promise<void> {
         console.log("Obsidian Admonition loaded");
 
-        Object.keys(ADMONITION_MAP).forEach((type) =>
+        await this.loadSettings();
+
+        this.addSettingTab(new AdmonitionSetting(this.app, this));
+
+        Object.keys(this.admonitions).forEach((type) =>
             this.registerMarkdownCodeBlockProcessor(
                 `ad-${type}`,
                 this.postprocessor.bind(this, type)
@@ -86,6 +149,9 @@ export default class ObsidianAdmonition extends Plugin {
         el: HTMLElement,
         ctx: MarkdownPostProcessorContext
     ) {
+        if (!this.admonitions[type]) {
+            return;
+        }
         try {
             /**
              * Find title and collapse parameters.
@@ -196,39 +262,47 @@ export default class ObsidianAdmonition extends Plugin {
         title: string,
         collapse?: string
     ): HTMLElement {
-        let admonition;
+        let admonition,
+            titleEl,
+            attrs: { style: string; open?: string } = {
+                style: `--admonition-color: ${this.admonitions[type].color};`
+            };
         if (collapse) {
-            let attrs;
             if (collapse === "open") {
-                attrs = { open: "open" };
-            } else {
-                attrs = {};
+                attrs.open = "open";
             }
             admonition = createEl("details", {
                 cls: `admonition admonition-${type}`,
                 attr: attrs
             });
-            admonition.createEl("summary", {
+            titleEl = admonition.createEl("summary", {
                 cls: `admonition-title ${
                     !title.trim().length ? "no-title" : ""
-                }`,
-                text: title
+                }`
             });
         } else {
             admonition = createDiv({
-                cls: `admonition admonition-${type}`
+                cls: `admonition admonition-${type}`,
+                attr: attrs
             });
-            admonition.createDiv({
+            titleEl = admonition.createDiv({
                 cls: `admonition-title ${
                     !title.trim().length ? "no-title" : ""
-                }`,
-                text: title
+                }`
             });
         }
 
+        titleEl.createDiv({
+            cls: `admonition-title-icon`
+        }).innerHTML = icon(
+            findIconDefinition({
+                iconName: this.admonitions[type].icon
+            })
+        ).html[0];
+        titleEl.createSpan({ text: title });
         return admonition;
     }
-    onunload() {
+    async onunload() {
         console.log("Obsidian Admonition unloaded");
     }
 }

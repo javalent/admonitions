@@ -8,7 +8,6 @@ Adds admonition block-styled content to Obsidian.md, styled after [Material for 
 
 ## Usage
 
-
 Place a code block with the admonition type:
 
 ````markdown
@@ -27,7 +26,9 @@ Becomes:
 ```ad-<type> # Admonition type. See below for a list of available types.
 title:                  # Admonition title.
 collapse:               # Create a collapsible admonition.
-content:                # Actual text of admonition. Only required if "title" or "collapse" is used.
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et euismod nulla.
+
 ```
 ````
 
@@ -44,7 +45,7 @@ The admonition will render with the type of admonition by default. If you wish t
 ````markdown
 ```ad-note
 title: Title
-content: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et euismod nulla.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et euismod nulla.
 ```
 ````
 
@@ -55,13 +56,11 @@ Leave the title field blank to only display the admonition.
 ````markdown
 ```ad-note
 title:
-content: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et euismod nulla.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et euismod nulla.
 ```
 ````
 
 ![](https://raw.githubusercontent.com/valentine195/obsidian-admonition/master/images/no-title.png)
-
-**Please note that when the title is included, you _must_ specify the content as well.**
 
 ### Collapsible
 
@@ -73,7 +72,6 @@ If a blank title is provided, the collapse parameter will not do anything.
 
 ![](https://raw.githubusercontent.com/valentine195/obsidian-admonition/master/images/collapse.gif)
 
-**Please note that when the collapse parameter is included, you _must_ specify the content as well.**
 
 ## Admonition Types
 
@@ -96,6 +94,20 @@ The following admonition types are currently supported:
 
 See [this](https://squidfunk.github.io/mkdocs-material/reference/admonitions/) for a reference of what these admonitions look like.
 
+The default admonitions are customizable by creating a user-defined admonition of the same name.
+
+## Custom Admonitions
+
+Custom admonitions may be created in settings.
+
+Creating a new admonition requires three things: the type, the icon to use, and the color of the admonition.
+
+Only one admonition of each type may exist at any given time; if another admonition of the same type is created, it will override the previously created one.
+
+If a default admonition is overridden, it can be restored by deleting the user-defined admonition.
+
+Please note that by default, the background color of the title is simply the color of the admonition at 10% opacity. CSS must be used to update this.
+
 ## Customization
 
 This is all of the CSS applied to the admonitions. Override these classes to customize the look.
@@ -112,59 +124,50 @@ Every admonition receives the following CSS classes:
     color: var(--text-normal);
     page-break-inside: avoid;
     background-color: var(--background-secondary);
-    border-left: 0.2rem solid;
+    border-left: 0.2rem solid rgb(var(--admonition-color));
     border-radius: 0.1rem;
     box-shadow: 0 0.2rem 0.5rem var(--background-modifier-box-shadow);
 }
-.admonition-title::before {
-    position: absolute;
-    left: 0.6rem;
-    width: 1.25rem;
-    height: 1.25rem;
-    content: "";
-    -webkit-mask-repeat: no-repeat;
-    mask-repeat: no-repeat;
-    -webkit-mask-size: contain;
-    mask-size: contain;
-}
+
 .admonition-title {
     position: relative;
     margin: 0 -0.6rem 0 -0.8rem;
     padding: 0.4rem 0.6rem 0.4rem 2rem;
     font-weight: 700;
-    background-color: rgba(68, 138, 255, 0.1);
     border-left: 0.2rem solid;
+    background-color: rgba(var(--admonition-color), 0.1);
 }
-.admonition-content {
-    margin-bottom: 0.6rem;
+
+.admonition-title-icon {
+    position: absolute;
+    left: 0.6rem;
+    width: 1.25rem;
+    height: 1.25rem;
+    color: rgb(var(--admonition-color));
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.admonition-title.no-title {
+    display: none;
+}
+
+.admonition > .admonition-title.no-title + .admonition-content {
+    margin: 1em 0;
 }
 ```
 
-### Type Specific
+***Please note, as of 3.0.0, the admonition colors are no longer set in the CSS.***
 
-Additionally, each admonition type will receive the `.admonition-<type>` class:
+Each admonition receives the `.admonition-<type>` class. You can use this selector to override specific admonition types, but the plugin does not add any styling using this selector by default.
+
+To set the color of admonition types via CSS, specific the following the `--admonition-color` variable ***as an RGB triad***:
 
 ```css
-/* Example of .admonition-note */
 .admonition-note {
-    border-color: #448aff;
+    --admonition-color: 68, 138, 255 !important;
 }
-.admonition-note > .admonition-title {
-    background-color: rgba(68, 138, 255, 0.1);
-}
-.admonition-note > .admonition-title::before {
-    background-color: #448aff;
-    -webkit-mask-image: var(--admonition-icon--note);
-    mask-image: var(--admonition-icon--note);
-}
-```
-
-#### Type Icons
-
-The admonition icons are svgs defined as variables on the `:root` with the name `--admonition-icon--<type>`. Override this variable to customize the icon. Example:
-
-```css
---admonition-icon--quote: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M14 17h3l2-4V7h-6v6h3M6 17h3l2-4V7H5v6h3l-2 4z'/></svg>");
 ```
 
 ### Collapsible
@@ -225,11 +228,18 @@ An icon without a title will have this CSS:
 ## Todo
 
 -   [x] Add the ability to collapse the admonition
--   [ ] Custom admonitions
--   [ ] Settings tab to customize icon and color of all admonitions
+-   [x] Custom admonitions
+-   [x] Settings tab to customize icon and color of all admonitions
 -   [x] Ability to render markdown inside an admonition
 
 # Version History
+
+## 3.0.0
+
+- Added ability to create custom admonitions via Settings
+  - Color, icon, and admonition-type are customizable
+  - Default admonitions can be overridden by creating a custom admonition of the same type
+  - Delete the custom admonition to restore default
 
 ## 2.0.0
 
