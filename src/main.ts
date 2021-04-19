@@ -247,10 +247,21 @@ export default class ObsidianAdmonition
                     i
                 ].querySelectorAll(".task-list-item");
                 if (!tasks.length) continue;
-                for (let j = 0, task = tasks[j]; j < tasks.length; j++) {
+                for (let j = 0; j < tasks.length; j++) {
+                    let task = tasks[j];
                     if (!task.children.length) continue;
+                    const inputs = task.querySelectorAll(
+                        "input[type='checkbox']"
+                    ) as NodeListOf<HTMLInputElement>;
+                    if (!inputs.length) continue;
+                    const input = inputs[0];
 
-                    let innerText = task.getText().replace(/\n/g, "");
+                    if (
+                        !input.nextSibling ||
+                        input.nextSibling.nodeName != "#text"
+                    )
+                        continue;
+                    const innerText = input.nextSibling.textContent;
 
                     const search = new RegExp(
                         `\\[\\s?[xX]?\\s?\\]\\s*${innerText}`
@@ -258,12 +269,7 @@ export default class ObsidianAdmonition
 
                     const line = splitContent.find((l) => search.test(l));
 
-                    let inputs = task.getElementsByTagName("input");
-                    if (!inputs.length) continue;
-
-                    inputs[0].dataset["line"] = `${
-                        splitContent.indexOf(line) + 1
-                    }`;
+                    input.dataset["line"] = `${splitContent.indexOf(line) + 1}`;
                 }
             }
 

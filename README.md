@@ -234,6 +234,8 @@ An icon without a title will have this CSS:
 
 # Version History
 
+## 3.1.0 
+- Fixed issue where checkboxes in admonitions were not toggleable
 ## 3.0.0
 
 - Added ability to create custom admonitions via Settings
