@@ -108,3 +108,7 @@ input.is-invalid {
     font-size: 0.875em;
     color: #dc3545;
 }
+
+.admonition li.task-list-item.is-checked p {
+    text-decoration: line-through;
+}

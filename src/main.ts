@@ -222,7 +222,9 @@ export default class ObsidianAdmonition
             let admonitionContent = admonitionElement.createDiv({
                 cls: "admonition-content"
             });
-            let markdownRenderChild = new MarkdownRenderChild();
+            let markdownRenderChild = new MarkdownRenderChild(
+                admonitionElement
+            );
             markdownRenderChild.containerEl = admonitionElement;
 
             /**
@@ -234,6 +236,36 @@ export default class ObsidianAdmonition
                 ctx.sourcePath,
                 markdownRenderChild
             );
+
+            const taskLists = admonitionContent.querySelectorAll(
+                ".contains-task-list"
+            );
+            const splitContent = content.split("\n");
+
+            for (let i = 0; i < taskLists.length; i++) {
+                let tasks: NodeListOf<HTMLLIElement> = taskLists[
+                    i
+                ].querySelectorAll(".task-list-item");
+                if (!tasks.length) continue;
+                for (let j = 0, task = tasks[j]; j < tasks.length; j++) {
+                    if (!task.children.length) continue;
+
+                    let innerText = task.getText().replace(/\n/g, "");
+
+                    const search = new RegExp(
+                        `\\[\\s?[xX]?\\s?\\]\\s*${innerText}`
+                    );
+
+                    const line = splitContent.find((l) => search.test(l));
+
+                    let inputs = task.getElementsByTagName("input");
+                    if (!inputs.length) continue;
+
+                    inputs[0].dataset["line"] = `${
+                        splitContent.indexOf(line) + 1
+                    }`;
+                }
+            }
 
             /**
              * Replace the <pre> tag with the new admonition.
