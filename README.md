@@ -51,6 +51,11 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et euismod nulla.
 
 ![](https://raw.githubusercontent.com/valentine195/obsidian-admonition/master/images/title.png)
 
+Custom titles are rendered as Markdown, so they support the full Obsidian Markdown syntax.
+
+![](https://https://raw.githubusercontent.com/valentine195/obsidian-admonition/master/images/title-markdown.png)
+![](https://https://raw.githubusercontent.com/valentine195/obsidian-admonition/master/images/rendered-title-markdown.png)
+
 Leave the title field blank to only display the admonition.
 
 ````markdown
@@ -71,7 +76,6 @@ Use the `collapse` parameter to create a collapsible admonition.
 If a blank title is provided, the collapse parameter will not do anything.
 
 ![](https://raw.githubusercontent.com/valentine195/obsidian-admonition/master/images/collapse.gif)
-
 
 ## Admonition Types
 
@@ -158,11 +162,11 @@ Every admonition receives the following CSS classes:
 }
 ```
 
-***Please note, as of 3.0.0, the admonition colors are no longer set in the CSS.***
+**_Please note, as of 3.0.0, the admonition colors are no longer set in the CSS._**
 
 Each admonition receives the `.admonition-<type>` class. You can use this selector to override specific admonition types, but the plugin does not add any styling using this selector by default.
 
-To set the color of admonition types via CSS, specific the following the `--admonition-color` variable ***as an RGB triad***:
+To set the color of admonition types via CSS, specific the following the `--admonition-color` variable **_as an RGB triad_**:
 
 ```css
 .admonition-note {
@@ -234,14 +238,21 @@ An icon without a title will have this CSS:
 
 # Version History
 
-## 3.1.0 
-- Fixed issue where checkboxes in admonitions were not toggleable
+## 3.2.0
+
+-   Added a setting to turn on default Obsidian syntax highlighting to admonition code block types
+-   Admonitions now render titles as Markdown
+
+## 3.1.0
+
+-   Fixed issue where checkboxes in admonitions were not toggleable
+
 ## 3.0.0
 
-- Added ability to create custom admonitions via Settings
-  - Color, icon, and admonition-type are customizable
-  - Default admonitions can be overridden by creating a custom admonition of the same type
-  - Delete the custom admonition to restore default
+-   Added ability to create custom admonitions via Settings
+    -   Color, icon, and admonition-type are customizable
+    -   Default admonitions can be overridden by creating a custom admonition of the same type
+    -   Delete the custom admonition to restore default
 
 ## 2.0.0
 

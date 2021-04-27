@@ -24,6 +24,36 @@ export default class AdmonitionSetting extends PluginSettingTab {
 
         containerEl.createEl("h2", { text: "Admonition Settings" });
 
+        let syntax = new Setting(containerEl);
+        syntax.setDesc(
+            "Use Obsidian's markdown syntax highlighter in admonition code blocks. This setting is experimental and could cause errors."
+        );
+        let name = syntax.nameEl.createDiv({
+            cls: "use-csv-marker"
+        });
+        name.appendChild(
+            icon(
+                findIconDefinition({
+                    iconName: "exclamation-triangle",
+                    prefix: "fas"
+                })
+            ).node[0]
+        );
+        name.appendChild(createSpan({ text: "Markdown Syntax Highlighting" }));
+
+        syntax.addToggle((t) => {
+            t.setValue(this.plugin.syntaxHighlight);
+            t.onChange(async (v) => {
+                this.plugin.syntaxHighlight = v;
+                if (v) {
+                    this.plugin.turnOnSyntaxHighlighting();
+                } else {
+                    this.plugin.turnOffSyntaxHighlighting();
+                }
+                await this.plugin.saveSettings();
+            });
+        });
+
         new Setting(containerEl)
             .setName("Add New")
             .setDesc("Add a new Admonition type.")
