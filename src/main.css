@@ -39,6 +39,8 @@
     left: 0.6rem;
     top: 50%;
     transform: translateY(-50%);
+    display: flex;
+    justify-content: center;
     width: 1.25rem;
     color: rgb(var(--admonition-color));
 }
