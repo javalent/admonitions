@@ -2,6 +2,7 @@ import {
     MarkdownPostProcessorContext,
     MarkdownRenderChild,
     MarkdownRenderer,
+    MarkdownView,
     Notice,
     Plugin
 } from "obsidian";
@@ -176,6 +177,39 @@ export default class ObsidianAdmonition
         if (this.syntaxHighlight) {
             this.turnOnSyntaxHighlighting();
         }
+
+        this.addCommand({
+            id: "collapse-admonitions",
+            name: "Collapse Admonitions in Note",
+            callback: () => {
+                let view = this.app.workspace.getActiveViewOfType(MarkdownView);
+                if (!view || !(view instanceof MarkdownView)) return;
+
+                let admonitions = view.contentEl.querySelectorAll(
+                    "details[open]"
+                );
+                for (let i = 0; i < admonitions.length; i++) {
+                    let admonition = admonitions[i];
+                    admonition.removeAttribute("open");
+                }
+            }
+        });
+        this.addCommand({
+            id: "open-admonitions",
+            name: "Open Admonitions in Note",
+            callback: () => {
+                let view = this.app.workspace.getActiveViewOfType(MarkdownView);
+                if (!view || !(view instanceof MarkdownView)) return;
+
+                let admonitions = view.contentEl.querySelectorAll(
+                    "details:not([open])"
+                );
+                for (let i = 0; i < admonitions.length; i++) {
+                    let admonition = admonitions[i];
+                    admonition.setAttribute("open", "open");
+                }
+            }
+        });
     }
     turnOnSyntaxHighlighting(types: string[] = Object.keys(this.admonitions)) {
         if (!this.syntaxHighlight) return;
@@ -403,18 +437,23 @@ export default class ObsidianAdmonition
             });
         }
 
-        titleEl.createDiv({
-            cls: `admonition-title-icon`
-        }).innerHTML = icon(
-            findIconDefinition({
-                iconName: this.admonitions[type].icon
-            })
-        ).html[0];
-
-        let titleContentEl = createDiv();
+        let titleContentEl = createDiv("title-content");
         MarkdownRenderer.renderMarkdown(title, titleContentEl, "", null);
+        
+        const iconEl = createDiv("admonition-title-icon");
+        iconEl.appendChild(
+            icon(
+                findIconDefinition({
+                    iconName: this.admonitions[type].icon
+                })
+            ).node[0]
+        );
+        titleContentEl.children[0].prepend(iconEl);
+        titleEl.appendChild(titleContentEl.children[0]);
 
-        titleEl.appendChild(titleContentEl);
+        if (collapse) {
+            titleEl.createDiv("collapser").createDiv("handle");
+        }
         return admonition;
     }
     async onunload() {

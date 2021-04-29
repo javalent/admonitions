@@ -276,10 +276,7 @@ class SettingsModal extends Modal {
                 el.value = rgbToHex(this.color);
                 el.oninput = ({ target }) => {
                     let color = hexToRgb((target as HTMLInputElement).value);
-                    console.log(
-                        "🚀 ~ file: settings.ts ~ line 118 ~ SettingsModal ~ display ~ color",
-                        color
-                    );
+                    
                     if (!color) return;
                     this.color = `${color.r}, ${color.g}, ${color.b}`;
                     previewEl.setAttribute(
@@ -397,10 +394,7 @@ class SettingsModal extends Modal {
 
 function hexToRgb(hex: string) {
     let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    console.log(
-        "🚀 ~ file: settings.ts ~ line 156 ~ hexToRgb ~ result",
-        result
-    );
+    
     return result
         ? {
               r: parseInt(result[1], 16),

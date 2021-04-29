@@ -121,9 +121,18 @@ This is all of the CSS applied to the admonitions. Override these classes to cus
 Every admonition receives the following CSS classes:
 
 ```css
+:root {
+    --admonition-details-icon: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M8.59 16.58L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.42z'/></svg>");
+}
+
+.use-csv-marker > svg {
+    color: yellow;
+    margin-right: 8px;
+}
+
 .admonition {
     margin: 1.5625em 0;
-    padding: 0 0.6rem;
+    padding: 0;
     overflow: hidden;
     color: var(--text-normal);
     page-break-inside: avoid;
@@ -135,22 +144,24 @@ Every admonition receives the following CSS classes:
 
 .admonition-title {
     position: relative;
-    margin: 0 -0.6rem 0 -0.8rem;
-    padding: 0.4rem 0.6rem 0.4rem 2rem;
+    padding: 0.6rem 0.25em;
     font-weight: 700;
-    border-left: 0.2rem solid;
     background-color: rgba(var(--admonition-color), 0.1);
+}
+.admonition-title > * {
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
 }
 
 .admonition-title-icon {
-    position: absolute;
-    left: 0.6rem;
-    width: 1.25rem;
-    height: 1.25rem;
     color: rgb(var(--admonition-color));
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
+    margin: 0 0.5em 0 0.25em;
+    min-width: 1em;
 }
 
 .admonition-title.no-title {
@@ -158,7 +169,11 @@ Every admonition receives the following CSS classes:
 }
 
 .admonition > .admonition-title.no-title + .admonition-content {
-    margin: 1em 0;
+    margin: 1rem 0;
+}
+
+.admonition-content {
+    margin: 0 0.6rem;
 }
 ```
 
@@ -188,7 +203,6 @@ details.admonition > summary {
     list-style: none;
     display: block;
     min-height: 1rem;
-    padding: 0.4rem 1.8rem 0.4rem 2rem;
     border-top-left-radius: 0.1rem;
     border-top-right-radius: 0.1rem;
     cursor: pointer;
@@ -197,24 +211,29 @@ details.admonition > summary::-webkit-details-marker {
     display: none;
 }
 
-details.admonition > summary:after {
+details.admonition > summary > .collapser {
     position: absolute;
-    top: 8px;
+    top: 50%;
     right: 8px;
-    width: 20px;
-    height: 20px;
+    transform: translateY(-50%);
+    content: "";
+}
+
+details.admonition > summary > .collapser > .handle {
+    transform: rotate(0deg);
+    transition: transform 0.25s;
     background-color: currentColor;
-    -webkit-mask-image: var(--admonition-details-icon);
-    mask-image: var(--admonition-details-icon);
     -webkit-mask-repeat: no-repeat;
     mask-repeat: no-repeat;
     -webkit-mask-size: contain;
     mask-size: contain;
-    transform: rotate(0deg);
-    transition: transform 0.25s;
-    content: "";
+    -webkit-mask-image: var(--admonition-details-icon);
+    mask-image: var(--admonition-details-icon);
+    width: 20px;
+    height: 20px;
 }
-details.admonition[open] > summary:after {
+
+details.admonition[open] > summary > .collapser > .handle {
     transform: rotate(90deg);
 }
 ```
@@ -238,6 +257,13 @@ An icon without a title will have this CSS:
 
 # Version History
 
+## 3.3.0
+
+- Added commands to open and collapse all admonitions in active note
+- Admonition icons now respect the font size of the admonition title
+- Collapse handle now centers inside the title element
+- CSS changes
+- 
 ## 3.2.0
 
 -   Added a setting to turn on default Obsidian syntax highlighting to admonition code block types
