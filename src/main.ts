@@ -7,7 +7,7 @@ import {
     Plugin
 } from "obsidian";
 import { Admonition, ObsidianAdmonitionPlugin } from "../@types/types";
-import { getAdmonitionElement } from './util';
+import { getAdmonitionElement } from "./util";
 
 import * as CodeMirror from "./codemirror";
 
@@ -250,7 +250,7 @@ export default class ObsidianAdmonition
             cm.setOption("mode", cm.getOption("mode"))
         );
     }
-    postprocessor(
+    async postprocessor(
         type: string,
         src: string,
         el: HTMLElement,
@@ -267,11 +267,12 @@ export default class ObsidianAdmonition
                 src.match(/^\b(title|collapse)\b:([\s\S]*?)$/gm) || [];
 
             let params = Object.fromEntries(
-                matchedParameters.map((p) =>
-                    {
-                        let [, param, rest] = p.match(/^\b(title|collapse)\b:([\s\S]*?)$/)
-                        return [ param.trim(), rest.trim()]}
-                )
+                matchedParameters.map((p) => {
+                    let [, param, rest] = p.match(
+                        /^\b(title|collapse)\b:([\s\S]*?)$/
+                    );
+                    return [param.trim(), rest.trim()];
+                })
             );
 
             let {
@@ -283,12 +284,9 @@ export default class ObsidianAdmonition
              * Get the content. Content should be everything that is not the title or collapse parameters.
              * Remove any "content: " fields (legacy from < v0.2.0)
              */
-            let content = src.replace(
-                /^\b(title|collapse)\b:([\s\S]*?)$/gm,
-                ""
-            );
-            content = content.replace(/^\bcontent\b:\s?/gm, "");
-
+            let content = src
+                .replace(/^\b(title|collapse)\b:([\s\S]*?)$/gm, "")
+                .replace(/^\bcontent\b:\s?/gm, "");
             /**
              * If the admonition should collapse, but something other than open or closed was provided, set to closed.
              */
@@ -319,7 +317,7 @@ export default class ObsidianAdmonition
              * Collapsible -> <details> <summary> Title </summary> <div> Content </div> </details>
              * Regular -> <div> <div> Title </div> <div> Content </div> </div>
              */
-            let admonitionElement = getAdmonitionElement(
+            let admonitionElement = await getAdmonitionElement(
                 type,
                 title,
                 this.admonitions[type].icon,

@@ -3,16 +3,6 @@
     --admonition-details-icon: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M8.59 16.58L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.42z'/></svg>");
 }
 
-.use-csv-marker>svg {
-    color: yellow;
-    margin-right: 8px;
-}
-
-.setting-item>.admonition {
-    width: 50%;
-    margin: 0;
-}
-
 .admonition {
     margin: 1.5625em 0;
     padding: 0;
@@ -32,7 +22,7 @@
     background-color: rgba(var(--admonition-color), 0.1);
 }
 
-.admonition-title>* {
+.admonition-title-content {
     display: flex;
     justify-content: flex-start;
     margin-top: 0 !important;
@@ -48,12 +38,17 @@
     min-width: 1em;
 }
 
+.admonition-title-markdown {
+    display: block;
+}
+
 .admonition-title.no-title {
     display: none;
 }
 
-.admonition>.admonition-title.no-title+.admonition-content {
-    margin: 1rem 0;
+.admonition > .admonition-title.no-title + .admonition-content {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
 }
 
 .admonition-content {
@@ -65,7 +60,7 @@ details.admonition:not([open]) {
     box-shadow: none;
 }
 
-details.admonition>summary {
+details.admonition > summary {
     outline: none;
     list-style: none;
     display: block;
@@ -75,11 +70,11 @@ details.admonition>summary {
     cursor: pointer;
 }
 
-details.admonition>summary::-webkit-details-marker {
+details.admonition > summary::-webkit-details-marker {
     display: none;
 }
 
-details.admonition>summary>.collapser {
+details.admonition > summary > .collapser {
     position: absolute;
     top: 50%;
     right: 8px;
@@ -87,7 +82,7 @@ details.admonition>summary>.collapser {
     content: "";
 }
 
-details.admonition>summary>.collapser>.handle {
+details.admonition > summary > .collapser > .handle {
     transform: rotate(0deg);
     transition: transform 0.25s;
     background-color: currentColor;
@@ -101,11 +96,20 @@ details.admonition>summary>.collapser>.handle {
     height: 20px;
 }
 
-details.admonition[open]>summary>.collapser>.handle {
+details.admonition[open] > summary > .collapser > .handle {
     transform: rotate(90deg);
 }
 
-/** Invalid Setting */
+/** Settings */
+.use-csv-marker > svg {
+    color: yellow;
+    margin-right: 8px;
+}
+
+.setting-item > .admonition {
+    width: 50%;
+    margin: 0;
+}
 
 .unset-align-items {
     align-items: unset;

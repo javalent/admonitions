@@ -90,7 +90,7 @@ export default class AdmonitionSetting extends PluginSettingTab {
 
 			let setting = new Setting(containerEl);
 
-			let admonitionElement = getAdmonitionElement(
+			let admonitionElement = await getAdmonitionElement(
 				admonition.type,
 				admonition.type[0].toUpperCase() + admonition.type.slice(1).toLowerCase(),
 				admonition.icon,
@@ -153,7 +153,7 @@ class SettingsModal extends Modal {
 
 		const settingDiv = contentEl.createDiv();
 
-		let admonitionPreview = getAdmonitionElement(
+		let admonitionPreview = await getAdmonitionElement(
 			this.type,
 			this.type.length
 				? this.type[0].toUpperCase() + this.type.slice(1).toLowerCase()

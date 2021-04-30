@@ -125,11 +125,6 @@ Every admonition receives the following CSS classes:
     --admonition-details-icon: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M8.59 16.58L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.42z'/></svg>");
 }
 
-.use-csv-marker > svg {
-    color: yellow;
-    margin-right: 8px;
-}
-
 .admonition {
     margin: 1.5625em 0;
     padding: 0;
@@ -148,7 +143,8 @@ Every admonition receives the following CSS classes:
     font-weight: 700;
     background-color: rgba(var(--admonition-color), 0.1);
 }
-.admonition-title > * {
+
+.admonition-title-content {
     display: flex;
     justify-content: flex-start;
     margin-top: 0 !important;
@@ -164,12 +160,17 @@ Every admonition receives the following CSS classes:
     min-width: 1em;
 }
 
+.admonition-title-markdown {
+    display: block;
+}
+
 .admonition-title.no-title {
     display: none;
 }
 
 .admonition > .admonition-title.no-title + .admonition-content {
-    margin: 1rem 0;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
 }
 
 .admonition-content {
@@ -198,6 +199,7 @@ details.admonition:not([open]) {
     padding-bottom: 0;
     box-shadow: none;
 }
+
 details.admonition > summary {
     outline: none;
     list-style: none;
@@ -207,6 +209,7 @@ details.admonition > summary {
     border-top-right-radius: 0.1rem;
     cursor: pointer;
 }
+
 details.admonition > summary::-webkit-details-marker {
     display: none;
 }
@@ -259,11 +262,12 @@ An icon without a title will have this CSS:
 
 ## 3.3.0
 
-- Added commands to open and collapse all admonitions in active note
-- Admonition icons now respect the font size of the admonition title
-- Collapse handle now centers inside the title element
-- CSS changes
-- 
+-   Added commands to open and collapse all admonitions in active note
+-   Admonition icons now respect the font size of the admonition title
+-   Collapse handle now centers inside the title element
+-   CSS changes
+-
+
 ## 3.2.0
 
 -   Added a setting to turn on default Obsidian syntax highlighting to admonition code block types
