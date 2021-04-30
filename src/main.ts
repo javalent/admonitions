@@ -317,24 +317,24 @@ export default class ObsidianAdmonition
              * Collapsible -> <details> <summary> Title </summary> <div> Content </div> </details>
              * Regular -> <div> <div> Title </div> <div> Content </div> </div>
              */
-            let admonitionElement = await getAdmonitionElement(
+            let admonitionElement = getAdmonitionElement(
                 type,
                 title,
                 this.admonitions[type].icon,
                 this.admonitions[type].color,
                 collapse
             );
-
             /**
              * Create a unloadable component.
              */
-            let admonitionContent = admonitionElement.createDiv({
-                cls: "admonition-content"
-            });
             let markdownRenderChild = new MarkdownRenderChild(
                 admonitionElement
             );
             markdownRenderChild.containerEl = admonitionElement;
+
+            let admonitionContent = admonitionElement.createDiv({
+                cls: "admonition-content"
+            });
 
             /**
              * Render the content as markdown and append it to the admonition.
