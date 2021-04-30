@@ -92,7 +92,7 @@ export default class AdmonitionSetting extends PluginSettingTab {
 
 			let admonitionElement = getAdmonitionElement(
 				admonition.type,
-				admonition.type,
+				admonition.type[0].toUpperCase() + admonition.type.slice(1).toLowerCase(),
 				admonition.icon,
 				admonition.color
 			);
@@ -106,6 +106,7 @@ export default class AdmonitionSetting extends PluginSettingTab {
 
 						modal.onClose = async () => {
 							if (modal.saved) {
+								this.plugin.removeAdmonition(admonition);
 								this.plugin.addAdmonition({
 									type: modal.type,
 									color: modal.color,
