@@ -7,7 +7,7 @@ import {
     Plugin
 } from "obsidian";
 import { Admonition, ObsidianAdmonitionPlugin } from "../@types/types";
-import { findIconDefinition, icon } from "./icons";
+import { getAdmonitionElement } from './util';
 
 import * as CodeMirror from "./codemirror";
 
@@ -268,7 +268,9 @@ export default class ObsidianAdmonition
 
             let params = Object.fromEntries(
                 matchedParameters.map((p) =>
-                    p.split(/:\s?/).map((s) => s.trim())
+                    {
+                        let [, param, rest] = p.match(/^\b(title|collapse)\b:([\s\S]*?)$/)
+                        return [ param.trim(), rest.trim()]}
                 )
             );
 
@@ -317,9 +319,11 @@ export default class ObsidianAdmonition
              * Collapsible -> <details> <summary> Title </summary> <div> Content </div> </details>
              * Regular -> <div> <div> Title </div> <div> Content </div> </div>
              */
-            let admonitionElement = this.getAdmonitionElement(
+            let admonitionElement = getAdmonitionElement(
                 type,
                 title,
+                this.admonitions[type].icon,
+                this.admonitions[type].color,
                 collapse
             );
 
@@ -401,60 +405,6 @@ export default class ObsidianAdmonition
 
             el.replaceWith(pre);
         }
-    }
-    getAdmonitionElement(
-        type: string,
-        title: string,
-        collapse?: string
-    ): HTMLElement {
-        let admonition,
-            titleEl,
-            attrs: { style: string; open?: string } = {
-                style: `--admonition-color: ${this.admonitions[type].color};`
-            };
-        if (collapse) {
-            if (collapse === "open") {
-                attrs.open = "open";
-            }
-            admonition = createEl("details", {
-                cls: `admonition admonition-${type}`,
-                attr: attrs
-            });
-            titleEl = admonition.createEl("summary", {
-                cls: `admonition-title ${
-                    !title.trim().length ? "no-title" : ""
-                }`
-            });
-        } else {
-            admonition = createDiv({
-                cls: `admonition admonition-${type}`,
-                attr: attrs
-            });
-            titleEl = admonition.createDiv({
-                cls: `admonition-title ${
-                    !title.trim().length ? "no-title" : ""
-                }`
-            });
-        }
-
-        let titleContentEl = createDiv("title-content");
-        MarkdownRenderer.renderMarkdown(title, titleContentEl, "", null);
-        
-        const iconEl = createDiv("admonition-title-icon");
-        iconEl.appendChild(
-            icon(
-                findIconDefinition({
-                    iconName: this.admonitions[type].icon
-                })
-            ).node[0]
-        );
-        titleContentEl.children[0].prepend(iconEl);
-        titleEl.appendChild(titleContentEl.children[0]);
-
-        if (collapse) {
-            titleEl.createDiv("collapser").createDiv("handle");
-        }
-        return admonition;
     }
     async onunload() {
         console.log("Obsidian Admonition unloaded");

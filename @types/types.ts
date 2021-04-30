@@ -24,9 +24,4 @@ export declare class ObsidianAdmonitionPlugin extends Plugin_2 {
         el: HTMLElement,
         ctx: MarkdownPostProcessorContext
     ) => void;
-    getAdmonitionElement: (
-        type: string,
-        title: string,
-        collapse?: string
-    ) => HTMLElement;
 }
