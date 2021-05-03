@@ -6,6 +6,12 @@ export interface Admonition {
     color: string;
 }
 
+export interface INestedAdmonition {
+    type: string;
+    start: number;
+    end: number;
+    src: string;
+}
 export declare class ObsidianAdmonitionPlugin extends Plugin_2 {
     removeAdmonition: (admonition: Admonition) => Promise<void>;
     admonitions: { [admonitionType: string]: Admonition };

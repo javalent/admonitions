@@ -32,12 +32,6 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et euismod nulla.
 ```
 ````
 
-### Content
-
-Content is the actual text of the admonition.
-
-**Note: As of 0.2.0, this is no longer required. Anything other than `title:` and `collapse:` will be included as the content.**
-
 ### Titles
 
 The admonition will render with the type of admonition by default. If you wish to customize the title, you can do so this way:
@@ -76,6 +70,35 @@ Use the `collapse` parameter to create a collapsible admonition.
 If a blank title is provided, the collapse parameter will not do anything.
 
 ![](https://raw.githubusercontent.com/valentine195/obsidian-admonition/master/images/collapse.gif)
+
+## Nesting Admonitions
+
+Admonitions may be nested inside each other indefinitely using the [Python Markdown](https://python-markdown.github.io/extensions/admonition/) syntax.
+
+> :warning: **Please note that this syntax _cannot_ be used for the original admonition. It must be a codeblock (```).**
+
+Example:
+
+````
+```ad-note
+title: Nested Admonitions
+collapse: open
+
+Hello!
+
+!!! ad-note
+	title: This admonition is nested.
+	This is a nested admonition!
+	!!! ad-warning
+		title: This admonition is closed.
+		collapse: close
+
+
+This is in the original admonition.
+```
+````
+
+![](https://raw.githubusercontent.com/valentine195/obsidian-admonition/master/images/nested.gif)
 
 ## Admonition Types
 
@@ -260,13 +283,16 @@ An icon without a title will have this CSS:
 
 # Version History
 
+## 4.0.0
+
+-   Nested admonitions are now possible
+
 ## 3.3.0
 
 -   Added commands to open and collapse all admonitions in active note
 -   Admonition icons now respect the font size of the admonition title
 -   Collapse handle now centers inside the title element
 -   CSS changes
--
 
 ## 3.2.0
 

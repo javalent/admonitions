@@ -6,8 +6,16 @@ import {
     Notice,
     Plugin
 } from "obsidian";
-import { Admonition, ObsidianAdmonitionPlugin } from "../@types/types";
-import { getAdmonitionElement } from "./util";
+import {
+    Admonition,
+    INestedAdmonition,
+    ObsidianAdmonitionPlugin
+} from "../@types/types";
+import {
+    getAdmonitionElement,
+    getMatches,
+    getParametersFromSource
+} from "./util";
 
 import * as CodeMirror from "./codemirror";
 
@@ -100,6 +108,9 @@ export default class ObsidianAdmonition
     admonitions: { [admonitionType: string]: Admonition } = {};
     userAdmonitions: { [admonitionType: string]: Admonition } = {};
     syntaxHighlight: boolean;
+    get types() {
+        return Object.keys(this.admonitions);
+    }
     async saveSettings() {
         await this.saveData({
             syntaxHighlight: this.syntaxHighlight || false,
@@ -260,63 +271,40 @@ export default class ObsidianAdmonition
             return;
         }
         try {
-            /**
-             * Find title and collapse parameters.
-             */
-            let matchedParameters =
-                src.match(/^\b(title|collapse)\b:([\s\S]*?)$/gm) || [];
-
-            let params = Object.fromEntries(
-                matchedParameters.map((p) => {
-                    let [, param, rest] = p.match(
-                        /^\b(title|collapse)\b:([\s\S]*?)$/
-                    );
-                    return [param.trim(), rest.trim()];
-                })
-            );
-
             let {
                 title = type[0].toUpperCase() + type.slice(1).toLowerCase(),
-                collapse
-            } = params;
+                collapse,
+                content
+            } = getParametersFromSource(type, src);
 
-            /**
-             * Get the content. Content should be everything that is not the title or collapse parameters.
-             * Remove any "content: " fields (legacy from < v0.2.0)
-             */
-            let content = src
-                .replace(/^\b(title|collapse)\b:([\s\S]*?)$/gm, "")
-                .replace(/^\bcontent\b:\s?/gm, "");
-            /**
-             * If the admonition should collapse, but something other than open or closed was provided, set to closed.
-             */
-            if (
-                Object.prototype.hasOwnProperty.call(params, "collapse") &&
-                (params.collapse.length == 0 ||
-                    params.collapse === undefined ||
-                    collapse !== "open")
-            ) {
-                collapse = "closed";
-            }
-            /**
-             * If the admonition should collapse, but title was blanked, set the default title.
-             */
-            if (
-                Object.prototype.hasOwnProperty.call(params, "title") &&
-                (params.title === undefined || params.title.length === 0) &&
-                collapse
-            ) {
-                title = type[0].toUpperCase() + type.slice(1).toLowerCase();
-                new Notice(
-                    "An admonition must have a title if it is collapsible."
-                );
+            let match = new RegExp(`^!!! ad-(${this.types.join("|")})$`, "gm");
+
+            let nestedAdmonitions = content.match(match) || [];
+
+            if (nestedAdmonitions.length) {
+                let matches = [getMatches(content, 0, nestedAdmonitions[0])];
+                for (let i = 1; i < nestedAdmonitions.length; i++) {
+                    matches.push(
+                        getMatches(
+                            content,
+                            matches[i - 1].end,
+                            nestedAdmonitions[i]
+                        )
+                    );
+                }
+
+                let split = content.split("\n");
+
+                for (let m of matches.reverse()) {
+                    split.splice(
+                        m.start,
+                        m.end - m.start + 1,
+                        `\`\`\`ad-${m.type}\n${m.src}\n\`\`\``
+                    );
+                }
+                content = split.join("\n");
             }
 
-            /**
-             * Build the correct admonition element.
-             * Collapsible -> <details> <summary> Title </summary> <div> Content </div> </details>
-             * Regular -> <div> <div> Title </div> <div> Content </div> </div>
-             */
             let admonitionElement = getAdmonitionElement(
                 type,
                 title,
