@@ -98,7 +98,7 @@ This is in the original admonition.
 ```
 ````
 
-![](https://raw.githubusercontent.com/valentine195/obsidian-admonition/master/images/nested.PNG)
+![](https://raw.githubusercontent.com/valentine195/obsidian-admonition/master/images/nested.png)
 
 ## Admonition Types
 
