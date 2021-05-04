@@ -47,8 +47,9 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et euismod nulla.
 
 Custom titles are rendered as Markdown, so they support the full Obsidian Markdown syntax.
 
-![](https://https://raw.githubusercontent.com/valentine195/obsidian-admonition/master/images/title-markdown.png)
-![](https://https://raw.githubusercontent.com/valentine195/obsidian-admonition/master/images/rendered-title-markdown.png)
+![](https://raw.githubusercontent.com/valentine195/obsidian-admonition/master/images/title-markdown.png)
+
+![](https://raw.githubusercontent.com/valentine195/obsidian-admonition/master/images/rendered-title-markdown.png)
 
 Leave the title field blank to only display the admonition.
 
