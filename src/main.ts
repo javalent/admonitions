@@ -349,9 +349,13 @@ export default class ObsidianAdmonition
                         ).node[0]
                     );
                 copy.addEventListener("click", () => {
-                    navigator.clipboard.writeText(content).then(() => {
-                        new Notice("Admonition content copied to clipboard.");
-                    });
+                    navigator.clipboard
+                        .writeText(content.trim())
+                        .then(async () => {
+                            new Notice(
+                                "Admonition content copied to clipboard."
+                            );
+                        });
                 });
             }
 
