@@ -82,8 +82,9 @@ details.admonition > summary {
     cursor: pointer;
 }
 
-details.admonition > summary {
-    list-style-type: none;
+details.admonition > summary::-webkit-details-marker,
+details.admonition > summary::marker {
+    display: none;
 }
 
 details.admonition > summary > .collapser {
