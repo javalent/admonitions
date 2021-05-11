@@ -232,7 +232,10 @@ export default class ObsidianAdmonition
 
         this.app.workspace.layoutReady
             ? this.layoutReady()
-            : this.app.workspace.on("layout-ready", this.layoutReady);
+            : this.app.workspace.on(
+                  "layout-ready",
+                  this.layoutReady.bind(this)
+              );
     }
 
     turnOffSyntaxHighlighting(types: string[] = Object.keys(this.admonitions)) {
@@ -241,14 +244,18 @@ export default class ObsidianAdmonition
                 delete CodeMirror.modes[`ad-${type}`];
             }
         });
+        console.log(this);
         this.app.workspace.layoutReady
             ? this.layoutReady()
-            : this.app.workspace.on("layout-ready", this.layoutReady);
+            : this.app.workspace.on(
+                  "layout-ready",
+                  this.layoutReady.bind(this)
+              );
     }
 
     layoutReady() {
         // don't need the event handler anymore, get rid of it
-        this.app.workspace.off("layout-ready", this.layoutReady);
+        this.app.workspace.off("layout-ready", this.layoutReady.bind(this));
         this.refreshLeaves();
     }
 
