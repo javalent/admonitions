@@ -244,7 +244,6 @@ export default class ObsidianAdmonition
                 delete CodeMirror.modes[`ad-${type}`];
             }
         });
-        console.log(this);
         this.app.workspace.layoutReady
             ? this.layoutReady()
             : this.app.workspace.on(
