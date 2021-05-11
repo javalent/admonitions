@@ -52,19 +52,28 @@
 }
 
 .admonition-content {
-    margin: 0 0.6rem;
-    position: relative;
+  margin: 10px 15px;
+  padding-right: 25px;
+  position: relative;
 }
+
 .admonition-content-copy {
-    position: absolute;
-    top: 0;
-    right: 0;
-    color: var(--text-faint);
-    cursor: pointer;
-    margin: -10px -2px;
+  color: var(--text-faint);
+  cursor: pointer;
+  opacity: 0;
+  position: absolute;
+  right: 0px;
+  top: 0;
+  transition: 0.3s all ease-in;
 }
+
 .admonition-content-copy:hover {
-    color: var(--text-normal);
+  color: var(--text-normal);
+}
+
+.admonition-content:hover > .admonition-content-copy,
+.admonition-content-copy:hover {
+  opacity: 1;
 }
 
 details.admonition:not([open]) {
