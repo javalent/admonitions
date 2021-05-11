@@ -54,9 +54,9 @@ export default class AdmonitionSetting extends PluginSettingTab {
         name.appendChild(createSpan({ text: "Markdown Syntax Highlighting" }));
 
         syntax.addToggle((t) => {
-            t.setValue(this.plugin.syntaxHighlight);
+            t.setValue(this.plugin.data.syntaxHighlight);
             t.onChange(async (v) => {
-                this.plugin.syntaxHighlight = v;
+                this.plugin.data.syntaxHighlight = v;
                 if (v) {
                     this.plugin.turnOnSyntaxHighlighting();
                 } else {
@@ -65,38 +65,55 @@ export default class AdmonitionSetting extends PluginSettingTab {
                 await this.plugin.saveSettings();
             });
         });
+        new Setting(containerEl)
+            .setName("Add Copy Button")
+            .setDesc("Add a 'copy content' button to admonitions.")
+            .addToggle((t) => {
+                t.setValue(this.plugin.data.copyButton);
+                t.onChange(async (v) => {
+                    this.plugin.data.copyButton = v;
+
+                    if (!v) {
+                        document
+                            .querySelectorAll(".admonition-content-copy")
+                            .forEach((el) => {
+                                el.detach();
+                            });
+                    }
+
+                    await this.plugin.saveSettings();
+                });
+            });
 
         new Setting(containerEl)
             .setName("Add New")
             .setDesc("Add a new Admonition type.")
-            .addButton(
-                (button: ButtonComponent): ButtonComponent => {
-                    let b = button
-                        .setTooltip("Add Additional")
-                        .setButtonText("+")
-                        .onClick(async () => {
-                            let modal = new SettingsModal(this.app);
+            .addButton((button: ButtonComponent): ButtonComponent => {
+                let b = button
+                    .setTooltip("Add Additional")
+                    .setButtonText("+")
+                    .onClick(async () => {
+                        let modal = new SettingsModal(this.app);
 
-                            modal.onClose = async () => {
-                                if (modal.saved) {
-                                    this.plugin.addAdmonition({
-                                        type: modal.type,
-                                        color: modal.color,
-                                        icon: modal.icon
-                                    });
-                                    this.display();
-                                }
-                            };
+                        modal.onClose = async () => {
+                            if (modal.saved) {
+                                this.plugin.addAdmonition({
+                                    type: modal.type,
+                                    color: modal.color,
+                                    icon: modal.icon
+                                });
+                                this.display();
+                            }
+                        };
 
-                            modal.open();
-                        });
+                        modal.open();
+                    });
 
-                    return b;
-                }
-            );
+                return b;
+            });
 
-        for (let a in this.plugin.userAdmonitions) {
-            const admonition = this.plugin.userAdmonitions[a];
+        for (let a in this.plugin.data.userAdmonitions) {
+            const admonition = this.plugin.data.userAdmonitions[a];
 
             let setting = new Setting(containerEl);
 
@@ -173,8 +190,7 @@ class SettingsModal extends Modal {
             this.color
         );
         admonitionPreview.createDiv("admonition-content").createEl("p", {
-            text:
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et euismod nulla."
+            text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et euismod nulla."
         });
 
         contentEl.appendChild(admonitionPreview);
@@ -315,8 +331,6 @@ class SettingsModal extends Modal {
                         );
                         error = true;
                     }
-
-                    
 
                     if (!isSelectorValid(typeText.inputEl.value)) {
                         SettingsModal.setValidationError(

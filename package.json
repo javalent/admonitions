@@ -1,6 +1,6 @@
 {
     "name": "obsidian-admonition",
-    "version": "4.0.1",
+    "version": "4.1.0",
     "description": "Admonition block-styled content for Obsidian.md",
     "main": "main.js",
     "scripts": {
@@ -13,6 +13,7 @@
     "devDependencies": {
         "@fortawesome/fontawesome-svg-core": "^1.2.35",
         "@fortawesome/free-solid-svg-icons": "^5.15.1",
+        "@fortawesome/free-regular-svg-icons": "^5.15.3",
         "@rollup/plugin-commonjs": "^15.1.0",
         "@rollup/plugin-node-resolve": "^9.0.0",
         "@rollup/plugin-typescript": "^6.0.0",
@@ -24,5 +25,6 @@
         "rollup-plugin-css-only": "^3.1.0",
         "tslib": "^2.0.3",
         "typescript": "^4.0.3"
-    }
+    },
+    "dependencies": {}
 }

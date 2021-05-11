@@ -53,6 +53,18 @@
 
 .admonition-content {
     margin: 0 0.6rem;
+    position: relative;
+}
+.admonition-content-copy {
+    position: absolute;
+    top: 0;
+    right: 0;
+    color: var(--text-faint);
+    cursor: pointer;
+    margin: -10px -2px;
+}
+.admonition-content-copy:hover {
+    color: var(--text-normal);
 }
 
 details.admonition:not([open]) {

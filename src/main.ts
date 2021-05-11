@@ -8,8 +8,8 @@ import {
 } from "obsidian";
 import {
     Admonition,
-    INestedAdmonition,
-    ObsidianAdmonitionPlugin
+    ObsidianAdmonitionPlugin,
+    ISettingsData
 } from "../@types/types";
 import {
     getAdmonitionElement,
@@ -48,12 +48,16 @@ Object.fromEntries =
         return obj;
     };
 
-/* const compareVersions = (a: string, b: string) => {
-    return a.localeCompare(b, undefined, { numeric: true }) === 1;
-}; */
-
 import "./main.css";
 import AdmonitionSetting from "./settings";
+import { findIconDefinition, icon } from "@fortawesome/fontawesome-svg-core";
+
+const DEFAULT_APP_SETTINGS: ISettingsData = {
+    userAdmonitions: {},
+    syntaxHighlight: false,
+    copyButton: false,
+    version: ""
+};
 
 const ADMONITION_MAP: {
     [admonitionType: string]: Admonition;
@@ -104,69 +108,63 @@ const ADMONITION_MAP: {
 };
 export default class ObsidianAdmonition
     extends Plugin
-    implements ObsidianAdmonitionPlugin {
+    implements ObsidianAdmonitionPlugin
+{
     admonitions: { [admonitionType: string]: Admonition } = {};
-    userAdmonitions: { [admonitionType: string]: Admonition } = {};
-    syntaxHighlight: boolean;
+    /*     userAdmonitions: { [admonitionType: string]: Admonition } = {};
+    syntaxHighlight: boolean; */
+    data: ISettingsData;
     get types() {
         return Object.keys(this.admonitions);
     }
     async saveSettings() {
-        await this.saveData({
-            syntaxHighlight: this.syntaxHighlight || false,
-            userAdmonitions: this.userAdmonitions || {},
-            version: this.manifest.version
-        });
+        await this.saveData(this.data);
     }
+
     async loadSettings() {
-        let data = Object.assign({}, await this.loadData());
+        let data = Object.assign(
+            {},
+            DEFAULT_APP_SETTINGS,
+            await this.loadData()
+        );
 
-        if (!Object.prototype.hasOwnProperty.call(data, "syntaxHighlight")) {
-            data = {
-                userAdmonitions: data,
-                syntaxHighlight: false
-            };
-        }
-
-        let { userAdmonitions = {}, syntaxHighlight = false } = data || {};
-        this.userAdmonitions = userAdmonitions;
-        this.syntaxHighlight = syntaxHighlight;
+        this.data = data;
 
         this.admonitions = {
             ...ADMONITION_MAP,
-            ...this.userAdmonitions
+            ...this.data.userAdmonitions
         };
         await this.saveSettings();
     }
     async addAdmonition(admonition: Admonition): Promise<void> {
-        this.userAdmonitions = {
-            ...this.userAdmonitions,
+        this.data.userAdmonitions = {
+            ...this.data.userAdmonitions,
             [admonition.type]: admonition
         };
         this.admonitions = {
             ...ADMONITION_MAP,
-            ...this.userAdmonitions
+            ...this.data.userAdmonitions
         };
         this.registerMarkdownCodeBlockProcessor(
             `ad-${admonition.type}`,
             this.postprocessor.bind(this, admonition.type)
         );
-        if (this.syntaxHighlight) {
+        if (this.data.syntaxHighlight) {
             this.turnOnSyntaxHighlighting([admonition.type]);
         }
         await this.saveSettings();
     }
 
     async removeAdmonition(admonition: Admonition) {
-        if (this.userAdmonitions[admonition.type]) {
-            delete this.userAdmonitions[admonition.type];
+        if (this.data.userAdmonitions[admonition.type]) {
+            delete this.data.userAdmonitions[admonition.type];
         }
         this.admonitions = {
             ...ADMONITION_MAP,
-            ...this.userAdmonitions
+            ...this.data.userAdmonitions
         };
 
-        if (this.syntaxHighlight) {
+        if (this.data.syntaxHighlight) {
             this.turnOffSyntaxHighlighting([admonition.type]);
         }
 
@@ -185,7 +183,7 @@ export default class ObsidianAdmonition
                 this.postprocessor.bind(this, type)
             );
         });
-        if (this.syntaxHighlight) {
+        if (this.data.syntaxHighlight) {
             this.turnOnSyntaxHighlighting();
         }
 
@@ -196,9 +194,8 @@ export default class ObsidianAdmonition
                 let view = this.app.workspace.getActiveViewOfType(MarkdownView);
                 if (!view || !(view instanceof MarkdownView)) return;
 
-                let admonitions = view.contentEl.querySelectorAll(
-                    "details[open]"
-                );
+                let admonitions =
+                    view.contentEl.querySelectorAll("details[open]");
                 for (let i = 0; i < admonitions.length; i++) {
                     let admonition = admonitions[i];
                     admonition.removeAttribute("open");
@@ -223,9 +220,9 @@ export default class ObsidianAdmonition
         });
     }
     turnOnSyntaxHighlighting(types: string[] = Object.keys(this.admonitions)) {
-        if (!this.syntaxHighlight) return;
+        if (!this.data.syntaxHighlight) return;
         types.forEach((type) => {
-            if (this.syntaxHighlight) {
+            if (this.data.syntaxHighlight) {
                 /** Process from @deathau's syntax highlight plugin */
                 CodeMirror.defineMode(`ad-${type}`, (config, options) => {
                     return CodeMirror.getMode(config, "hypermd");
@@ -334,15 +331,32 @@ export default class ObsidianAdmonition
                 markdownRenderChild
             );
 
+            if (this.data.copyButton) {
+                let copy = admonitionContent
+                    .createDiv("admonition-content-copy")
+                    .appendChild(
+                        icon(
+                            findIconDefinition({
+                                iconName: "copy",
+                                prefix: "far"
+                            })
+                        ).node[0]
+                    );
+                copy.addEventListener("click", () => {
+                    navigator.clipboard.writeText(content).then(() => {
+                        new Notice("Admonition content copied to clipboard.");
+                    });
+                });
+            }
+
             const taskLists = admonitionContent.querySelectorAll(
                 ".contains-task-list"
             );
             const splitContent = content.split("\n");
 
             for (let i = 0; i < taskLists.length; i++) {
-                let tasks: NodeListOf<HTMLLIElement> = taskLists[
-                    i
-                ].querySelectorAll(".task-list-item");
+                let tasks: NodeListOf<HTMLLIElement> =
+                    taskLists[i].querySelectorAll(".task-list-item");
                 if (!tasks.length) continue;
                 for (let j = 0; j < tasks.length; j++) {
                     let task = tasks[j];

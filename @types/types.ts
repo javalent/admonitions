@@ -12,11 +12,21 @@ export interface INestedAdmonition {
     end: number;
     src: string;
 }
+
+export interface ISettingsData {
+    userAdmonitions: {
+        [admonitionType: string]: Admonition;
+    };
+    syntaxHighlight: boolean;
+    copyButton: boolean;
+    version: string;
+}
 export declare class ObsidianAdmonitionPlugin extends Plugin_2 {
     removeAdmonition: (admonition: Admonition) => Promise<void>;
     admonitions: { [admonitionType: string]: Admonition };
-    userAdmonitions: { [admonitionType: string]: Admonition };
-    syntaxHighlight: boolean;
+/*     userAdmonitions: { [admonitionType: string]: Admonition };
+    syntaxHighlight: boolean; */
+    data: ISettingsData;
     turnOnSyntaxHighlighting: (types?: string[]) => void;
     turnOffSyntaxHighlighting: (types?: string[]) => void;
     saveSettings: () => Promise<void>;

@@ -275,14 +275,30 @@ An icon without a title will have this CSS:
 }
 ```
 
+## Settings
+
+### Syntax Highlighting
+
+Turns on an experimental mode that uses Obsidian's markdown syntax highlighter inside admonition code blocks.
+
+### Copy Button
+
+Adds a "copy content" button to every admonition block.
+
 ## Todo
 
 -   [x] Add the ability to collapse the admonition
 -   [x] Custom admonitions
 -   [x] Settings tab to customize icon and color of all admonitions
 -   [x] Ability to render markdown inside an admonition
+-   [ ] Top-level Python Markdown-style admonitions
 
 # Version History
+
+## 4.1.0
+
+-   Added "Copy Button" setting
+    -   Turning this on adds a "copy content" button to each admonition, which copies the admonition content to the clipboard
 
 ## 4.0.0
 
