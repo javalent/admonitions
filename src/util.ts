@@ -1,8 +1,4 @@
-import {
-    findIconDefinition,
-    icon,
-    IconName
-} from "@fortawesome/fontawesome-svg-core";
+import { findIconDefinition, icon, IconName } from "./icons";
 import { INestedAdmonition } from "../@types/types";
 import { MarkdownRenderer, Notice } from "obsidian";
 

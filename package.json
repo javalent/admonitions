@@ -1,6 +1,6 @@
 {
     "name": "obsidian-admonition",
-    "version": "4.1.4",
+    "version": "4.1.5",
     "description": "Admonition block-styled content for Obsidian.md",
     "main": "main.js",
     "scripts": {
@@ -11,9 +11,10 @@
     "author": "Jeremy Valentine",
     "license": "MIT",
     "devDependencies": {
-        "@fortawesome/fontawesome-svg-core": "^1.2.35",
-        "@fortawesome/free-solid-svg-icons": "^5.15.1",
+        "@fortawesome/fontawesome-svg-core": "^1.2.32",
         "@fortawesome/free-regular-svg-icons": "^5.15.3",
+        "@fortawesome/free-solid-svg-icons": "^5.15.1",
+        "@popperjs/core": "^2.9.2",
         "@rollup/plugin-commonjs": "^15.1.0",
         "@rollup/plugin-node-resolve": "^9.0.0",
         "@rollup/plugin-typescript": "^6.0.0",
@@ -25,6 +26,5 @@
         "rollup-plugin-css-only": "^3.1.0",
         "tslib": "^2.0.3",
         "typescript": "^4.0.3"
-    },
-    "dependencies": {}
+    }
 }

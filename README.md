@@ -295,6 +295,10 @@ Adds a "copy content" button to every admonition block.
 
 # Version History
 
+## 4.1.5
+
+-   Improved Admonition Icon selection experience
+
 ## 4.1.4
 
 -   Trimmed whitespace from content when copying to clipboard.

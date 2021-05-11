@@ -50,7 +50,7 @@ Object.fromEntries =
 
 import "./main.css";
 import AdmonitionSetting from "./settings";
-import { findIconDefinition, icon } from "@fortawesome/fontawesome-svg-core";
+import { findIconDefinition, icon } from "./icons";
 
 const DEFAULT_APP_SETTINGS: ISettingsData = {
     userAdmonitions: {},

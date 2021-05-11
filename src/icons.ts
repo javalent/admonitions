@@ -1,6 +1,8 @@
-import { fas } from "@fortawesome/free-solid-svg-icons";
 import { faCopy } from "@fortawesome/free-regular-svg-icons";
+import { fas } from "@fortawesome/free-solid-svg-icons";
 import {
+    IconDefinition,
+    IconName,
     findIconDefinition,
     icon,
     library
@@ -8,4 +10,8 @@ import {
 
 library.add(fas, faCopy);
 
-export { icon, findIconDefinition };
+export const iconNames = Object.values(fas).map(
+    (i: IconDefinition) => i.iconName
+);
+
+export { icon, findIconDefinition, IconName };

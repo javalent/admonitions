@@ -10,8 +10,8 @@ import {
 import { Admonition, ObsidianAdmonitionPlugin } from "../@types/types";
 
 import { getAdmonitionElement } from "./util";
-import { findIconDefinition, icon } from "./icons";
-import { IconName } from "@fortawesome/fontawesome-svg-core";
+import { findIconDefinition, icon, iconNames, IconName } from "./icons";
+import { IconSuggestionModal } from "./modals";
 
 /** Taken from https://stackoverflow.com/questions/34849001/check-if-css-selector-is-valid/42149818 */
 const isSelectorValid = ((dummyElement) => (selector: string) => {
@@ -247,7 +247,10 @@ class SettingsModal extends Modal {
             .setName("Admonition Icon")
             .addText((text) => {
                 iconText = text;
-                iconText.setValue(this.icon).onChange((v) => {
+                text.setValue(this.icon);
+
+                const validate = async () => {
+                    const v = text.inputEl.value;
                     let ic = findIconDefinition({
                         iconName: v as IconName,
                         prefix: "fas"
@@ -277,7 +280,18 @@ class SettingsModal extends Modal {
                     );
 
                     iconEl.innerHTML = icon(ic).html[0];
-                });
+                };
+
+                const modal = new IconSuggestionModal(
+                    this.app,
+                    text,
+                    iconNames
+                );
+
+                modal.onClose = validate;
+
+                text.inputEl.onblur = validate;
+                
             });
 
         const desc = iconSetting.descEl.createDiv();
