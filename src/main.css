@@ -58,22 +58,25 @@
 }
 
 .admonition-content-copy {
-  color: var(--text-faint);
-  cursor: pointer;
-  opacity: 0;
-  position: absolute;
-  right: 0px;
-  top: 0;
-  transition: 0.3s all ease-in;
+    color: var(--text-faint);
+    cursor: pointer;
+    opacity: 0;
+    position: absolute;
+    right: 0px;
+    top: 0;
+    transition: 0.3s opacity ease-in;
 }
 
 .admonition-content-copy:hover {
-  color: var(--text-normal);
+    color: var(--text-normal);
 }
 
-.admonition-content:hover > .admonition-content-copy,
+.admonition:hover .admonition-content-copy,
 .admonition-content-copy:hover {
-  opacity: 1;
+    opacity: 1;
+}
+.admonition-title:hover + .admonition-content .admonition-content-copy {
+    opacity: 0;
 }
 
 details.admonition:not([open]) {
