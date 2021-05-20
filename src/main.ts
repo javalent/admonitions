@@ -312,7 +312,7 @@ export default class ObsidianAdmonition
 
             if (this.data.autoCollapse && !collapse) {
                 collapse = this.data.defaultCollapseType ?? "open";
-            } else if (collapse.trim() === "none") {
+            } else if (collapse && collapse.trim() === "none") {
                 collapse = "";
             }
 
