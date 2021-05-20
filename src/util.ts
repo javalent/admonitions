@@ -61,7 +61,7 @@ export function getParametersFromSource(type: string, src: string) {
         Object.prototype.hasOwnProperty.call(params, "collapse") &&
         (params.collapse.length == 0 ||
             params.collapse === undefined ||
-            collapse !== "open")
+            (collapse !== "open" && collapse !== "none"))
     ) {
         collapse = "closed";
     }

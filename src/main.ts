@@ -56,7 +56,9 @@ const DEFAULT_APP_SETTINGS: ISettingsData = {
     userAdmonitions: {},
     syntaxHighlight: false,
     copyButton: false,
-    version: ""
+    version: "",
+    autoCollapse: false,
+    defaultCollapseType: "open"
 };
 
 const ADMONITION_MAP: {
@@ -306,6 +308,12 @@ export default class ObsidianAdmonition
                     );
                 }
                 content = split.join("\n");
+            }
+
+            if (this.data.autoCollapse && !collapse) {
+                collapse = this.data.defaultCollapseType ?? "open";
+            } else if (collapse.trim() === "none") {
+                collapse = "";
             }
 
             let admonitionElement = getAdmonitionElement(

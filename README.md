@@ -70,6 +70,8 @@ Use the `collapse` parameter to create a collapsible admonition.
 
 If a blank title is provided, the collapse parameter will not do anything.
 
+Admonitions may be set to be collapsible by default in settings.
+
 ![](https://raw.githubusercontent.com/valentine195/obsidian-admonition/master/images/collapse.gif)
 
 ## Nesting Admonitions
@@ -280,6 +282,18 @@ An icon without a title will have this CSS:
 ### Syntax Highlighting
 
 Turns on an experimental mode that uses Obsidian's markdown syntax highlighter inside admonition code blocks.
+
+### Collapsible By Default
+
+Admonitions will be automatically rendered as collapsible (open) by default.
+
+If set, use `collapse: none` in an admonition block to override.
+
+### Default Collapse Type
+
+**This setting is only available if Collapsible By Default is ON**
+
+Admonitions will be automatically rendered as opened or closed when collapsible by default.
 
 ### Copy Button
 

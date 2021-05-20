@@ -66,6 +66,36 @@ export default class AdmonitionSetting extends PluginSettingTab {
             });
         });
         new Setting(containerEl)
+            .setName("Collapsible by Default")
+            .setDesc(
+                "All admonitions will be collapsible by default. Use collapse: none to prevent."
+            )
+            .addToggle((t) => {
+                t.setValue(this.plugin.data.autoCollapse).onChange(
+                    async (v) => {
+                        this.plugin.data.autoCollapse = v;
+                        this.display();
+                        await this.plugin.saveSettings();
+                    }
+                );
+            });
+        if (this.plugin.data.autoCollapse) {
+            new Setting(containerEl)
+                .setName("Default Collapse Type")
+                .setDesc(
+                    "Collapsible admonitions will be either opened or closed."
+                )
+                .addDropdown((d) => {
+                    d.addOption("open", "open");
+                    d.addOption("closed", "closed");
+                    d.setValue(this.plugin.data.defaultCollapseType);
+                    d.onChange(async (v) => {
+                        this.plugin.data.defaultCollapseType = v;
+                        await this.plugin.saveSettings();
+                    });
+                });
+        }
+        new Setting(containerEl)
             .setName("Add Copy Button")
             .setDesc("Add a 'copy content' button to admonitions.")
             .addToggle((t) => {
@@ -291,7 +321,6 @@ class SettingsModal extends Modal {
                 modal.onClose = validate;
 
                 text.inputEl.onblur = validate;
-                
             });
 
         const desc = iconSetting.descEl.createDiv();

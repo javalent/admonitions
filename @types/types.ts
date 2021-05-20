@@ -19,12 +19,14 @@ export interface ISettingsData {
     };
     syntaxHighlight: boolean;
     copyButton: boolean;
+    autoCollapse: boolean;
+    defaultCollapseType: string;
     version: string;
 }
 export declare class ObsidianAdmonitionPlugin extends Plugin_2 {
     removeAdmonition: (admonition: Admonition) => Promise<void>;
     admonitions: { [admonitionType: string]: Admonition };
-/*     userAdmonitions: { [admonitionType: string]: Admonition };
+    /*     userAdmonitions: { [admonitionType: string]: Admonition };
     syntaxHighlight: boolean; */
     data: ISettingsData;
     turnOnSyntaxHighlighting: (types?: string[]) => void;
