@@ -461,7 +461,8 @@ export default class ObsidianAdmonition
         sourcePath: string
     ): void {
         if (!this.data.syncLinks) return;
-
+        /* //@ts-expect-error
+        this.app.metadataCache.resolveLinks(sourcePath); */
         for (let i = 0; i < links.length; i++) {
             const a = links[i];
             if (a.dataset.href) {
@@ -469,20 +470,25 @@ export default class ObsidianAdmonition
                     a.dataset.href,
                     ""
                 );
+                let cache, path;
                 if (file && file instanceof TFile) {
-                    if (!this.app.metadataCache.resolvedLinks[sourcePath]) {
-                        this.app.metadataCache.resolvedLinks[sourcePath] = {
-                            [file.path]: 0
-                        };
-                    }
-                    let resolved =
-                        this.app.metadataCache.resolvedLinks[sourcePath];
-                    if (!resolved[file.path]) {
-                        resolved[file.path] = 0;
-                    }
-                    resolved[file.path] += 1;
-                    this.app.metadataCache.resolvedLinks[sourcePath] = resolved;
+                    cache = this.app.metadataCache.resolvedLinks;
+                    path = file.path;
+                } else {
+                    cache = this.app.metadataCache.unresolvedLinks;
+                    path = a.dataset.href;
                 }
+                if (!cache[sourcePath]) {
+                    cache[sourcePath] = {
+                        [path]: 0
+                    };
+                }
+                let resolved = cache[sourcePath];
+                if (!resolved[path]) {
+                    resolved[path] = 0;
+                }
+                resolved[path] += 1;
+                cache[sourcePath] = resolved;
             }
         }
     }
