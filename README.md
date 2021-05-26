@@ -316,6 +316,14 @@ No additional features are planned at this time. If there is a feature missing t
 
 # Version History
 
+## 4.3.0
+
+-   Added Sync Links to Metadata Cache setting
+
+## 4.2.0
+
+-   Added Collapsible by Default and Default Collapse Type settings
+
 ## 4.1.5
 
 -   Improved Admonition Icon selection experience
