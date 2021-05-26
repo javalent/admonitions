@@ -4,7 +4,8 @@ import {
     MarkdownRenderer,
     MarkdownView,
     Notice,
-    Plugin
+    Plugin,
+    TFile
 } from "obsidian";
 import {
     Admonition,
@@ -58,7 +59,8 @@ const DEFAULT_APP_SETTINGS: ISettingsData = {
     copyButton: false,
     version: "",
     autoCollapse: false,
-    defaultCollapseType: "open"
+    defaultCollapseType: "open",
+    syncLinks: true
 };
 
 const ADMONITION_MAP: {
@@ -220,6 +222,24 @@ export default class ObsidianAdmonition
                 }
             }
         });
+
+        this.registerEvent(
+            this.app.metadataCache.on("resolve", (file) => {
+                if (this.app.workspace.getActiveFile() != file) return;
+
+                const view =
+                    this.app.workspace.getActiveViewOfType(MarkdownView);
+
+                if (!view || !(view instanceof MarkdownView)) return;
+
+                const admonitionLinks =
+                    view.contentEl.querySelectorAll<HTMLAnchorElement>(
+                        ".admonition a.internal-link"
+                    );
+
+                this.addLinksToCache(admonitionLinks, file.path);
+            })
+        );
     }
     turnOnSyntaxHighlighting(types: string[] = Object.keys(this.admonitions)) {
         if (!this.data.syntaxHighlight) return;
@@ -402,6 +422,13 @@ export default class ObsidianAdmonition
                 }
             }
 
+            const links =
+                admonitionContent.querySelectorAll<HTMLAnchorElement>(
+                    "a.internal-link"
+                );
+
+            this.addLinksToCache(links, ctx.sourcePath);
+
             /**
              * Replace the <pre> tag with the new admonition.
              */
@@ -428,5 +455,35 @@ export default class ObsidianAdmonition
         console.log("Obsidian Admonition unloaded");
 
         this.turnOffSyntaxHighlighting();
+    }
+    addLinksToCache(
+        links: NodeListOf<HTMLAnchorElement>,
+        sourcePath: string
+    ): void {
+        if (!this.data.syncLinks) return;
+
+        for (let i = 0; i < links.length; i++) {
+            const a = links[i];
+            if (a.dataset.href) {
+                let file = this.app.metadataCache.getFirstLinkpathDest(
+                    a.dataset.href,
+                    ""
+                );
+                if (file && file instanceof TFile) {
+                    if (!this.app.metadataCache.resolvedLinks[sourcePath]) {
+                        this.app.metadataCache.resolvedLinks[sourcePath] = {
+                            [file.path]: 0
+                        };
+                    }
+                    let resolved =
+                        this.app.metadataCache.resolvedLinks[sourcePath];
+                    if (!resolved[file.path]) {
+                        resolved[file.path] = 0;
+                    }
+                    resolved[file.path] += 1;
+                    this.app.metadataCache.resolvedLinks[sourcePath] = resolved;
+                }
+            }
+        }
     }
 }

@@ -283,6 +283,12 @@ An icon without a title will have this CSS:
 
 Turns on an experimental mode that uses Obsidian's markdown syntax highlighter inside admonition code blocks.
 
+### Sync Links to Metadata Cache
+
+This will attempt to sync internal links within admonitions to the metadata cache used by Obsidian. This will allow graph view to display these links.
+
+This setting is experimental and could have unintended consequences. If you begin to experience odd behavior, try turning it off and reloading Obsidian.
+
 ### Collapsible By Default
 
 Admonitions will be automatically rendered as collapsible (open) by default.
@@ -301,11 +307,12 @@ Adds a "copy content" button to every admonition block.
 
 ## Todo
 
+No additional features are planned at this time. If there is a feature missing that you would like to see, please open an issue.
+
 -   [x] Add the ability to collapse the admonition
 -   [x] Custom admonitions
 -   [x] Settings tab to customize icon and color of all admonitions
 -   [x] Ability to render markdown inside an admonition
--   [ ] Top-level Python Markdown-style admonitions
 
 # Version History
 

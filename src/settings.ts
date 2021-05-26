@@ -66,6 +66,18 @@ export default class AdmonitionSetting extends PluginSettingTab {
             });
         });
         new Setting(containerEl)
+            .setName("Sync Links to Metadata Cache")
+            .setDesc(
+                "Try to sync internal links to the metadata cache to display in graph view. This setting could have unintended consequences. Use at your own risk."
+            )
+            .addToggle((t) => {
+                t.setValue(this.plugin.data.syncLinks).onChange(async (v) => {
+                    this.plugin.data.syncLinks = v;
+                    this.display();
+                    await this.plugin.saveSettings();
+                });
+            });
+        new Setting(containerEl)
             .setName("Collapsible by Default")
             .setDesc(
                 "All admonitions will be collapsible by default. Use collapse: none to prevent."

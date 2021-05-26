@@ -21,6 +21,7 @@ export interface ISettingsData {
     copyButton: boolean;
     autoCollapse: boolean;
     defaultCollapseType: string;
+    syncLinks: boolean;
     version: string;
 }
 export declare class ObsidianAdmonitionPlugin extends Plugin_2 {
