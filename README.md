@@ -305,6 +305,19 @@ Admonitions will be automatically rendered as opened or closed when collapsible 
 
 Adds a "copy content" button to every admonition block.
 
+### Register and Unregister Commands
+
+Commands may be registered for each custom admonition type to insert them into an open note by clicking the `Register Commands` button.
+
+Clicking this button will add two commands for that admonition type:
+
+1. Insert <type>
+2. Insert <type> with title
+
+These commands can have hotkeys assigned to them under Settings > Hotkeys.
+
+Registered commands may be removed by clicking on `Unregister Commands`.
+
 ## Todo
 
 No additional features are planned at this time. If there is a feature missing that you would like to see, please open an issue.
@@ -315,6 +328,13 @@ No additional features are planned at this time. If there is a feature missing t
 -   [x] Ability to render markdown inside an admonition
 
 # Version History
+
+## 4.4.0
+
+-   Added ability to register and unregister commands to insert admonitions into a note
+    -   Admonitions that have been created in settings can have commands registered by clicking the new "Register Commands" button
+    -   Registering commands adds two commands: `Insert <type>` and `Insert <type> With Title`
+    -   Registered commands can be removed by clicking "Unregister Commands"
 
 ## 4.3.0
 

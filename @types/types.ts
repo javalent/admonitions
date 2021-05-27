@@ -4,6 +4,7 @@ export interface Admonition {
     type: string;
     icon: string;
     color: string;
+    command: boolean;
 }
 
 export interface INestedAdmonition {
@@ -43,4 +44,6 @@ export declare class ObsidianAdmonitionPlugin extends Plugin_2 {
         el: HTMLElement,
         ctx: MarkdownPostProcessorContext
     ) => void;
+    unregisterCommandsFor(admonition: Admonition): void;
+    registerCommandsFor(admonition: Admonition): void;
 }

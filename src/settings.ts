@@ -12,6 +12,7 @@ import { Admonition, ObsidianAdmonitionPlugin } from "../@types/types";
 import { getAdmonitionElement } from "./util";
 import { findIconDefinition, icon, iconNames, IconName } from "./icons";
 import { IconSuggestionModal } from "./modals";
+import { ADD_COMMAND_NAME, REMOVE_COMMAND_NAME } from "./constants";
 
 /** Taken from https://stackoverflow.com/questions/34849001/check-if-css-selector-is-valid/42149818 */
 const isSelectorValid = ((dummyElement) => (selector: string) => {
@@ -127,7 +128,10 @@ export default class AdmonitionSetting extends PluginSettingTab {
                 });
             });
 
-        new Setting(containerEl)
+        const additionalContainer = containerEl.createDiv(
+            "additional-container"
+        );
+        new Setting(additionalContainer)
             .setName("Add New")
             .setDesc("Add a new Admonition type.")
             .addButton((button: ButtonComponent): ButtonComponent => {
@@ -142,7 +146,8 @@ export default class AdmonitionSetting extends PluginSettingTab {
                                 this.plugin.addAdmonition({
                                     type: modal.type,
                                     color: modal.color,
-                                    icon: modal.icon
+                                    icon: modal.icon,
+                                    command: false
                                 });
                                 this.display();
                             }
@@ -154,10 +159,11 @@ export default class AdmonitionSetting extends PluginSettingTab {
                 return b;
             });
 
+        const additional = additionalContainer.createDiv("additional");
         for (let a in this.plugin.data.userAdmonitions) {
             const admonition = this.plugin.data.userAdmonitions[a];
 
-            let setting = new Setting(containerEl);
+            let setting = new Setting(additional);
 
             let admonitionElement = await getAdmonitionElement(
                 admonition.type,
@@ -168,35 +174,60 @@ export default class AdmonitionSetting extends PluginSettingTab {
             );
             setting.infoEl.replaceWith(admonitionElement);
 
-            setting.addButton((b) => {
-                b.setIcon("pencil")
-                    .setTooltip("Edit")
-                    .onClick(() => {
-                        let modal = new SettingsModal(this.app, admonition);
+            if (!admonition.command) {
+                setting.addExtraButton((b) => {
+                    b.setIcon(ADD_COMMAND_NAME)
+                        .setTooltip("Register Commands")
+                        .onClick(async () => {
+                            this.plugin.registerCommandsFor(admonition);
+                            await this.plugin.saveSettings();
+                            this.display();
+                        });
+                });
+            } else {
+                setting.addExtraButton((b) => {
+                    b.setIcon(REMOVE_COMMAND_NAME)
+                        .setTooltip("Unregister Commands")
+                        .onClick(async () => {
+                            this.plugin.unregisterCommandsFor(admonition);
+                            await this.plugin.saveSettings();
+                            this.display();
+                        });
+                });
+            }
 
-                        modal.onClose = async () => {
-                            if (modal.saved) {
-                                this.plugin.removeAdmonition(admonition);
-                                this.plugin.addAdmonition({
-                                    type: modal.type,
-                                    color: modal.color,
-                                    icon: modal.icon
-                                });
-                                this.display();
-                            }
-                        };
+            setting
+                .addExtraButton((b) => {
+                    b.setIcon("pencil")
+                        .setTooltip("Edit")
+                        .onClick(() => {
+                            let modal = new SettingsModal(this.app, admonition);
 
-                        modal.open();
-                    });
-            });
-            setting.addButton((b) => {
-                b.setIcon("trash")
-                    .setTooltip("Delete")
-                    .onClick(() => {
-                        this.plugin.removeAdmonition(admonition);
-                        this.display();
-                    });
-            });
+                            modal.onClose = async () => {
+                                if (modal.saved) {
+                                    const hasCommand = admonition.command;
+                                    this.plugin.removeAdmonition(admonition);
+                                    this.plugin.addAdmonition({
+                                        type: modal.type,
+                                        color: modal.color,
+                                        icon: modal.icon,
+                                        command: hasCommand
+                                    });
+                                    this.display();
+                                }
+                            };
+
+                            modal.open();
+                        });
+                })
+                .addExtraButton((b) => {
+                    b.setIcon("trash")
+                        .setTooltip("Delete")
+                        .onClick(() => {
+                            this.plugin.removeAdmonition(admonition);
+                            this.display();
+                        });
+                });
         }
     }
 }

@@ -1,4 +1,5 @@
 import {
+    addIcon,
     MarkdownPostProcessorContext,
     MarkdownRenderChild,
     MarkdownRenderer,
@@ -17,9 +18,26 @@ import {
     getMatches,
     getParametersFromSource
 } from "./util";
+import {
+    ADMONITION_MAP,
+    ADD_ADMONITION_COMMAND_ICON,
+    REMOVE_ADMONITION_COMMAND_ICON,
+    ADD_COMMAND_NAME,
+    REMOVE_COMMAND_NAME
+} from "./constants";
 
 import * as CodeMirror from "./codemirror";
 
+//add commands to app interface
+declare module "obsidian" {
+    interface App {
+        commands: {
+            commands: { [id: string]: Command };
+            editorCommands: { [id: string]: Command };
+            findCommand(id: string): Command;
+        };
+    }
+}
 Object.fromEntries =
     Object.fromEntries ||
     /** Polyfill taken from https://github.com/tc39/proposal-object-from-entries/blob/master/polyfill.js */
@@ -63,53 +81,6 @@ const DEFAULT_APP_SETTINGS: ISettingsData = {
     syncLinks: true
 };
 
-const ADMONITION_MAP: {
-    [admonitionType: string]: Admonition;
-} = {
-    note: { type: "note", color: "68, 138, 255", icon: "pencil-alt" },
-    seealso: { type: "note", color: "68, 138, 255", icon: "pencil-alt" },
-    abstract: { type: "abstract", color: "0, 176, 255", icon: "book" },
-    summary: { type: "abstract", color: "0, 176, 255", icon: "book" },
-    info: { type: "info", color: "0, 184, 212", icon: "info-circle" },
-    todo: { type: "info", color: "0, 184, 212", icon: "info-circle" },
-    tip: { type: "tip", color: "0, 191, 165", icon: "fire" },
-    hint: { type: "tip", color: "0, 191, 165", icon: "fire" },
-    important: { type: "tip", color: "0, 191, 165", icon: "fire" },
-    success: { type: "success", color: "0, 200, 83", icon: "check-circle" },
-    check: { type: "success", color: "0, 200, 83", icon: "check-circle" },
-    done: { type: "success", color: "0, 200, 83", icon: "check-circle" },
-    question: {
-        type: "question",
-        color: "100, 221, 23",
-        icon: "question-circle"
-    },
-    help: { type: "question", color: "100, 221, 23", icon: "question-circle" },
-    faq: { type: "question", color: "100, 221, 23", icon: "question-circle" },
-    warning: {
-        type: "warning",
-        color: "255, 145, 0",
-        icon: "exclamation-triangle"
-    },
-    caution: {
-        type: "warning",
-        color: "255, 145, 0",
-        icon: "exclamation-triangle"
-    },
-    attention: {
-        type: "warning",
-        color: "255, 145, 0",
-        icon: "exclamation-triangle"
-    },
-    failure: { type: "failure", color: "255, 82, 82", icon: "times-circle" },
-    fail: { type: "failure", color: "255, 82, 82", icon: "times-circle" },
-    missing: { type: "failure", color: "255, 82, 82", icon: "times-circle" },
-    danger: { type: "danger", color: "255, 23, 68", icon: "bolt" },
-    error: { type: "danger", color: "255, 23, 68", icon: "bolt" },
-    bug: { type: "bug", color: "245, 0, 87", icon: "bug" },
-    example: { type: "example", color: "124, 77, 255", icon: "list-ol" },
-    quote: { type: "quote", color: "158, 158, 158", icon: "quote-right" },
-    cite: { type: "quote", color: "158, 158, 158", icon: "quote-right" }
-};
 export default class ObsidianAdmonition
     extends Plugin
     implements ObsidianAdmonitionPlugin
@@ -181,11 +152,17 @@ export default class ObsidianAdmonition
 
         this.addSettingTab(new AdmonitionSetting(this.app, this));
 
+        addIcon(ADD_COMMAND_NAME, ADD_ADMONITION_COMMAND_ICON);
+        addIcon(REMOVE_COMMAND_NAME, REMOVE_ADMONITION_COMMAND_ICON);
+
         Object.keys(this.admonitions).forEach((type) => {
             this.registerMarkdownCodeBlockProcessor(
                 `ad-${type}`,
                 this.postprocessor.bind(this, type)
             );
+            if (this.admonitions[type].command) {
+                this.registerCommandsFor(this.admonitions[type]);
+            }
         });
         if (this.data.syntaxHighlight) {
             this.turnOnSyntaxHighlighting();
@@ -240,6 +217,74 @@ export default class ObsidianAdmonition
                 this.addLinksToCache(admonitionLinks, file.path);
             })
         );
+    }
+    unregisterCommandsFor(admonition: Admonition) {
+        admonition.command = false;
+
+        if (
+            this.app.commands.findCommand(
+                `obsidian-admonition:insert-${admonition.type}`
+            )
+        ) {
+            delete this.app.commands.editorCommands[
+                `obsidian-admonition:insert-${admonition.type}`
+            ];
+            delete this.app.commands.editorCommands[
+                `obsidian-admonition:insert-${admonition.type}-with-title`
+            ];
+            delete this.app.commands.commands[
+                `obsidian-admonition:insert-${admonition.type}`
+            ];
+            delete this.app.commands.commands[
+                `obsidian-admonition:insert-${admonition.type}-with-title`
+            ];
+        }
+    }
+    registerCommandsFor(admonition: Admonition) {
+        admonition.command = true;
+        this.addCommand({
+            id: `insert-${admonition.type}`,
+            name: `Insert ${admonition.type}`,
+            editorCallback: (editor, view) => {
+                if (admonition.command) {
+                    try {
+                        editor.getDoc().replaceSelection(
+                            `\`\`\`ad-${admonition.type}
+
+\`\`\`\n`
+                        );
+                        const cursor = editor.getCursor();
+                        editor.setCursor(cursor.line - 2);
+                    } catch (e) {
+                        new Notice(
+                            "There was an issue inserting the admonition."
+                        );
+                    }
+                }
+            }
+        });
+        this.addCommand({
+            id: `insert-${admonition.type}-with-title`,
+            name: `Insert ${admonition.type} With Title`,
+            editorCallback: (editor, view) => {
+                if (admonition.command) {
+                    try {
+                        editor.getDoc().replaceSelection(
+                            `\`\`\`ad-${admonition.type}
+title: 
+
+\`\`\`\n`
+                        );
+                        const cursor = editor.getCursor();
+                        editor.setCursor(cursor.line - 3);
+                    } catch (e) {
+                        new Notice(
+                            "There was an issue inserting the admonition."
+                        );
+                    }
+                }
+            }
+        });
     }
     turnOnSyntaxHighlighting(types: string[] = Object.keys(this.admonitions)) {
         if (!this.data.syntaxHighlight) return;
