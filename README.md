@@ -329,6 +329,11 @@ No additional features are planned at this time. If there is a feature missing t
 
 # Version History
 
+## 4.4.1
+
+-   Removed `content` parameter
+-   Fixed some issues related to resolving parameters
+
 ## 4.4.0
 
 -   Added ability to register and unregister commands to insert admonitions into a note
