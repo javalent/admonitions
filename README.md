@@ -131,7 +131,7 @@ This is in the original admonition.
 
 ## Rendering Code Blocks inside Admonitions
 
-Code blocks may be nested inside admonitions using a method similar to (Nesting Admonitions)[#Nesting-Admonitions] above.
+Code blocks may be nested inside admonitions using a method similar to [Nesting Admonitions](#Nesting-Admonitions) above.
 
 Additionally, for a single layer, the `~~~` markdown codeblock syntax may be used:
 
