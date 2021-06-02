@@ -95,7 +95,7 @@ export function getParametersFromSource(type: string, src: string) {
     /**
      * If the admonition should collapse, but title was blanked, set the default title.
      */
-    if (title.trim() === "") {
+    if (title.trim() === "" && collapse !== "none") {
         title = type[0].toUpperCase() + type.slice(1).toLowerCase();
         new Notice("An admonition must have a title if it is collapsible.");
     }
