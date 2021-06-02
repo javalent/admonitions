@@ -76,7 +76,33 @@ Admonitions may be set to be collapsible by default in settings.
 
 ## Nesting Admonitions
 
-Admonitions may be nested inside each other indefinitely using the [Python Markdown](https://python-markdown.github.io/extensions/admonition/) syntax.
+Nesting admonitions may be done by increasing the number of backticks.
+
+Example:
+
+``````
+`````ad-note
+title: Nested Admonitions
+collapse: open
+
+Hello!
+
+````ad-note
+title: This admonition is nested.
+This is a nested admonition!
+
+```ad-warning
+title: This admonition is closed.
+collapse: close
+```
+
+````
+
+This is in the original admonition.
+`````
+``````
+
+Admonitions may also be nested inside each other using the [Python Markdown](https://python-markdown.github.io/extensions/admonition/) syntax.
 
 > :warning: **Please note that this syntax _cannot_ be used for the original admonition. It must be a codeblock (```).**
 
@@ -102,6 +128,31 @@ This is in the original admonition.
 ````
 
 ![](https://raw.githubusercontent.com/valentine195/obsidian-admonition/master/images/nested.png)
+
+## Rendering Code Blocks inside Admonitions
+
+Code blocks may be nested inside admonitions using a method similar to (Nesting Admonitions)[#Nesting-Admonitions] above.
+
+Additionally, for a single layer, the `~~~` markdown codeblock syntax may be used:
+
+`````
+````ad-info
+
+```ad-bug
+title: I'm Nested!
+~~~javascript
+throw new Error("Oops, I'm a bug.");
+~~~
+```
+
+```javascript
+console.log("Hello!");
+```
+
+````
+`````
+
+![](https://raw.githubusercontent.com/valentine195/obsidian-admonition/master/images/nested-code.png)
 
 ## Admonition Types
 
