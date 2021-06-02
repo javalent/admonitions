@@ -29,51 +29,73 @@ export function getMatches(
     };
 }
 
-export function getParametersFromSource(type: string, src: string) {
-    /**
-     * Find title and collapse parameters.
-     */
-    let matchedParameters =
-        src.match(/^\b(title|collapse)\b:([\s\S]*?)$/gm) || [];
+function startsWithAny(str: string, needles: string[]) {
+    for (let i = 0; i < needles.length; i++) {
+        if (str.startsWith(needles[i])) {
+            return i;
+        }
+    }
 
-    let params = Object.fromEntries(
-        matchedParameters.map((p) => {
-            let [, param, rest] = p.match(/^\b(title|collapse)\b:([\s\S]*?)$/);
-            return [param.trim(), rest.trim()];
-        })
-    );
+    return false;
+}
+
+export function getParametersFromSource(type: string, src: string) {
+
+    const keywordTokens = [
+        'title:',
+        'collapse:',
+    ]
+
+    const keywords = [
+        'title',
+        'collapse',
+    ]
+
+    let lines = src.split("\n");
+
+    let skipLines = 0
+
+    let params: {[k: string]: string} = {}
+
+    for (let i = 0; i < lines.length; i++) {
+        let keywordIndex = startsWithAny(lines[i], keywordTokens)
+
+        if (keywordIndex === false) {
+            break
+        }
+
+        let foundKeyword = keywords[keywordIndex]
+
+        if (params[foundKeyword] !== undefined) {
+            break
+        }
+
+        params[foundKeyword] = lines[i].substr(keywordTokens[keywordIndex].length).trim()
+        ++skipLines
+    }
 
     let {
         title = type[0].toUpperCase() + type.slice(1).toLowerCase(),
-        collapse
+        collapse = "none"
     } = params;
 
-    /**
-     * Get the content. Content should be everything that is not the title or collapse parameters.
-     * Remove any "content: " fields (legacy from < v0.2.0)
-     */
-    let content = src
-        .replace(/^\b(title|collapse)\b:([\s\S]*?)$/gm, "")
-        .replace(/^\bcontent\b:\s?/gm, "");
+    let content = lines.slice(skipLines).join("\n")
+
     /**
      * If the admonition should collapse, but something other than open or closed was provided, set to closed.
      */
     if (
-        Object.prototype.hasOwnProperty.call(params, "collapse") &&
-        (params.collapse.length == 0 ||
-            params.collapse === undefined ||
-            (collapse !== "open" && collapse !== "none"))
+        collapse !== "none" &&
+        collapse !== "open" &&
+        collapse !== "closed"
     ) {
         collapse = "closed";
     }
+
     /**
      * If the admonition should collapse, but title was blanked, set the default title.
      */
-    if (
-        Object.prototype.hasOwnProperty.call(params, "title") &&
-        (params.title === undefined || params.title.length === 0) &&
-        collapse
-    ) {
+    if (title.trim() === "" && collapse !== "none") {
         title = type[0].toUpperCase() + type.slice(1).toLowerCase();
         new Notice("An admonition must have a title if it is collapsible.");
     }
