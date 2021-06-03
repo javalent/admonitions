@@ -129,7 +129,7 @@ export default class AdmonitionSetting extends PluginSettingTab {
             });
 
         const additionalContainer = containerEl.createDiv(
-            "additional-container"
+            "admonition-setting-additional-container"
         );
         new Setting(additionalContainer)
             .setName("Add New")
@@ -176,7 +176,7 @@ export default class AdmonitionSetting extends PluginSettingTab {
 
             if (!admonition.command) {
                 setting.addExtraButton((b) => {
-                    b.setIcon(ADD_COMMAND_NAME)
+                    b.setIcon(ADD_COMMAND_NAME.toString())
                         .setTooltip("Register Commands")
                         .onClick(async () => {
                             this.plugin.registerCommandsFor(admonition);
@@ -186,7 +186,7 @@ export default class AdmonitionSetting extends PluginSettingTab {
                 });
             } else {
                 setting.addExtraButton((b) => {
-                    b.setIcon(REMOVE_COMMAND_NAME)
+                    b.setIcon(REMOVE_COMMAND_NAME.toString())
                         .setTooltip("Unregister Commands")
                         .onClick(async () => {
                             this.plugin.unregisterCommandsFor(admonition);

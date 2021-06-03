@@ -143,6 +143,10 @@ export default class ObsidianAdmonition
             this.turnOffSyntaxHighlighting([admonition.type]);
         }
 
+        if (admonition.command) {
+            this.unregisterCommandsFor(admonition);
+        }
+
         await this.saveSettings();
     }
     async onload(): Promise<void> {
@@ -152,8 +156,8 @@ export default class ObsidianAdmonition
 
         this.addSettingTab(new AdmonitionSetting(this.app, this));
 
-        addIcon(ADD_COMMAND_NAME, ADD_ADMONITION_COMMAND_ICON);
-        addIcon(REMOVE_COMMAND_NAME, REMOVE_ADMONITION_COMMAND_ICON);
+        addIcon(ADD_COMMAND_NAME.toString(), ADD_ADMONITION_COMMAND_ICON);
+        addIcon(REMOVE_COMMAND_NAME.toString(), REMOVE_ADMONITION_COMMAND_ICON);
 
         Object.keys(this.admonitions).forEach((type) => {
             this.registerMarkdownCodeBlockProcessor(

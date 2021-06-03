@@ -127,28 +127,28 @@ details.admonition[open] > summary > .collapser > .handle {
 }
 
 /** Settings */
-.additional-container > .setting-item:not(.setting-item-heading) {
+.admonition-setting-additional-container > .setting-item:not(.setting-item-heading) {
     border: 0px;
 }
 
-.additional-container {
+.admonition-setting-additional-container {
     border-bottom: 1px solid var(--background-modifier-border);
     border-top: 1px solid var(--background-modifier-border);
     padding: 18px 0 0 0;
 }
 
-.additional-container > .setting-item-heading:only-child {
+.admonition-setting-additional-container > .setting-item-heading:only-child {
     padding-bottom: 18px;
 }
 
-.additional-container > .additional {
+.admonition-setting-additional-container > .additional {
     margin: 6px 12px;
 }
-.additional-container > .additional > .setting-item {
+.admonition-setting-additional-container > .additional > .setting-item {
     border-top: 0;
     padding-top: 9px;
 }
-.additional-container
+.admonition-setting-additional-container
     > .additional
     > .setting-item
     > .setting-item-control
