@@ -7,7 +7,9 @@ import {
     TextComponent
 } from "obsidian";
 import { createPopper, Instance as PopperInstance } from "@popperjs/core";
-import { findIconDefinition, icon, IconName } from "./icons";
+
+import { getIconNode } from "../util";
+import { AdmonitionIconDefinition } from "src/@types";
 
 class Suggester<T> {
     owner: SuggestModal<T>;
@@ -224,11 +226,11 @@ export abstract class SuggestionModal<T> extends FuzzySuggestModal<T> {
     abstract getItems(): T[];
 }
 
-export class IconSuggestionModal extends SuggestionModal<IconName> {
-    icons: IconName[];
-    icon: IconName;
+export class IconSuggestionModal extends SuggestionModal<AdmonitionIconDefinition> {
+    icons: AdmonitionIconDefinition[];
+    icon: AdmonitionIconDefinition;
     text: TextComponent;
-    constructor(app: App, input: TextComponent, items: IconName[]) {
+    constructor(app: App, input: TextComponent, items: AdmonitionIconDefinition[]) {
         super(app, input.inputEl, items);
         this.icons = [...items];
         this.text = input;
@@ -240,25 +242,25 @@ export class IconSuggestionModal extends SuggestionModal<IconName> {
     createPrompts() {}
     getItem() {
         const v = this.inputEl.value,
-            icon = this.icons.find((iconName) => iconName === v.trim());
+            icon = this.icons.find((iconName) => iconName.name === v.trim());
         if (icon == this.icon) return;
         this.icon = icon;
         if (this.icons) this.onInputChanged();
     }
-    getItemText(item: IconName) {
-        return item;
+    getItemText(item: AdmonitionIconDefinition) {
+        return item.name;
     }
-    onChooseItem(item: IconName) {
-        this.text.setValue(item);
+    onChooseItem(item: AdmonitionIconDefinition) {
+        this.text.setValue(item.name);
         this.icon = item;
     }
-    selectSuggestion({ item }: FuzzyMatch<IconName>) {
-        this.text.setValue(item);
+    selectSuggestion({ item }: FuzzyMatch<AdmonitionIconDefinition>) {
+        this.text.setValue(item.name);
         this.onClose();
 
         this.close();
     }
-    renderSuggestion(result: FuzzyMatch<IconName>, el: HTMLElement) {
+    renderSuggestion(result: FuzzyMatch<AdmonitionIconDefinition>, el: HTMLElement) {
         let { item, match: matches } = result || {};
         let content = el.createDiv({
             cls: "suggestion-content icon"
@@ -272,30 +274,29 @@ export class IconSuggestionModal extends SuggestionModal<IconName> {
         const matchElements = matches.matches.map((m) => {
             return createSpan("suggestion-highlight");
         });
-        for (let i = 0; i < item.length; i++) {
+        for (let i = 0; i < item.name.length; i++) {
             let match = matches.matches.find((m) => m[0] === i);
             if (match) {
                 let element = matchElements[matches.matches.indexOf(match)];
                 content.appendChild(element);
-                element.appendText(item.substring(match[0], match[1]));
+                element.appendText(item.name.substring(match[0], match[1]));
 
                 i += match[1] - match[0] - 1;
                 continue;
             }
 
-            content.appendText(item[i]);
+            content.appendText(item.name[i]);
         }
 
-        const iconDiv = createDiv({
-            cls: "suggestion-flair"
-        });
+        const iconDiv = createDiv("suggestion-flair admonition-suggester-icon");
         iconDiv.appendChild(
-            icon(
+            getIconNode(item)
+            /* icon(
                 findIconDefinition({
-                    iconName: item,
+                    iconName: item.name as IconName,
                     prefix: "fas"
                 })
-            ).node[0]
+            ).node[0] */
         );
 
         content.prepend(iconDiv);

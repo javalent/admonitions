@@ -127,7 +127,8 @@ details.admonition[open] > summary > .collapser > .handle {
 }
 
 /** Settings */
-.admonition-setting-additional-container > .setting-item:not(.setting-item-heading) {
+.admonition-setting-additional-container
+    > .setting-item:not(.setting-item-heading) {
     border: 0px;
 }
 
@@ -154,11 +155,6 @@ details.admonition[open] > summary > .collapser > .handle {
     > .setting-item-control
     > *:first-child {
     margin: 0 6px;
-}
-
-.use-csv-marker > svg {
-    color: yellow;
-    margin-right: 8px;
 }
 
 .setting-item > .admonition {
@@ -189,6 +185,10 @@ input.is-invalid {
     margin-top: 0.25rem;
     font-size: 0.875em;
     color: #dc3545;
+}
+
+.admonition-suggester-icon svg {
+    width: 1em;
 }
 
 /** Internal */

@@ -1,7 +1,7 @@
-import { findIconDefinition, icon, IconName } from "./icons";
-import { INestedAdmonition } from "../@types/types";
 import { MarkdownRenderer, Notice } from "obsidian";
-
+import { findIconDefinition, /* icon, */ IconName } from "./icons";
+import { getIconNode } from "./icons";
+import { AdmonitionIconDefinition, INestedAdmonition } from "../@types";
 
 export function getMatches(
     src: string,
@@ -40,38 +40,33 @@ function startsWithAny(str: string, needles: string[]) {
 }
 
 export function getParametersFromSource(type: string, src: string) {
+    const keywordTokens = ["title:", "collapse:"];
 
-    const keywordTokens = [
-        'title:',
-        'collapse:',
-    ]
-
-    const keywords = [
-        'title',
-        'collapse',
-    ]
+    const keywords = ["title", "collapse"];
 
     let lines = src.split("\n");
 
-    let skipLines = 0
+    let skipLines = 0;
 
-    let params: {[k: string]: string} = {}
+    let params: { [k: string]: string } = {};
 
     for (let i = 0; i < lines.length; i++) {
-        let keywordIndex = startsWithAny(lines[i], keywordTokens)
+        let keywordIndex = startsWithAny(lines[i], keywordTokens);
 
         if (keywordIndex === false) {
-            break
+            break;
         }
 
-        let foundKeyword = keywords[keywordIndex]
+        let foundKeyword = keywords[keywordIndex];
 
         if (params[foundKeyword] !== undefined) {
-            break
+            break;
         }
 
-        params[foundKeyword] = lines[i].substr(keywordTokens[keywordIndex].length).trim()
-        ++skipLines
+        params[foundKeyword] = lines[i]
+            .substr(keywordTokens[keywordIndex].length)
+            .trim();
+        ++skipLines;
     }
 
     let {
@@ -79,16 +74,12 @@ export function getParametersFromSource(type: string, src: string) {
         collapse = "none"
     } = params;
 
-    let content = lines.slice(skipLines).join("\n")
+    let content = lines.slice(skipLines).join("\n");
 
     /**
      * If the admonition should collapse, but something other than open or closed was provided, set to closed.
      */
-    if (
-        collapse !== "none" &&
-        collapse !== "open" &&
-        collapse !== "closed"
-    ) {
+    if (collapse !== "none" && collapse !== "open" && collapse !== "closed") {
         collapse = "closed";
     }
 
@@ -106,7 +97,7 @@ export function getParametersFromSource(type: string, src: string) {
 export /* async */ function getAdmonitionElement(
     type: string,
     title: string,
-    iconName: string,
+    icon: AdmonitionIconDefinition,
     color: string,
     collapse?: string
 ): HTMLElement {
@@ -165,15 +156,8 @@ export /* async */ function getAdmonitionElement(
         const iconEl = admonitionTitleContent.createDiv(
             "admonition-title-icon"
         );
-        if (iconName) {
-            iconEl.appendChild(
-                icon(
-                    findIconDefinition({
-                        iconName: iconName as IconName,
-                        prefix: "fas"
-                    })
-                ).node[0]
-            );
+        if (icon && icon.name && icon.type) {
+            iconEl.appendChild(getIconNode(icon));
         }
 
         //add markdown children back

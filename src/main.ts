@@ -8,11 +8,7 @@ import {
     Plugin,
     TFile
 } from "obsidian";
-import {
-    Admonition,
-    ObsidianAdmonitionPlugin,
-    ISettingsData
-} from "../@types/types";
+import { Admonition, ObsidianAdmonitionPlugin, ISettingsData } from "./@types";
 import {
     getAdmonitionElement,
     getMatches,
@@ -24,9 +20,9 @@ import {
     REMOVE_ADMONITION_COMMAND_ICON,
     ADD_COMMAND_NAME,
     REMOVE_COMMAND_NAME
-} from "./constants";
+} from "./util";
 
-import * as CodeMirror from "./codemirror";
+import * as CodeMirror from "./codemirror/codemirror";
 
 //add commands to app interface
 declare module "obsidian" {
@@ -67,9 +63,9 @@ Object.fromEntries =
         return obj;
     };
 
-import "./main.css";
+import "./assets/main.css";
 import AdmonitionSetting from "./settings";
-import { findIconDefinition, icon } from "./icons";
+import { IconName, COPY_BUTTON_ICON } from "./util/icons";
 
 const DEFAULT_APP_SETTINGS: ISettingsData = {
     userAdmonitions: {},
@@ -93,6 +89,7 @@ export default class ObsidianAdmonition
         return Object.keys(this.admonitions);
     }
     async saveSettings() {
+        this.data.version = this.manifest.version;
         await this.saveData(this.data);
     }
 
@@ -104,6 +101,23 @@ export default class ObsidianAdmonition
         );
 
         this.data = data;
+
+        if (
+            this.data.userAdmonitions &&
+            (!this.data.version || Number(this.data.version.split(".")[0]) < 5)
+        ) {
+            const test = {};
+            for (let admonition in this.data.userAdmonitions) {
+                this.data.userAdmonitions[admonition] = {
+                    ...this.data.userAdmonitions[admonition],
+                    icon: {
+                        type: "font-awesome",
+                        name: this.data.userAdmonitions[admonition]
+                            .icon as unknown as IconName
+                    }
+                };
+            }
+        }
 
         this.admonitions = {
             ...ADMONITION_MAP,
@@ -417,14 +431,7 @@ title:
             if (this.data.copyButton) {
                 let copy = admonitionContent
                     .createDiv("admonition-content-copy")
-                    .appendChild(
-                        icon(
-                            findIconDefinition({
-                                iconName: "copy",
-                                prefix: "far"
-                            })
-                        ).node[0]
-                    );
+                    .appendChild(COPY_BUTTON_ICON.cloneNode(true));
                 copy.addEventListener("click", () => {
                     navigator.clipboard
                         .writeText(content.trim())

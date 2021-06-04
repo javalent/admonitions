@@ -380,6 +380,10 @@ No additional features are planned at this time. If there is a feature missing t
 
 # Version History
 
+## 5.0.0
+
+-   Added [RPG Awesome Icons](http://nagoshiashumari.github.io/Rpg-Awesome/) as an option for admonition icons.
+
 ## 4.4.1
 
 -   Removed `content` parameter

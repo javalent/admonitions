@@ -7,12 +7,25 @@ import {
     TextComponent,
     Notice
 } from "obsidian";
-import { Admonition, ObsidianAdmonitionPlugin } from "../@types/types";
+import {
+    Admonition,
+    AdmonitionIconDefinition,
+    AdmonitionIconName,
+    AdmonitionIconType,
+    ObsidianAdmonitionPlugin,
+    RPGIconName
+} from "./@types";
 
-import { getAdmonitionElement } from "./util";
-import { findIconDefinition, icon, iconNames, IconName } from "./icons";
-import { IconSuggestionModal } from "./modals";
-import { ADD_COMMAND_NAME, REMOVE_COMMAND_NAME } from "./constants";
+import {
+    getAdmonitionElement,
+    getIconNode,
+    getIconType,
+    WARNING_ICON
+} from "./util";
+import { iconNames } from "./util";
+import { ADD_COMMAND_NAME, REMOVE_COMMAND_NAME } from "./util";
+
+import { IconSuggestionModal } from "./modal";
 
 /** Taken from https://stackoverflow.com/questions/34849001/check-if-css-selector-is-valid/42149818 */
 const isSelectorValid = ((dummyElement) => (selector: string) => {
@@ -37,37 +50,27 @@ export default class AdmonitionSetting extends PluginSettingTab {
 
         containerEl.createEl("h2", { text: "Admonition Settings" });
 
-        let syntax = new Setting(containerEl);
-        syntax.setDesc(
-            "Use Obsidian's markdown syntax highlighter in admonition code blocks. This setting is experimental and could cause errors."
-        );
-        let name = syntax.nameEl.createDiv({
-            cls: "use-csv-marker"
-        });
-        name.appendChild(
-            icon(
-                findIconDefinition({
-                    iconName: "exclamation-triangle",
-                    prefix: "fas"
-                })
-            ).node[0]
-        );
-        name.appendChild(createSpan({ text: "Markdown Syntax Highlighting" }));
-
-        syntax.addToggle((t) => {
-            t.setValue(this.plugin.data.syntaxHighlight);
-            t.onChange(async (v) => {
-                this.plugin.data.syntaxHighlight = v;
-                if (v) {
-                    this.plugin.turnOnSyntaxHighlighting();
-                } else {
-                    this.plugin.turnOffSyntaxHighlighting();
-                }
-                await this.plugin.saveSettings();
+        let syntax = new Setting(containerEl)
+            .setDesc(
+                "Use Obsidian's markdown syntax highlighter in admonition code blocks. This setting is experimental and could cause errors."
+            )
+            .addToggle((t) => {
+                t.setValue(this.plugin.data.syntaxHighlight);
+                t.onChange(async (v) => {
+                    this.plugin.data.syntaxHighlight = v;
+                    if (v) {
+                        this.plugin.turnOnSyntaxHighlighting();
+                    } else {
+                        this.plugin.turnOffSyntaxHighlighting();
+                    }
+                    await this.plugin.saveSettings();
+                });
             });
-        });
-        new Setting(containerEl)
-            .setName("Sync Links to Metadata Cache")
+        let name = syntax.nameEl.createDiv();
+        name.appendChild(WARNING_ICON.cloneNode(true));
+        name.appendChild(createSpan({ text: " Markdown Syntax Highlighting" }));
+
+        let sync = new Setting(containerEl)
             .setDesc(
                 "Try to sync internal links to the metadata cache to display in graph view. This setting could have unintended consequences. Use at your own risk."
             )
@@ -78,11 +81,15 @@ export default class AdmonitionSetting extends PluginSettingTab {
                     await this.plugin.saveSettings();
                 });
             });
-        new Setting(containerEl)
+
+        let syncName = sync.nameEl.createDiv();
+        syncName.appendChild(WARNING_ICON.cloneNode(true));
+        syncName.appendChild(
+            createSpan({ text: " Sync Links to Metadata Cache" })
+        );
+        const collapeSetting = new Setting(containerEl)
             .setName("Collapsible by Default")
-            .setDesc(
-                "All admonitions will be collapsible by default. Use collapse: none to prevent."
-            )
+
             .addToggle((t) => {
                 t.setValue(this.plugin.data.autoCollapse).onChange(
                     async (v) => {
@@ -92,6 +99,13 @@ export default class AdmonitionSetting extends PluginSettingTab {
                     }
                 );
             });
+        collapeSetting.descEl.createSpan({
+            text: "All admonitions will be collapsible by default. Use "
+        });
+        collapeSetting.descEl.createEl("code", { text: "collapse: none" });
+        collapeSetting.descEl.createSpan({
+            text: " to prevent."
+        });
         if (this.plugin.data.autoCollapse) {
             new Setting(containerEl)
                 .setName("Default Collapse Type")
@@ -234,7 +248,7 @@ export default class AdmonitionSetting extends PluginSettingTab {
 
 class SettingsModal extends Modal {
     color: string = "#7d7d7d";
-    icon: string = "";
+    icon: AdmonitionIconDefinition = {};
     type: string = "";
     saved: boolean = false;
     error: boolean = false;
@@ -320,14 +334,11 @@ class SettingsModal extends Modal {
             .setName("Admonition Icon")
             .addText((text) => {
                 iconText = text;
-                text.setValue(this.icon);
+                text.setValue(this.icon.name);
 
                 const validate = async () => {
                     const v = text.inputEl.value;
-                    let ic = findIconDefinition({
-                        iconName: v as IconName,
-                        prefix: "fas"
-                    });
+                    let ic = getIconType(v);
                     if (!ic) {
                         SettingsModal.setValidationError(
                             text,
@@ -346,13 +357,16 @@ class SettingsModal extends Modal {
 
                     SettingsModal.removeValidationError(text);
 
-                    this.icon = v;
+                    this.icon = {
+                        name: v as AdmonitionIconName,
+                        type: ic as AdmonitionIconType
+                    };
 
                     let iconEl = admonitionPreview.querySelector(
                         ".admonition-title-icon"
                     );
 
-                    iconEl.innerHTML = icon(ic).html[0];
+                    iconEl.innerHTML = getIconNode(this.icon).outerHTML;
                 };
 
                 const modal = new IconSuggestionModal(
@@ -369,7 +383,18 @@ class SettingsModal extends Modal {
         const desc = iconSetting.descEl.createDiv();
         desc.createEl("a", {
             text: "Font Awesome Icon",
-            href: "https://fontawesome.com/icons?d=gallery&p=2&s=solid&m=free"
+            href: "https://fontawesome.com/icons?d=gallery&p=2&s=solid&m=free",
+            attr: {
+                tabindex: -1
+            }
+        });
+        desc.createSpan({ text: " or " });
+        desc.createEl("a", {
+            text: "RPG Awesome Icon",
+            href: "https://nagoshiashumari.github.io/Rpg-Awesome/",
+            attr: {
+                tabindex: -1
+            }
         });
         desc.createSpan({ text: " to use next to the title." });
 
@@ -426,12 +451,7 @@ class SettingsModal extends Modal {
                         error = true;
                     }
 
-                    if (
-                        !findIconDefinition({
-                            iconName: iconText.inputEl.value as IconName,
-                            prefix: "fas"
-                        })
-                    ) {
+                    if (!getIconType(iconText.inputEl.value)) {
                         SettingsModal.setValidationError(
                             iconText,
                             "Invalid icon name."
