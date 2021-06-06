@@ -1,6 +1,6 @@
 {
     "name": "obsidian-admonition",
-    "version": "5.0.0",
+    "version": "5.0.1",
     "description": "Admonition block-styled content for Obsidian.md",
     "main": "main.js",
     "scripts": {
@@ -26,9 +26,5 @@
         "rollup-plugin-css-only": "^3.1.0",
         "tslib": "^2.0.3",
         "typescript": "^4.0.3"
-    },
-    "dependencies": {
-        "font-blast": "^0.7.0",
-        "superagent": "^6.1.0"
     }
 }
