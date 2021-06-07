@@ -79,8 +79,7 @@ export function getParametersFromSource(type: string, src: string) {
      * If the admonition should collapse, but something other than open or closed was provided, set to closed.
      */
     if (
-        collapse &&
-        collapse.length &&
+        collapse !== undefined &&
         collapse !== "none" &&
         collapse !== "open" &&
         collapse !== "closed"
@@ -91,12 +90,7 @@ export function getParametersFromSource(type: string, src: string) {
     /**
      * If the admonition should collapse, but title was blanked, set the default title.
      */
-    if (
-        title.trim() === "" &&
-        collapse &&
-        collapse.length &&
-        collapse !== "none"
-    ) {
+    if (title.trim() === "" && collapse !== undefined && collapse !== "none") {
         title = type[0].toUpperCase() + type.slice(1).toLowerCase();
         new Notice("An admonition must have a title if it is collapsible.");
     }
