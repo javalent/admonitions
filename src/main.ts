@@ -106,8 +106,14 @@ export default class ObsidianAdmonition
             this.data.userAdmonitions &&
             (!this.data.version || Number(this.data.version.split(".")[0]) < 5)
         ) {
-            const test = {};
             for (let admonition in this.data.userAdmonitions) {
+                if (
+                    Object.prototype.hasOwnProperty.call(
+                        this.data.userAdmonitions[admonition],
+                        "type"
+                    )
+                )
+                    continue;
                 this.data.userAdmonitions[admonition] = {
                     ...this.data.userAdmonitions[admonition],
                     icon: {
