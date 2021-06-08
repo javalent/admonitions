@@ -32,6 +32,8 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et euismod nulla.
 ```
 ````
 
+Please note that as of **4.4.1**, the `title` and `collapse` parameters must be at the *top* of the block, in any order.
+
 ### Titles
 
 The admonition will render with the type of admonition by default. If you wish to customize the title, you can do so this way:
