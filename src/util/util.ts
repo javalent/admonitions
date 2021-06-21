@@ -118,7 +118,7 @@ export /* async */ function getAdmonitionElement(
         attrs: { style: string; open?: string } = {
             style: `--admonition-color: ${color};`
         };
-    if (collapse) {
+    if (collapse && collapse != "none") {
         if (collapse === "open") {
             attrs.open = "open";
         }
@@ -127,7 +127,7 @@ export /* async */ function getAdmonitionElement(
             attr: attrs
         });
         titleEl = admonition.createEl("summary", {
-            cls: `admonition-title ${!title.trim().length ? "no-title" : ""}`
+            cls: `admonition-title ${!title?.trim().length ? "no-title" : ""}`
         });
     } else {
         admonition = createDiv({
@@ -135,7 +135,7 @@ export /* async */ function getAdmonitionElement(
             attr: attrs
         });
         titleEl = admonition.createDiv({
-            cls: `admonition-title ${!title.trim().length ? "no-title" : ""}`
+            cls: `admonition-title ${!title?.trim().length ? "no-title" : ""}`
         });
     }
 
@@ -143,7 +143,7 @@ export /* async */ function getAdmonitionElement(
         admonition.id = id;
     }
 
-    if (title && title.length) {
+    if (title && title.trim().length) {
         /**
          * Title structure
          * <div|summary>.admonition-title
@@ -161,7 +161,7 @@ export /* async */ function getAdmonitionElement(
         //admonition-title-content is first child of rendered markdown
 
         const admonitionTitleContent =
-            markdownHolder.children[0].tagName === "P"
+            markdownHolder.children[0]?.tagName === "P"
                 ? createDiv()
                 : markdownHolder.children[0];
 

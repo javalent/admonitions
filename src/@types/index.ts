@@ -22,7 +22,7 @@ export interface ISettingsData {
     syntaxHighlight: boolean;
     copyButton: boolean;
     autoCollapse: boolean;
-    defaultCollapseType: string;
+    defaultCollapseType: "open" | "closed";
     syncLinks: boolean;
     version: string;
 }
@@ -36,16 +36,15 @@ export type AdmonitionIconName = AdmonitionIconDefinition["name"];
 export type AdmonitionIconType = AdmonitionIconDefinition["type"];
 
 export declare class ObsidianAdmonitionPlugin extends Plugin_2 {
-    removeAdmonition: (admonition: Admonition) => Promise<void>;
     admonitions: { [admonitionType: string]: Admonition };
-    /*     userAdmonitions: { [admonitionType: string]: Admonition };
-    syntaxHighlight: boolean; */
     data: ISettingsData;
+    get admonitionArray(): Admonition[];
     turnOnSyntaxHighlighting: (types?: string[]) => void;
     turnOffSyntaxHighlighting: (types?: string[]) => void;
     saveSettings: () => Promise<void>;
     loadSettings: () => Promise<void>;
     addAdmonition: (admonition: Admonition) => Promise<void>;
+    removeAdmonition: (admonition: Admonition) => Promise<void>;
     onload: () => Promise<void>;
     onunload: () => Promise<void>;
     postprocessor: (
