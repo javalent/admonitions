@@ -115,7 +115,7 @@ export /* async */ function getAdmonitionElement(
             attrs.open = "open";
         }
         admonition = createEl("details", {
-            cls: `admonition admonition-${type}`,
+            cls: `admonition admonition-${type} admonition-plugin`,
             attr: attrs
         });
         titleEl = admonition.createEl("summary", {
@@ -123,7 +123,7 @@ export /* async */ function getAdmonitionElement(
         });
     } else {
         admonition = createDiv({
-            cls: `admonition admonition-${type}`,
+            cls: `admonition admonition-${type} admonition-plugin`,
             attr: attrs
         });
         titleEl = admonition.createDiv({
