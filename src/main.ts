@@ -4,6 +4,7 @@ import {
     MarkdownRenderChild,
     MarkdownRenderer,
     MarkdownView,
+    Modal,
     Notice,
     Plugin,
     TFile
@@ -70,6 +71,7 @@ Object.fromEntries =
 import "./assets/main.css";
 import AdmonitionSetting from "./settings";
 import { IconName, COPY_BUTTON_ICON } from "./util/icons";
+import { InsertAdmonitionModal } from "./modal";
 
 const DEFAULT_APP_SETTINGS: ISettingsData = {
     userAdmonitions: {},
@@ -90,6 +92,14 @@ export default class ObsidianAdmonition
     contextMap: Map<string, MarkdownPostProcessorContext> = new Map();
     get types() {
         return Object.keys(this.admonitions);
+    }
+    get admonitionArray() {
+        return Object.keys(this.admonitions).map((key) => {
+            return {
+                ...this.admonitions[key],
+                type: key
+            };
+        });
     }
     async saveSettings() {
         this.data.version = this.manifest.version;
@@ -183,32 +193,50 @@ export default class ObsidianAdmonition
         addIcon(REMOVE_COMMAND_NAME.toString(), REMOVE_ADMONITION_COMMAND_ICON);
 
         const TYPE_REGEX = new RegExp(
-            `(!{3,}|\\?{3,}\\+?) ad-(${this.types.join("|")})`
+            `(!{3,}|\\?{3,}\\+?) ad-(${this.types.join("|")})(\\s[\\s\\S]+)?`
         );
         const END_REGEX = new RegExp(`\\-{3,} admonition`);
 
         let push = false,
             id: string;
-        const elementMap: Map<
+        const childMap: Map<
             MarkdownRenderChild,
             { contentEl: HTMLElement; elements: Element[]; loaded: boolean }
         > = new Map();
-        const childMap: Map<string, MarkdownRenderChild> = new Map();
+        const elementMap: Map<Element, MarkdownRenderChild> = new Map();
+        const idMap: Map<string, MarkdownRenderChild> = new Map();
         this.registerMarkdownPostProcessor(async (el, ctx) => {
             if (END_REGEX.test(el.textContent) && push) {
                 push = false;
+                const lastElement = createDiv();
+                if (
+                    id &&
+                    idMap.has(id) &&
+                    childMap.has(idMap.get(id)) &&
+                    el.children[0].textContent.replace(END_REGEX, "").length
+                ) {
+                    lastElement.innerHTML = el.children[0].outerHTML.replace(
+                        new RegExp(`(<br>)?\\n?${END_REGEX.source}`),
+                        ""
+                    );
+                    const contentEl = childMap.get(idMap.get(id)).contentEl;
+                    if (contentEl)
+                        contentEl.appendChild(lastElement.children[0]);
+                }
+
                 el.children[0].detach();
                 return;
             }
+
             if (!TYPE_REGEX.test(el.textContent) && !push) return;
 
             if (!push) {
                 push = true;
                 let child = new MarkdownRenderChild(el);
                 id = getID();
-                childMap.set(id, child);
+                idMap.set(id, child);
 
-                elementMap.set(child, {
+                childMap.set(child, {
                     contentEl: null,
                     elements: [],
                     loaded: false
@@ -217,7 +245,8 @@ export default class ObsidianAdmonition
                 child.onload = async () => {
                     const source = el.textContent;
 
-                    const [, col, type] = source.match(TYPE_REGEX) ?? [];
+                    const [, col, type, title] = source.match(TYPE_REGEX) ?? [];
+
                     if (!type) return;
                     let collapse;
                     if (/\?{3,}/.test(col)) {
@@ -226,7 +255,8 @@ export default class ObsidianAdmonition
 
                     const admonitionElement = await getAdmonitionElementAsync(
                         type,
-                        type,
+                        title?.trim() ??
+                            type[0].toUpperCase() + type.slice(1).toLowerCase(),
                         this.admonitions[type].icon,
                         this.admonitions[type].color,
                         collapse
@@ -237,22 +267,20 @@ export default class ObsidianAdmonition
                     });
 
                     child.containerEl.appendChild(admonitionElement);
-
-                    console.log(elementMap.get(child).elements);
-                    for (let element of elementMap.get(child)?.elements) {
+                    for (let element of childMap.get(child)?.elements) {
                         contentEl.appendChild(element);
                     }
 
-                    elementMap.set(child, {
-                        ...elementMap.get(child),
+                    childMap.set(child, {
+                        ...childMap.get(child),
                         contentEl: contentEl,
                         loaded: true
                     });
                 };
 
                 child.onunload = () => {
-                    childMap.delete(id);
-                    elementMap.delete(child);
+                    idMap.delete(id);
+                    childMap.delete(child);
                 };
 
                 ctx.addChild(child);
@@ -262,33 +290,22 @@ export default class ObsidianAdmonition
                 return;
             }
 
-            if (id && childMap.get(id)) {
-                const child = childMap.get(id);
-                elementMap.set(child, {
-                    ...elementMap.get(child),
+            if (id && idMap.get(id)) {
+                const child = idMap.get(id);
+                childMap.set(child, {
+                    ...childMap.get(child),
                     elements: [
-                        ...elementMap.get(child).elements,
+                        ...childMap.get(child).elements,
                         ...Array.from(el.children)
                     ]
                 });
-                if (elementMap.get(child)?.loaded) {
-                    for (let element of elementMap.get(child)?.elements) {
-                        elementMap.get(child).contentEl.appendChild(element);
+                elementMap.set(el, child);
+                if (childMap.get(child)?.loaded) {
+                    for (let element of childMap.get(child)?.elements) {
+                        childMap.get(child).contentEl.appendChild(element);
                     }
                 }
             }
-
-            /* const child = elementMap.get(child);
-
-            elementMap.set(child, {
-                ...elementMap.get(child),
-                elements: [
-                    ...elementMap.get(child).elements,
-                    ...Array.from(el.children)
-                ]
-            });
-
-            console.log(childMap.elements); */
         });
 
         Object.keys(this.admonitions).forEach((type) => {
@@ -308,7 +325,14 @@ export default class ObsidianAdmonition
         this.addCommand({
             id: "collapse-admonitions",
             name: "Collapse Admonitions in Note",
-            callback: () => {
+            checkCallback: (checking) => {
+                // checking if the command should appear in the Command Palette
+                if (checking) {
+                    // make sure the active view is a MarkdownView.
+                    return !!this.app.workspace.getActiveViewOfType(
+                        MarkdownView
+                    );
+                }
                 let view = this.app.workspace.getActiveViewOfType(MarkdownView);
                 if (!view || !(view instanceof MarkdownView)) return;
 
@@ -324,7 +348,14 @@ export default class ObsidianAdmonition
         this.addCommand({
             id: "open-admonitions",
             name: "Open Admonitions in Note",
-            callback: () => {
+            checkCallback: (checking) => {
+                // checking if the command should appear in the Command Palette
+                if (checking) {
+                    // make sure the active view is a MarkdownView.
+                    return !!this.app.workspace.getActiveViewOfType(
+                        MarkdownView
+                    );
+                }
                 let view = this.app.workspace.getActiveViewOfType(MarkdownView);
                 if (!view || !(view instanceof MarkdownView)) return;
 
@@ -382,6 +413,15 @@ export default class ObsidianAdmonition
             }
         });
 
+        this.addCommand({
+            id: "insert-admonition",
+            name: "Insert Admonition",
+            editorCallback: (editor, view) => {
+                let suggestor = new InsertAdmonitionModal(this, editor);
+                suggestor.open();
+            }
+        });
+
         this.registerEvent(
             this.app.metadataCache.on("resolve", (file) => {
                 if (this.app.workspace.getActiveFile() != file) return;
@@ -393,7 +433,7 @@ export default class ObsidianAdmonition
 
                 const admonitionLinks =
                     view.contentEl.querySelectorAll<HTMLAnchorElement>(
-                        ".admonition a.internal-link"
+                        ".admonition:not(.admonition-plugin-async) a.internal-link"
                     );
 
                 this.addLinksToCache(admonitionLinks, file.path);

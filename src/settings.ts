@@ -116,7 +116,7 @@ export default class AdmonitionSetting extends PluginSettingTab {
                     d.addOption("open", "open");
                     d.addOption("closed", "closed");
                     d.setValue(this.plugin.data.defaultCollapseType);
-                    d.onChange(async (v) => {
+                    d.onChange(async (v: "open" | "closed") => {
                         this.plugin.data.defaultCollapseType = v;
                         await this.plugin.saveSettings();
                     });
