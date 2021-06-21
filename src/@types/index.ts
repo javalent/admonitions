@@ -25,6 +25,7 @@ export interface ISettingsData {
     defaultCollapseType: "open" | "closed";
     syncLinks: boolean;
     version: string;
+    enableMarkdownProcessor: boolean;
 }
 
 export type AdmonitionIconDefinition = {
@@ -41,6 +42,8 @@ export declare class ObsidianAdmonitionPlugin extends Plugin_2 {
     get admonitionArray(): Admonition[];
     turnOnSyntaxHighlighting: (types?: string[]) => void;
     turnOffSyntaxHighlighting: (types?: string[]) => void;
+    enableMarkdownProcessor: () => void;
+    disableMarkdownProcessor: () => void;
     saveSettings: () => Promise<void>;
     loadSettings: () => Promise<void>;
     addAdmonition: (admonition: Admonition) => Promise<void>;

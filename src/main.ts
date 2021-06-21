@@ -7,6 +7,7 @@ import {
     Modal,
     Notice,
     Plugin,
+    Setting,
     TFile
 } from "obsidian";
 import { prettyPrint as html } from "html";
@@ -80,7 +81,8 @@ const DEFAULT_APP_SETTINGS: ISettingsData = {
     version: "",
     autoCollapse: false,
     defaultCollapseType: "open",
-    syncLinks: true
+    syncLinks: true,
+    enableMarkdownProcessor: false
 };
 
 export default class ObsidianAdmonition
@@ -192,6 +194,170 @@ export default class ObsidianAdmonition
         addIcon(ADD_COMMAND_NAME.toString(), ADD_ADMONITION_COMMAND_ICON);
         addIcon(REMOVE_COMMAND_NAME.toString(), REMOVE_ADMONITION_COMMAND_ICON);
 
+        if (this.data.enableMarkdownProcessor) {
+            this.enableMarkdownProcessor();
+        }
+
+        Object.keys(this.admonitions).forEach((type) => {
+            this.registerMarkdownCodeBlockProcessor(
+                `ad-${type}`,
+                this.postprocessor.bind(this, type)
+            );
+            if (this.admonitions[type].command) {
+                this.registerCommandsFor(this.admonitions[type]);
+            }
+        });
+        if (this.data.syntaxHighlight) {
+            this.turnOnSyntaxHighlighting();
+        }
+
+        /** Add generic commands. */
+        this.addCommand({
+            id: "collapse-admonitions",
+            name: "Collapse Admonitions in Note",
+            checkCallback: (checking) => {
+                // checking if the command should appear in the Command Palette
+                if (checking) {
+                    // make sure the active view is a MarkdownView.
+                    return !!this.app.workspace.getActiveViewOfType(
+                        MarkdownView
+                    );
+                }
+                let view = this.app.workspace.getActiveViewOfType(MarkdownView);
+                if (!view || !(view instanceof MarkdownView)) return;
+
+                let admonitions = view.contentEl.querySelectorAll(
+                    "details[open].admonition-plugin"
+                );
+                for (let i = 0; i < admonitions.length; i++) {
+                    let admonition = admonitions[i];
+                    admonition.removeAttribute("open");
+                }
+            }
+        });
+        this.addCommand({
+            id: "open-admonitions",
+            name: "Open Admonitions in Note",
+            checkCallback: (checking) => {
+                // checking if the command should appear in the Command Palette
+                if (checking) {
+                    // make sure the active view is a MarkdownView.
+                    return !!this.app.workspace.getActiveViewOfType(
+                        MarkdownView
+                    );
+                }
+                let view = this.app.workspace.getActiveViewOfType(MarkdownView);
+                if (!view || !(view instanceof MarkdownView)) return;
+
+                let admonitions = view.contentEl.querySelectorAll(
+                    "details:not([open]).admonition-plugin"
+                );
+                for (let i = 0; i < admonitions.length; i++) {
+                    let admonition = admonitions[i];
+                    admonition.setAttribute("open", "open");
+                }
+            }
+        });
+        this.addCommand({
+            id: "replace-with-html",
+            name: "Replace Admonitions with HTML",
+            callback: async () => {
+                let view = this.app.workspace.getActiveViewOfType(MarkdownView);
+                if (
+                    !view ||
+                    !(view instanceof MarkdownView) ||
+                    view.getMode() !== "preview"
+                )
+                    return;
+
+                const ensure = new Modal(this.app);
+
+                ensure.contentEl.createEl("h2", {
+                    text: "This will overwrite all admonitions in the open note. Are you sure?"
+                });
+                new Setting(ensure.contentEl)
+                    .addButton((b) =>
+                        b.setButtonText("Yes").onClick(async () => {
+                            let admonitions =
+                                view.contentEl.querySelectorAll<HTMLElement>(
+                                    ".admonition-plugin"
+                                );
+
+                            let content = (
+                                (await this.app.vault.read(view.file)) ?? ""
+                            ).split("\n");
+                            if (!content) return;
+                            for (let admonition of Array.from(
+                                admonitions
+                            ).reverse()) {
+                                if (
+                                    admonition.id &&
+                                    this.contextMap.has(admonition.id)
+                                ) {
+                                    const ctx = this.contextMap.get(
+                                        admonition.id
+                                    );
+                                    const { lineStart, lineEnd } =
+                                        ctx.getSectionInfo(admonition) ?? {};
+                                    if (!lineStart || !lineEnd) continue;
+
+                                    const element = admonition.cloneNode(
+                                        true
+                                    ) as HTMLElement;
+
+                                    element.removeAttribute("id");
+
+                                    content.splice(
+                                        lineStart,
+                                        lineEnd - lineStart + 1,
+                                        html(element.outerHTML)
+                                    );
+                                }
+                            }
+                            await this.app.vault.modify(
+                                view.file,
+                                content.join("\n")
+                            );
+                            ensure.close();
+                        })
+                    )
+                    .addExtraButton((b) =>
+                        b.setIcon("cross").onClick(() => ensure.close())
+                    );
+                ensure.open();
+            }
+        });
+
+        this.addCommand({
+            id: "insert-admonition",
+            name: "Insert Admonition",
+            editorCallback: (editor, view) => {
+                let suggestor = new InsertAdmonitionModal(this, editor);
+                suggestor.open();
+            }
+        });
+
+        this.registerEvent(
+            this.app.metadataCache.on("resolve", (file) => {
+                if (!this.data.syncLinks) return;
+                if (this.app.workspace.getActiveFile() != file) return;
+
+                const view =
+                    this.app.workspace.getActiveViewOfType(MarkdownView);
+
+                if (!view || !(view instanceof MarkdownView)) return;
+
+                const admonitionLinks =
+                    view.contentEl.querySelectorAll<HTMLAnchorElement>(
+                        ".admonition:not(.admonition-plugin-async) a.internal-link"
+                    );
+
+                this.addLinksToCache(admonitionLinks, file.path);
+            })
+        );
+    }
+    enableMarkdownProcessor() {
+        if (!this.data.enableMarkdownProcessor) return;
         const TYPE_REGEX = new RegExp(
             `(!{3,}|\\?{3,}\\+?) ad-(${this.types.join("|")})(\\s[\\s\\S]+)?`
         );
@@ -307,138 +473,9 @@ export default class ObsidianAdmonition
                 }
             }
         });
-
-        Object.keys(this.admonitions).forEach((type) => {
-            this.registerMarkdownCodeBlockProcessor(
-                `ad-${type}`,
-                this.postprocessor.bind(this, type)
-            );
-            if (this.admonitions[type].command) {
-                this.registerCommandsFor(this.admonitions[type]);
-            }
-        });
-        if (this.data.syntaxHighlight) {
-            this.turnOnSyntaxHighlighting();
-        }
-
-        /** Add generic commands. */
-        this.addCommand({
-            id: "collapse-admonitions",
-            name: "Collapse Admonitions in Note",
-            checkCallback: (checking) => {
-                // checking if the command should appear in the Command Palette
-                if (checking) {
-                    // make sure the active view is a MarkdownView.
-                    return !!this.app.workspace.getActiveViewOfType(
-                        MarkdownView
-                    );
-                }
-                let view = this.app.workspace.getActiveViewOfType(MarkdownView);
-                if (!view || !(view instanceof MarkdownView)) return;
-
-                let admonitions = view.contentEl.querySelectorAll(
-                    "details[open].admonition-plugin"
-                );
-                for (let i = 0; i < admonitions.length; i++) {
-                    let admonition = admonitions[i];
-                    admonition.removeAttribute("open");
-                }
-            }
-        });
-        this.addCommand({
-            id: "open-admonitions",
-            name: "Open Admonitions in Note",
-            checkCallback: (checking) => {
-                // checking if the command should appear in the Command Palette
-                if (checking) {
-                    // make sure the active view is a MarkdownView.
-                    return !!this.app.workspace.getActiveViewOfType(
-                        MarkdownView
-                    );
-                }
-                let view = this.app.workspace.getActiveViewOfType(MarkdownView);
-                if (!view || !(view instanceof MarkdownView)) return;
-
-                let admonitions = view.contentEl.querySelectorAll(
-                    "details:not([open]).admonition-plugin"
-                );
-                for (let i = 0; i < admonitions.length; i++) {
-                    let admonition = admonitions[i];
-                    admonition.setAttribute("open", "open");
-                }
-            }
-        });
-        this.addCommand({
-            id: "replace-with-html",
-            name: "Replace Admonitions with HTML",
-            callback: async () => {
-                let view = this.app.workspace.getActiveViewOfType(MarkdownView);
-                if (
-                    !view ||
-                    !(view instanceof MarkdownView) ||
-                    view.getMode() !== "preview"
-                )
-                    return;
-
-                let admonitions =
-                    view.contentEl.querySelectorAll<HTMLElement>(
-                        ".admonition-plugin"
-                    );
-
-                let content = (
-                    (await this.app.vault.read(view.file)) ?? ""
-                ).split("\n");
-                if (!content) return;
-                for (let admonition of Array.from(admonitions).reverse()) {
-                    if (admonition.id && this.contextMap.has(admonition.id)) {
-                        const ctx = this.contextMap.get(admonition.id);
-                        const { lineStart, lineEnd } =
-                            ctx.getSectionInfo(admonition) ?? {};
-                        if (!lineStart || !lineEnd) continue;
-
-                        const element = admonition.cloneNode(
-                            true
-                        ) as HTMLElement;
-
-                        element.removeAttribute("id");
-
-                        content.splice(
-                            lineStart,
-                            lineEnd - lineStart + 1,
-                            html(element.outerHTML)
-                        );
-                    }
-                }
-                await this.app.vault.modify(view.file, content.join("\n"));
-            }
-        });
-
-        this.addCommand({
-            id: "insert-admonition",
-            name: "Insert Admonition",
-            editorCallback: (editor, view) => {
-                let suggestor = new InsertAdmonitionModal(this, editor);
-                suggestor.open();
-            }
-        });
-
-        this.registerEvent(
-            this.app.metadataCache.on("resolve", (file) => {
-                if (this.app.workspace.getActiveFile() != file) return;
-
-                const view =
-                    this.app.workspace.getActiveViewOfType(MarkdownView);
-
-                if (!view || !(view instanceof MarkdownView)) return;
-
-                const admonitionLinks =
-                    view.contentEl.querySelectorAll<HTMLAnchorElement>(
-                        ".admonition:not(.admonition-plugin-async) a.internal-link"
-                    );
-
-                this.addLinksToCache(admonitionLinks, file.path);
-            })
-        );
+    }
+    disableMarkdownProcessor() {
+        /* new Notice("The plugin must be reloaded for this to take effect."); */
     }
     unregisterCommandsFor(admonition: Admonition) {
         admonition.command = false;

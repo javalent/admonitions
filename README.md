@@ -32,7 +32,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et euismod nulla.
 ```
 ````
 
-Please note that as of **4.4.1**, the `title` and `collapse` parameters must be at the *top* of the block, in any order.
+Please note that as of **4.4.1**, the `title` and `collapse` parameters must be at the _top_ of the block, in any order.
 
 ### Titles
 
@@ -330,6 +330,70 @@ An icon without a title will have this CSS:
 }
 ```
 
+## Global Commands
+
+Several commands are available for the plugin by default.
+
+### Collapse and Open All Admonitions In Note
+
+If these two commands are triggered with an open note, all collapsible admonitions will be collapsed or open respectively.
+
+### Replace Admonitions With HTML
+
+Replace _all_ admonition source blocks with the rendered HTML in the note content.
+
+This command will overwrite all Admonitions in the open note.
+
+### Insert Admonition
+
+This will open a modal where the admonition type, title and collapse behavior can be set, then the generated admonition code block will be inserted into the open editor.
+
+## Non-code block Admonitions
+
+As of version 6.0.0, there is a new setting: Enable Non-codeblock Admonitions.
+
+This setting is highly experimental and may not work as expected, and there are a few caveats listed at the end of this section to keep in mind.
+
+This setting allows for creating an admonition without wrapping it in a code block, which means that links and tags will sync into Obsidian's cache. A non-codeblock admonition may be created using the following syntax:
+
+```
+!!! ad-<type> Title goes here!
+
+content
+
+--- admonition
+```
+
+This will create the appropriate admonition type, embed the content, and give it the supplied title.
+
+A collapsible admonition may be created using the following syntax:
+
+```
+??? ad-<type> Title goes here!
+
+content
+
+--- admonition
+```
+
+A collapsible admonition may default to "open" by appending a +:
+
+```
+???+ ad-<type> Title goes here!
+
+content
+
+--- admonition
+```
+
+### Caveats
+
+1. Changing to admonition content after render require the cache to be cleared. The note must be closed and re-opened (and sometimes, a different note must be opened first).
+2. Nested admonitions are not currently supported.
+3. Empty titles are not currently supported.
+
+If you experience any bugs using this setting, please create an issue and I will look into them.
+
 ## Settings
 
 ### Syntax Highlighting
@@ -341,6 +405,10 @@ Turns on an experimental mode that uses Obsidian's markdown syntax highlighter i
 This will attempt to sync internal links within admonitions to the metadata cache used by Obsidian. This will allow graph view to display these links.
 
 This setting is experimental and could have unintended consequences. If you begin to experience odd behavior, try turning it off and reloading Obsidian.
+
+### Enable Non-codeblock Admonitions
+
+Allow use of non-codeblock admonitions, described [here](#non-code-block-admonitions).
 
 ### Collapsible By Default
 
