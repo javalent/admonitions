@@ -317,9 +317,9 @@ class SettingsModal extends Modal {
 
         contentEl.appendChild(admonitionPreview);
         let typeText: TextComponent;
-        new Setting(settingDiv)
+        const typeSetting = new Setting(settingDiv)
             .setName("Admonition Type")
-            .setDesc("This is used to create the admonition (e.g., ad-note)")
+            /* .setDesc("This is used to create the admonition (e.g., note or abstract)") */
 
             .addText((text) => {
                 typeText = text;
@@ -364,6 +364,23 @@ class SettingsModal extends Modal {
                     titleSpan.prepend(iconEl);
                 });
             });
+
+        typeSetting.descEl.createSpan({
+            text: "This is used to create the admonition (e.g.,  "
+        });
+        typeSetting.descEl.createEl("code", {
+            text: "note"
+        });
+        typeSetting.descEl.createSpan({
+            text: " or "
+        });
+        typeSetting.descEl.createEl("code", {
+            text: "abstract"
+        });
+        typeSetting.descEl.createSpan({
+            text: ")"
+        });
+
         let iconText: TextComponent;
         const iconSetting = new Setting(settingDiv)
             .setName("Admonition Icon")
