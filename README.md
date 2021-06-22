@@ -338,11 +338,11 @@ Several commands are available for the plugin by default.
 
 If these two commands are triggered with an open note, all collapsible admonitions will be collapsed or open respectively.
 
-### Replace Admonitions With HTML
+<!-- ### Replace Admonitions With HTML
 
 Replace _all_ admonition source blocks with the rendered HTML in the note content.
 
-This command will overwrite all Admonitions in the open note.
+This command will overwrite all Admonitions in the open note. -->
 
 ### Insert Admonition
 
