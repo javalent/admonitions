@@ -348,6 +348,12 @@ This command will overwrite all Admonitions in the open note.
 
 This will open a modal where the admonition type, title and collapse behavior can be set, then the generated admonition code block will be inserted into the open editor.
 
+### Admonition-specific commands
+
+Commands may be registered for each custom admonition type to insert them into an open note by clicking the `Register Commands` button.
+
+See [this section](#register-and-unregister-commands) for more information.
+
 ## Non-code block Admonitions
 
 As of version 6.0.0, there is a new setting: Enable Non-codeblock Admonitions.
@@ -449,6 +455,12 @@ No additional features are planned at this time. If there is a feature missing t
 -   [x] Ability to render markdown inside an admonition
 
 # Version History
+
+## 6.0.0
+-   Added ability to define admonitions without using a code block
+-   Added `.admonition-plugin` class to top level element
+-   Add command to "Insert Admonition" with a modal chooser
+-   Add command to "Replace Admonitions with HTML"
 
 ## 5.0.0
 
