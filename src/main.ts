@@ -4,13 +4,11 @@ import {
     MarkdownRenderChild,
     MarkdownRenderer,
     MarkdownView,
-    Modal,
     Notice,
     Plugin,
-    Setting,
     TFile
 } from "obsidian";
-import { prettyPrint as html } from "html";
+/* import { prettyPrint as html } from "html"; */
 
 import { Admonition, ObsidianAdmonitionPlugin, ISettingsData } from "./@types";
 import {
@@ -258,7 +256,7 @@ export default class ObsidianAdmonition
                 }
             }
         });
-        this.addCommand({
+        /*         this.addCommand({
             id: "replace-with-html",
             name: "Replace Admonitions with HTML",
             callback: async () => {
@@ -326,7 +324,7 @@ export default class ObsidianAdmonition
                     );
                 ensure.open();
             }
-        });
+        }); */
 
         this.addCommand({
             id: "insert-admonition",

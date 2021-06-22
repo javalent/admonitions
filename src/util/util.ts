@@ -1,12 +1,16 @@
 import { MarkdownRenderer, Notice } from "obsidian";
 
-import { nanoid } from "nanoid";
+/* import { nanoid } from "nanoid"; */
 
 import { getIconNode } from "./icons";
 import { AdmonitionIconDefinition, INestedAdmonition } from "../@types";
 
 export function getID() {
-    return `ID_${nanoid()}`;
+    return "ID_xyxyxyxyxyxy".replace(/[xy]/g, function (c) {
+        var r = (Math.random() * 16) | 0,
+            v = c == "x" ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+    });
 }
 
 export function getMatches(
