@@ -12,8 +12,7 @@ import {
     AdmonitionIconDefinition,
     AdmonitionIconName,
     AdmonitionIconType,
-    ObsidianAdmonitionPlugin,
-    RPGIconName
+    ObsidianAdmonitionPlugin
 } from "./@types";
 
 import {
@@ -87,6 +86,42 @@ export default class AdmonitionSetting extends PluginSettingTab {
         syncName.appendChild(
             createSpan({ text: " Sync Links to Metadata Cache" })
         );
+
+        let markdown = new Setting(containerEl)
+            /* .setDesc(
+                "Allows admonitions to be created using `!!! ad-<type>` or `??? ad-<type>`, instead of using a code block."
+            ) */
+            .addToggle((t) => {
+                t.setValue(this.plugin.data.enableMarkdownProcessor).onChange(
+                    async (v) => {
+                        this.plugin.data.enableMarkdownProcessor = v;
+                        if (v) {
+                            this.plugin.enableMarkdownProcessor();
+                        } else {
+                            this.plugin.disableMarkdownProcessor();
+                        }
+                        this.display();
+                        await this.plugin.saveSettings();
+                    }
+                );
+            });
+        markdown.descEl.createSpan({
+            text: "Allows admonitions to be created using "
+        });
+        markdown.descEl.createEl("code", { text: "!!! ad-<type>" });
+        markdown.descEl.createSpan({
+            text: " or "
+        });
+        markdown.descEl.createEl("code", { text: "??? ad-<type>" });
+        markdown.descEl.createSpan({
+            text: ", instead of using a code block."
+        });
+        let markdownName = markdown.nameEl.createDiv();
+        markdownName.appendChild(WARNING_ICON.cloneNode(true));
+        markdownName.appendChild(
+            createSpan({ text: " Enable Non-codeblock Admonitions" })
+        );
+
         const collapeSetting = new Setting(containerEl)
             .setName("Collapsible by Default")
 
@@ -116,7 +151,7 @@ export default class AdmonitionSetting extends PluginSettingTab {
                     d.addOption("open", "open");
                     d.addOption("closed", "closed");
                     d.setValue(this.plugin.data.defaultCollapseType);
-                    d.onChange(async (v) => {
+                    d.onChange(async (v: "open" | "closed") => {
                         this.plugin.data.defaultCollapseType = v;
                         await this.plugin.saveSettings();
                     });

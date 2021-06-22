@@ -1,6 +1,6 @@
 {
     "name": "obsidian-admonition",
-    "version": "5.0.3",
+    "version": "6.0.0",
     "description": "Admonition block-styled content for Obsidian.md",
     "main": "main.js",
     "scripts": {
@@ -18,8 +18,11 @@
         "@rollup/plugin-commonjs": "^15.1.0",
         "@rollup/plugin-node-resolve": "^9.0.0",
         "@rollup/plugin-typescript": "^6.0.0",
+        "@types/html": "^1.0.0",
         "@types/node": "^14.14.2",
         "@types/object.fromentries": "^2.0.0",
+        "html": "^1.0.0",
+        "nanoid": "^3.1.23",
         "object.fromentries": "^2.0.4",
         "obsidian": "https://github.com/obsidianmd/obsidian-api/tarball/master",
         "rollup": "^2.32.1",
