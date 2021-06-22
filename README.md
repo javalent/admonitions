@@ -394,7 +394,7 @@ content
 
 ### Caveats
 
-1. Changing to admonition content after render require the cache to be cleared. The note must be closed and re-opened (and sometimes, a different note must be opened first).
+1. Changes to the admonition content after render require the cache to be cleared. The note must be closed and re-opened (and sometimes, a different note must be opened first).
 2. Nested admonitions are not currently supported.
 3. Empty titles are not currently supported.
 
