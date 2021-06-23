@@ -444,9 +444,12 @@ export default class ObsidianAdmonition
                         collapse
                     );
 
-                    const contentEl = admonitionElement.createDiv({
-                        cls: "admonition-content"
-                    });
+                    const contentHolder = admonitionElement.createDiv(
+                        "admonition-content-holder"
+                    );
+
+                    const contentEl =
+                        contentHolder.createDiv("admonition-content");
 
                     child.containerEl.appendChild(admonitionElement);
                     for (let element of childMap.get(child)?.elements) {
@@ -681,9 +684,12 @@ title:
             };
             ctx.addChild(markdownRenderChild);
 
-            let admonitionContent = admonitionElement.createDiv({
-                cls: "admonition-content"
-            });
+            const contentHolder = admonitionElement.createDiv(
+                "admonition-content-holder"
+            );
+
+            const admonitionContent =
+                contentHolder.createDiv("admonition-content");
 
             /**
              * Render the content as markdown and append it to the admonition.
@@ -696,7 +702,7 @@ title:
             );
 
             if (this.data.copyButton) {
-                let copy = admonitionContent
+                let copy = contentHolder
                     .createDiv("admonition-content-copy")
                     .appendChild(COPY_BUTTON_ICON.cloneNode(true));
                 copy.addEventListener("click", () => {

@@ -197,6 +197,8 @@ This is all of the CSS applied to the admonitions. Override these classes to cus
 
 ### Base Classes
 
+The full CSS is located in [main.css](src/assets/main.css).
+
 Every admonition receives the following CSS classes:
 
 ```css
@@ -247,13 +249,41 @@ Every admonition receives the following CSS classes:
     display: none;
 }
 
-.admonition > .admonition-title.no-title + .admonition-content {
+.admonition > .admonition-title.no-title + .admonition-content-holder {
     margin-top: 1rem;
     margin-bottom: 1rem;
 }
 
+.admonition-content-holder {
+    position: relative;
+}
+
 .admonition-content {
-    margin: 0 0.6rem;
+    margin: 10px 15px;
+    position: relative;
+    overflow-x: auto;
+}
+
+.admonition-content-copy {
+    color: var(--text-faint);
+    cursor: pointer;
+    opacity: 0;
+    position: absolute;
+    right: 0.375rem;
+    top: -5px;
+    transition: 0.3s opacity ease-in;
+}
+
+.admonition-content-copy:hover {
+    color: var(--text-normal);
+}
+
+.admonition:hover .admonition-content-copy,
+.admonition-content-copy:hover {
+    opacity: 1;
+}
+.admonition-title:hover + .admonition-content .admonition-content-copy {
+    opacity: 0;
 }
 ```
 
