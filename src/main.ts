@@ -370,6 +370,7 @@ export default class ObsidianAdmonition
         const elementMap: Map<Element, MarkdownRenderChild> = new Map();
         const idMap: Map<string, MarkdownRenderChild> = new Map();
         this.registerMarkdownPostProcessor(async (el, ctx) => {
+            if (!this.data.enableMarkdownProcessor) return;
             if (END_REGEX.test(el.textContent) && push) {
                 push = false;
                 const lastElement = createDiv();
@@ -409,7 +410,13 @@ export default class ObsidianAdmonition
                 child.onload = async () => {
                     const source = el.textContent;
 
-                    const [, col, type, title] = source.match(TYPE_REGEX) ?? [];
+                    let [
+                        ,
+                        col,
+                        type,
+                        title = type[0].toUpperCase() +
+                            type.slice(1).toLowerCase()
+                    ]: string[] = source.match(TYPE_REGEX) ?? [];
 
                     if (!type) return;
                     let collapse;
@@ -417,10 +424,21 @@ export default class ObsidianAdmonition
                         collapse = /\+/.test(col) ? "open" : "closed";
                     }
 
+                    if (
+                        (title.trim() === "" || title === '""') &&
+                        collapse !== undefined &&
+                        collapse !== "none"
+                    ) {
+                        title =
+                            type[0].toUpperCase() + type.slice(1).toLowerCase();
+                        new Notice(
+                            "An admonition must have a title if it is collapsible."
+                        );
+                    }
+
                     const admonitionElement = await getAdmonitionElementAsync(
                         type,
-                        title?.trim() ??
-                            type[0].toUpperCase() + type.slice(1).toLowerCase(),
+                        title.trim(),
                         this.admonitions[type].icon,
                         this.admonitions[type].color,
                         collapse

@@ -372,6 +372,32 @@ content
 
 This will create the appropriate admonition type, embed the content, and give it the supplied title.
 
+### Titles
+
+Titles should be placed after the admonition block. Currently, markdown in titles is not supported.
+
+An empty title can be created by either placing two spaces after the admonition type:
+
+```
+!!! ad-<type>
+
+content
+
+--- admonition
+```
+
+or by placing empty double quotes:
+
+```
+!!! ad-<type> ""
+
+content
+
+--- admonition
+```
+
+### Collapsible
+
 A collapsible admonition may be created using the following syntax:
 
 ```
@@ -394,9 +420,9 @@ content
 
 ### Caveats
 
-1. Changes to the admonition content after render require the cache to be cleared. The note must be closed and re-opened (and sometimes, a different note must be opened first).
+1. Changes to the admonition after render require the cache to be cleared. The note must be closed and re-opened (and sometimes, a different note must be opened first).
+    1. This is _all_ changes, including the admonition type, title, content, even whether or not a collapsible admonition is open or closed initially.
 2. Nested admonitions are not currently supported.
-3. Empty titles are not currently supported.
 
 If you experience any bugs using this setting, please create an issue and I will look into them.
 
@@ -457,6 +483,7 @@ No additional features are planned at this time. If there is a feature missing t
 # Version History
 
 ## 6.0.0
+
 -   Added ability to define admonitions without using a code block
 -   Added `.admonition-plugin` class to top level element
 -   Add command to "Insert Admonition" with a modal chooser

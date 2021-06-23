@@ -239,7 +239,7 @@ export async function getAdmonitionElementAsync(
         admonition.id = id;
     }
 
-    if (title && title.length) {
+    if (title && title.trim().length) {
         //
         // Title structure
         // <div|summary>.admonition-title
