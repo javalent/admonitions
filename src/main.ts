@@ -523,7 +523,8 @@ export default class ObsidianAdmonition
         this.addCommand({
             id: `insert-${admonition.type}`,
             name: `Insert ${admonition.type}`,
-            editorCallback: (editor, view) => {
+            editorCheckCallback: (checking, editor, view) => {
+                if (checking) return admonition.command;
                 if (admonition.command) {
                     try {
                         editor.getDoc().replaceSelection(
@@ -544,7 +545,8 @@ export default class ObsidianAdmonition
         this.addCommand({
             id: `insert-${admonition.type}-with-title`,
             name: `Insert ${admonition.type} With Title`,
-            editorCallback: (editor, view) => {
+            editorCheckCallback: (checking, editor, view) => {
+                if (checking) return admonition.command;
                 if (admonition.command) {
                     try {
                         editor.getDoc().replaceSelection(
