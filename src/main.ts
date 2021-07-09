@@ -374,6 +374,13 @@ export default class ObsidianAdmonition
         > = new Map();
         const elementMap: Map<Element, MarkdownRenderChild> = new Map();
         const idMap: Map<string, MarkdownRenderChild> = new Map();
+
+        Object.values(this.admonitions)
+            .filter(({ command }) => command)
+            .forEach((admonition) => {
+                this.registerCommandsFor(admonition);
+            });
+
         this.registerMarkdownPostProcessor(async (el, ctx) => {
             if (!this.data.enableMarkdownProcessor) return;
             if (END_REGEX.test(el.textContent) && push) {
@@ -500,6 +507,11 @@ export default class ObsidianAdmonition
     }
     disableMarkdownProcessor() {
         /* new Notice("The plugin must be reloaded for this to take effect."); */
+        Object.values(this.admonitions)
+            .filter(({ command }) => command)
+            .forEach((admonition) => {
+                this.registerCommandsFor(admonition);
+            });
     }
     unregisterCommandsFor(admonition: Admonition) {
         admonition.command = false;
@@ -570,6 +582,34 @@ title:
                 }
             }
         });
+        if (this.data.enableMarkdownProcessor) {
+            this.addCommand({
+                id: `insert-non-${admonition.type}`,
+                name: `Insert Non-codeblock ${admonition.type}`,
+                editorCheckCallback: (checking, editor, view) => {
+                    if (checking)
+                        return (
+                            admonition.command &&
+                            this.data.enableMarkdownProcessor
+                        );
+                    if (admonition.command) {
+                        try {
+                            editor
+                                .getDoc()
+                                .replaceSelection(
+                                    `!!! ad-${admonition.type}\n\n--- admonition\n`
+                                );
+                            const cursor = editor.getCursor();
+                            editor.setCursor(cursor.line - 2);
+                        } catch (e) {
+                            new Notice(
+                                "There was an issue inserting the admonition."
+                            );
+                        }
+                    }
+                }
+            });
+        }
     }
     turnOnSyntaxHighlighting(types: string[] = Object.keys(this.admonitions)) {
         if (!this.data.syntaxHighlight) return;
