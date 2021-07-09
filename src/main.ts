@@ -10,7 +10,12 @@ import {
 } from "obsidian";
 /* import { prettyPrint as html } from "html"; */
 
-import { Admonition, ObsidianAdmonitionPlugin, ISettingsData } from "./@types";
+import {
+    Admonition,
+    ObsidianAdmonitionPlugin,
+    ISettingsData,
+    RPGIconName
+} from "./@types";
 import {
     getAdmonitionElement,
     getAdmonitionElementAsync,
@@ -69,7 +74,7 @@ Object.fromEntries =
 
 import "./assets/main.css";
 import AdmonitionSetting from "./settings";
-import { IconName, COPY_BUTTON_ICON } from "./util/icons";
+import { IconName, COPY_BUTTON_ICON, iconNames } from "./util/icons";
 import { InsertAdmonitionModal } from "./modal";
 
 const DEFAULT_APP_SETTINGS: ISettingsData = {
@@ -624,7 +629,9 @@ title:
             let {
                 title = type[0].toUpperCase() + type.slice(1).toLowerCase(),
                 collapse,
-                content
+                content,
+                icon,
+                color = this.admonitions[type].color
             } = getParametersFromSource(type, src);
 
             let match = new RegExp(`^!!! ad-(${this.types.join("|")})$`, "gm");
@@ -661,11 +668,15 @@ title:
                 collapse = "";
             }
             const id = getID();
+
+            /* const iconNode = icon ? this.admonitions[type].icon; */
+
             let admonitionElement = getAdmonitionElement(
                 type,
                 title,
-                this.admonitions[type].icon,
-                this.admonitions[type].color,
+                iconNames.get(icon as RPGIconName | IconName) ??
+                    this.admonitions[type].icon,
+                color ?? this.admonitions[type].color,
                 collapse,
                 id
             );

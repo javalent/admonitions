@@ -26,15 +26,17 @@ Becomes:
 ```ad-<type> # Admonition type. See below for a list of available types.
 title:                  # Admonition title.
 collapse:               # Create a collapsible admonition.
+icon:                   # Override the icon.
+color:                  # Override the color.
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et euismod nulla.
 
 ```
 ````
 
-Please note that as of **4.4.1**, the `title` and `collapse` parameters must be at the _top_ of the block, in any order.
+Please note that as of **4.4.1**, the `title`, `collapse`, `icon` and `color` parameters must be at the _top_ of the block, in any order.
 
-### Titles
+### Title
 
 The admonition will render with the type of admonition by default. If you wish to customize the title, you can do so this way:
 
@@ -75,6 +77,32 @@ If a blank title is provided, the collapse parameter will not do anything.
 Admonitions may be set to be collapsible by default in settings.
 
 ![](https://raw.githubusercontent.com/valentine195/obsidian-admonition/master/images/collapse.gif)
+
+### Icon
+
+The admonition icon can be overridden using the `icon` parameter. **The icon name entered must be the exact icon name from FontAwesome or RPGAwesome.**
+
+````
+```ad-note
+icon: triforce
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et euismod nulla.
+
+```
+````
+
+### Color
+
+The admonition color can be overridden using the `color` parameter. **The color entered must be an RGB triad.**
+
+````
+```ad-note
+color: 200, 200, 200
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et euismod nulla.
+
+```
+````
 
 ## Nesting Admonitions
 

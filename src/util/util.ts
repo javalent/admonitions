@@ -50,9 +50,9 @@ function startsWithAny(str: string, needles: string[]) {
 }
 
 export function getParametersFromSource(type: string, src: string) {
-    const keywordTokens = ["title:", "collapse:"];
+    const keywordTokens = ["title:", "collapse:", "icon:", "color:"];
 
-    const keywords = ["title", "collapse"];
+    const keywords = ["title", "collapse", "icon", "color"];
 
     let lines = src.split("\n");
 
@@ -81,7 +81,9 @@ export function getParametersFromSource(type: string, src: string) {
 
     let {
         title = type[0].toUpperCase() + type.slice(1).toLowerCase(),
-        collapse /* = "none" */
+        collapse,
+        icon,
+        color
     } = params;
 
     let content = lines.slice(skipLines).join("\n");
@@ -106,7 +108,7 @@ export function getParametersFromSource(type: string, src: string) {
         new Notice("An admonition must have a title if it is collapsible.");
     }
 
-    return { title, collapse, content };
+    return { title, collapse, content, icon, color };
 }
 
 export /* async */ function getAdmonitionElement(

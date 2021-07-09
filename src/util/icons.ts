@@ -29,17 +29,28 @@ export const WARNING_ICON = icon(
 
 export { IconName };
 
-export const iconNames: AdmonitionIconDefinition[] = [
-    ...Object.values(fas).map((i: IconDefinition) => {
-        return { name: i.iconName, type: "font-awesome" as "font-awesome" };
-    }),
-    ...Object.keys(RPG).map((i) => {
-        return {
-            name: i as RPGIconName,
-            type: "rpg" as "rpg"
-        };
+const RPGIconNames: Map<IconName | RPGIconName, AdmonitionIconDefinition> =
+    new Map(
+        Object.keys(RPG).map((i) => {
+            return [
+                i as RPGIconName,
+                {
+                    name: i as RPGIconName,
+                    type: "rpg" as "rpg"
+                }
+            ];
+        })
+    );
+const FontAwesomeIconNames: Map<IconName, AdmonitionIconDefinition> = new Map(
+    Object.values(fas).map((i: IconDefinition) => {
+        return [
+            i.iconName,
+            { name: i.iconName, type: "font-awesome" as "font-awesome" }
+        ];
     })
-];
+);
+
+export const iconNames = new Map([...RPGIconNames, ...FontAwesomeIconNames]);
 
 export function getIconType(str: string): "rpg" | "font-awesome" {
     if (RPG[str as RPGIconName]) return "rpg";

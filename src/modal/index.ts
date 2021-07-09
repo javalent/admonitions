@@ -12,7 +12,7 @@ import {
 } from "obsidian";
 import { createPopper, Instance as PopperInstance } from "@popperjs/core";
 
-import { getAdmonitionElement, getIconNode } from "../util";
+import { getAdmonitionElement, getIconNode, iconNames } from "../util";
 import {
     Admonition,
     AdmonitionIconDefinition,
@@ -238,13 +238,9 @@ export class IconSuggestionModal extends SuggestionModal<AdmonitionIconDefinitio
     icons: AdmonitionIconDefinition[];
     icon: AdmonitionIconDefinition;
     text: TextComponent;
-    constructor(
-        app: App,
-        input: TextComponent,
-        items: AdmonitionIconDefinition[]
-    ) {
-        super(app, input.inputEl, items);
-        this.icons = [...items];
+    constructor(app: App, input: TextComponent, items: typeof iconNames) {
+        super(app, input.inputEl, [...items.values()]);
+        this.icons = [...items.values()];
         this.text = input;
 
         this.createPrompts();
@@ -343,7 +339,6 @@ class AdmonitionSuggestionModal extends SuggestionModal<Admonition> {
         this.admonition = item;
     }
     selectSuggestion({ item }: FuzzyMatch<Admonition>) {
-        
         this.text.setValue(item.type);
         this.onClose();
         this.close();
