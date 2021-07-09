@@ -732,7 +732,7 @@ title:
             const taskLists = admonitionContent.querySelectorAll(
                 ".contains-task-list"
             );
-            const splitContent = content.split("\n");
+            const splitContent = src.split("\n");
 
             for (let i = 0; i < taskLists.length; i++) {
                 let tasks: NodeListOf<HTMLLIElement> =
