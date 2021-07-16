@@ -801,6 +801,9 @@ title:
                     const line = splitContent.find((l) => search.test(l));
 
                     input.dataset["line"] = `${splitContent.indexOf(line) + 1}`;
+                    input.onclick = (evt) => {
+                        evt.stopPropagation();
+                    };
                 }
             }
 
