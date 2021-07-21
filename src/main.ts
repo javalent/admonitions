@@ -1,6 +1,7 @@
 import {
     addIcon,
     MarkdownPostProcessorContext,
+    MarkdownPreviewView,
     MarkdownRenderChild,
     MarkdownRenderer,
     MarkdownView,
@@ -41,6 +42,12 @@ declare module "obsidian" {
             editorCommands: { [id: string]: Command };
             findCommand(id: string): Command;
         };
+    }
+    interface MarkdownPreviewView {
+        renderer: MarkdownPreviewRenderer;
+    }
+    interface MarkdownPreviewRenderer {
+        onCheckboxClick: (evt: MouseEvent, el: HTMLInputElement) => void;
     }
 }
 Object.fromEntries =
@@ -772,38 +779,57 @@ title:
             const taskLists = admonitionContent.querySelectorAll(
                 ".contains-task-list"
             );
-            const splitContent = src.split("\n");
+            if (taskLists.length) {
+                const view =
+                    this.app.workspace.getActiveViewOfType(MarkdownView);
 
-            for (let i = 0; i < taskLists.length; i++) {
-                let tasks: NodeListOf<HTMLLIElement> =
-                    taskLists[i].querySelectorAll(".task-list-item");
-                if (!tasks.length) continue;
-                for (let j = 0; j < tasks.length; j++) {
-                    let task = tasks[j];
-                    if (!task.children.length) continue;
-                    const inputs = task.querySelectorAll(
-                        "input[type='checkbox']"
-                    ) as NodeListOf<HTMLInputElement>;
-                    if (!inputs.length) continue;
-                    const input = inputs[0];
+                if (view && view instanceof MarkdownView) {
+                    const file = view.file;
+                    const fileContent = view.currentMode.get();
+                    const splitContent = src.split("\n");
+                    let slicer = 0;
+                    const start = fileContent.indexOf(src);
+                    for (let i = 0; i < taskLists.length; i++) {
+                        let tasks: NodeListOf<HTMLLIElement> =
+                            taskLists[i].querySelectorAll(".task-list-item");
+                        if (!tasks.length) continue;
+                        for (let j = 0; j < tasks.length; j++) {
+                            let task = tasks[j];
+                            if (!task.children.length) continue;
+                            const inputs = task.querySelectorAll(
+                                "input[type='checkbox']"
+                            ) as NodeListOf<HTMLInputElement>;
+                            if (!inputs.length) continue;
+                            const input = inputs[0];
 
-                    if (
-                        !input.nextSibling ||
-                        input.nextSibling.nodeName != "#text"
-                    )
-                        continue;
-                    const innerText = input.nextSibling.textContent;
+                            if (
+                                !input.nextSibling ||
+                                input.nextSibling.nodeName != "#text"
+                            )
+                                continue;
+                            const line = splitContent
+                                .slice(slicer)
+                                .find((str) =>
+                                    new RegExp(
+                                        `\\[.*\\]\\s*${task.innerText}`
+                                    ).test(str)
+                                );
+                            slicer =
+                                slicer +
+                                splitContent.slice(slicer).indexOf(line) +
+                                1;
 
-                    const search = new RegExp(
-                        `\\[\\s?[xX]?\\s?\\]\\s*${innerText}`
-                    );
+                            const lineNumber = slicer;
 
-                    const line = splitContent.find((l) => search.test(l));
-
-                    input.dataset["line"] = `${splitContent.indexOf(line) + 1}`;
-                    input.onclick = (evt) => {
-                        evt.stopPropagation();
-                    };
+                            input.dataset["line"] = `${lineNumber}`;
+                            input.onclick = async (evt) => {
+                                view.previewMode.renderer.onCheckboxClick(
+                                    evt,
+                                    input
+                                );
+                            };
+                        }
+                    }
                 }
             }
 
