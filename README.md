@@ -484,6 +484,20 @@ content
 
 If you experience any bugs using this setting, please create an issue and I will look into them.
 
+## Publish
+
+Obsidian plugins do not work on publish sites; however, version 7.0.0 has an option to generate a JavaScript file that can be used on **self-hosted** Publish sites.
+
+**Obsidian Publish only allows external JavaScript on self hosted publish sites. If your Publish is ran through Obsidian, this will not work.**
+
+Instructions:
+
+1. Go the Admonition settings tab and click the "Generate JS for Publish" button. 
+2. Save the JavaScript file. 
+3. Copy the contents of the JS file to your `publish.js` file. 
+
+Please note that I can give no guarantees of stability on your publish site. Other JavaScript you include may conflict with this file. If you run into an issue using it, please create an issue on this repository and I will try to help you. 
+
 ## Settings
 
 ### Syntax Highlighting
@@ -499,6 +513,10 @@ This setting is experimental and could have unintended consequences. If you begi
 ### Enable Non-codeblock Admonitions
 
 Allow use of non-codeblock admonitions, described [here](#non-code-block-admonitions).
+
+### Generate JS for Publish
+
+This button will export a JavaScript file to be used on a **self-hosted** Obsidian Publish site. The generated JavaScript will only be valid for currently defined Admonition types. Any additional types created after generating the file will require a new file to be generated. 
 
 ### Collapsible By Default
 
