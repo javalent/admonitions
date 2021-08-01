@@ -26,6 +26,9 @@ import { ADD_COMMAND_NAME, REMOVE_COMMAND_NAME } from "./util";
 
 import { IconSuggestionModal } from "./modal";
 
+//@ts-expect-error
+import CONTENT from "../publish/publish.admonition.txt";
+
 /** Taken from https://stackoverflow.com/questions/34849001/check-if-css-selector-is-valid/42149818 */
 const isSelectorValid = ((dummyElement) => (selector: string) => {
     try {
@@ -121,6 +124,46 @@ export default class AdmonitionSetting extends PluginSettingTab {
         markdownName.appendChild(
             createSpan({ text: " Enable Non-codeblock Admonitions" })
         );
+
+        const publish = new Setting(containerEl)
+            .setName("Generate JS for Publish")
+            .setDesc("Generate a javascript file to enable Admonitions on the web.")
+            .addButton((b) => {
+                b.setButtonText("Generate")
+                b.onClick((evt) => {
+                    const admonition_icons: {
+                        [admonition_type: string]: {
+                            icon: string;
+                            color: string;
+                        };
+                    } = {};
+
+                    for (let key in this.plugin.admonitions) {
+                        const value = this.plugin.admonitions[key];
+
+                        admonition_icons[key] = {
+                            icon: getIconNode(value.icon).outerHTML,
+                            color: value.color
+                        };
+                    }
+
+                    const js = CONTENT.replace(
+                        "const ADMONITION_ICON_MAP = {}",
+                        "const ADMONITION_ICON_MAP = " +
+                            JSON.stringify(admonition_icons)
+                    );
+                    let csvFile = new Blob([js], {
+                        type: "text/javascript"
+                    });
+                    let downloadLink = document.createElement("a");
+                    downloadLink.download = "publish.admonition.js";
+                    downloadLink.href = window.URL.createObjectURL(csvFile);
+                    downloadLink.style.display = "none";
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                    document.body.removeChild(downloadLink);
+                });
+            });
 
         const collapeSetting = new Setting(containerEl)
             .setName("Collapsible by Default")
