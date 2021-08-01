@@ -495,6 +495,7 @@ Instructions:
 1. Go the Admonition settings tab and click the "Generate JS for Publish" button. 
 2. Save the JavaScript file. 
 3. Copy the contents of the JS file to your `publish.js` file. 
+4. Add the contents of the `assets/main.css` file to your `publish.css` file. 
 
 Please note that I can give no guarantees of stability on your publish site. Other JavaScript you include may conflict with this file. If you run into an issue using it, please create an issue on this repository and I will try to help you. 
 
