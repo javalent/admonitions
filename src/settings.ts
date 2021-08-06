@@ -46,7 +46,7 @@ export default class AdmonitionSetting extends PluginSettingTab {
         let { containerEl } = this;
 
         containerEl.empty();
-
+        containerEl.addClass("admonition-settings")
         containerEl.createEl("h2", { text: "Admonition Settings" });
 
         let syntax = new Setting(containerEl)
@@ -278,6 +278,15 @@ export default class AdmonitionSetting extends PluginSettingTab {
                         });
                 });
         }
+
+        const div = containerEl.createDiv("coffee");
+        div.createEl("a", {
+            href: "https://www.buymeacoffee.com/valentine195"
+        }).createEl("img", {
+            attr: {
+                src: "https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=☕&slug=valentine195&button_colour=e3e7ef&font_colour=262626&font_family=Inter&outline_colour=262626&coffee_colour=ff0000"
+            }
+        });
     }
 }
 

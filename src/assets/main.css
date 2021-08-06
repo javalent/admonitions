@@ -200,3 +200,13 @@ input.is-invalid {
 .admonition li.task-list-item.is-checked p {
     text-decoration: line-through;
 }
+
+.admonition-settings .coffee {
+    width: 60%;
+    color: var(--text-faint);
+    margin: 1rem auto;
+    text-align: center;
+}
+.admonition-settings .coffee img {
+    height: 30px;
+}
