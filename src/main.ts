@@ -727,6 +727,10 @@ title:
                 collapse,
                 id
             );
+            /**
+             * Replace the <pre> tag with the new admonition.
+             */
+            el.replaceWith(admonitionElement);
 
             /**
              * Create a unloadable component.
@@ -754,12 +758,24 @@ title:
             /**
              * Render the content as markdown and append it to the admonition.
              */
-            MarkdownRenderer.renderMarkdown(
-                content,
-                admonitionContent,
-                ctx.sourcePath,
-                markdownRenderChild
-            );
+
+            if (/^`{3,}mermaid/m.test(content)) {
+                setImmediate(() => {
+                    MarkdownRenderer.renderMarkdown(
+                        content,
+                        admonitionContent,
+                        ctx.sourcePath,
+                        markdownRenderChild
+                    );
+                });
+            } else {
+                MarkdownRenderer.renderMarkdown(
+                    content,
+                    admonitionContent,
+                    ctx.sourcePath,
+                    markdownRenderChild
+                );
+            }
 
             if (this.data.copyButton) {
                 let copy = contentHolder
@@ -839,11 +855,6 @@ title:
                 );
 
             this.addLinksToCache(links, ctx.sourcePath);
-
-            /**
-             * Replace the <pre> tag with the new admonition.
-             */
-            el.replaceWith(admonitionElement);
         } catch (e) {
             console.error(e);
             const pre = createEl("pre");
