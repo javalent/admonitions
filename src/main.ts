@@ -727,10 +727,6 @@ title:
                 collapse,
                 id
             );
-            /**
-             * Replace the <pre> tag with the new admonition.
-             */
-            el.replaceWith(admonitionElement);
 
             /**
              * Create a unloadable component.
@@ -760,6 +756,10 @@ title:
              */
 
             if (/^`{3,}mermaid/m.test(content)) {
+                const wasCollapsed = !admonitionElement.hasAttribute("open");
+                if (admonitionElement instanceof HTMLDetailsElement) {
+                    admonitionElement.setAttribute("open", "open");
+                }
                 setImmediate(() => {
                     MarkdownRenderer.renderMarkdown(
                         content,
@@ -767,6 +767,12 @@ title:
                         ctx.sourcePath,
                         markdownRenderChild
                     );
+                    if (
+                        admonitionElement instanceof HTMLDetailsElement &&
+                        wasCollapsed
+                    ) {
+                        admonitionElement.removeAttribute("open");
+                    }
                 });
             } else {
                 MarkdownRenderer.renderMarkdown(
@@ -855,6 +861,11 @@ title:
                 );
 
             this.addLinksToCache(links, ctx.sourcePath);
+
+            /**
+             * Replace the <pre> tag with the new admonition.
+             */
+            el.replaceWith(admonitionElement);
         } catch (e) {
             console.error(e);
             const pre = createEl("pre");
