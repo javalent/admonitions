@@ -12,7 +12,12 @@ import {
 } from "obsidian";
 import { createPopper, Instance as PopperInstance } from "@popperjs/core";
 
-import { getAdmonitionElement, getIconNode, iconNames } from "../util";
+import {
+    getAdmonitionElement,
+    getIconModuleName,
+    getIconNode,
+    iconDefinitions
+} from "../util";
 import {
     Admonition,
     AdmonitionIconDefinition,
@@ -238,9 +243,9 @@ export class IconSuggestionModal extends SuggestionModal<AdmonitionIconDefinitio
     icons: AdmonitionIconDefinition[];
     icon: AdmonitionIconDefinition;
     text: TextComponent;
-    constructor(app: App, input: TextComponent, items: typeof iconNames) {
-        super(app, input.inputEl, [...items.values()]);
-        this.icons = [...items.values()];
+    constructor(app: App, input: TextComponent) {
+        super(app, input.inputEl, iconDefinitions);
+        this.icons = iconDefinitions;
         this.text = input;
 
         this.createPrompts();
@@ -264,6 +269,7 @@ export class IconSuggestionModal extends SuggestionModal<AdmonitionIconDefinitio
     }
     selectSuggestion({ item }: FuzzyMatch<AdmonitionIconDefinition>) {
         this.text.setValue(item.name);
+        this.icon = item;
         this.onClose();
 
         this.close();
@@ -301,6 +307,10 @@ export class IconSuggestionModal extends SuggestionModal<AdmonitionIconDefinitio
 
         const iconDiv = createDiv("suggestion-flair admonition-suggester-icon");
         iconDiv.appendChild(getIconNode(item));
+        content.createDiv({
+            cls: "suggestion-note",
+            text: getIconModuleName(item)
+        });
 
         content.prepend(iconDiv);
     }

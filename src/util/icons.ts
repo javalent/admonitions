@@ -50,12 +50,20 @@ const FontAwesomeIconNames: Map<IconName, AdmonitionIconDefinition> = new Map(
     })
 );
 
-export const iconNames = new Map([...RPGIconNames, ...FontAwesomeIconNames]);
+export const iconDefinitions = [
+    ...FontAwesomeIconNames.values(),
+    ...RPGIconNames.values()
+];
 
 export function getIconType(str: string): "rpg" | "font-awesome" {
-    if (RPG[str as RPGIconName]) return "rpg";
     if (findIconDefinition({ iconName: str as IconName, prefix: "fas" }))
         return "font-awesome";
+    if (RPG[str as RPGIconName]) return "rpg";
+}
+
+export function getIconModuleName(icon: AdmonitionIconDefinition) {
+    if (icon.type === "rpg") return "RPG Awesome";
+    if (icon.type === "font-awesome") return "Font Awesome";
 }
 
 export function getIconNode(item: AdmonitionIconDefinition): Element {

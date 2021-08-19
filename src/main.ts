@@ -32,7 +32,14 @@ import {
     REMOVE_COMMAND_NAME
 } from "./util";
 
-import * as CodeMirror from "./codemirror/codemirror";
+/* import * as CodeMirror from "./codemirror/codemirror"; */
+import type codemirror from "codemirror";
+
+declare global {
+    interface Window {
+        CodeMirror: typeof codemirror;
+    }
+}
 
 //add commands to app interface
 declare module "obsidian" {
@@ -81,7 +88,7 @@ Object.fromEntries =
 
 import "./assets/main.css";
 import AdmonitionSetting from "./settings";
-import { IconName, COPY_BUTTON_ICON, iconNames } from "./util/icons";
+import { IconName, COPY_BUTTON_ICON, iconDefinitions } from "./util/icons";
 import { InsertAdmonitionModal } from "./modal";
 
 const DEFAULT_APP_SETTINGS: ISettingsData = {
@@ -623,9 +630,12 @@ title:
         types.forEach((type) => {
             if (this.data.syntaxHighlight) {
                 /** Process from @deathau's syntax highlight plugin */
-                CodeMirror.defineMode(`ad-${type}`, (config, options) => {
-                    return CodeMirror.getMode(config, "hypermd");
-                });
+                window.CodeMirror.defineMode(
+                    `ad-${type}`,
+                    (config, options) => {
+                        return window.CodeMirror.getMode({}, "hypermd");
+                    }
+                );
             }
         });
 
@@ -639,8 +649,8 @@ title:
 
     turnOffSyntaxHighlighting(types: string[] = Object.keys(this.admonitions)) {
         types.forEach((type) => {
-            if (CodeMirror.modes.hasOwnProperty(`ad-${type}`)) {
-                delete CodeMirror.modes[`ad-${type}`];
+            if (window.CodeMirror.modes.hasOwnProperty(`ad-${type}`)) {
+                delete window.CodeMirror.modes[`ad-${type}`];
             }
         });
         this.app.workspace.layoutReady
@@ -721,7 +731,7 @@ title:
             let admonitionElement = getAdmonitionElement(
                 type,
                 title,
-                iconNames.get(icon as RPGIconName | IconName) ??
+                iconDefinitions.find(({ name }) => icon === name) ??
                     this.admonitions[type].icon,
                 color ?? this.admonitions[type].color,
                 collapse,

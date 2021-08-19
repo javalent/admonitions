@@ -12,5 +12,5 @@
         "importHelpers": true,
         "lib": ["dom", "es5", "scripthost", "es2019"]
     },
-    "include": ["**/*.ts", "src/codemirror/codemirror.js"]
+    "include": ["**/*.ts"]
 }

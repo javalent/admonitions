@@ -21,7 +21,7 @@ import {
     getIconType,
     WARNING_ICON
 } from "./util";
-import { iconNames } from "./util";
+
 import { ADD_COMMAND_NAME, REMOVE_COMMAND_NAME } from "./util";
 
 import { IconSuggestionModal } from "./modal";
@@ -46,7 +46,7 @@ export default class AdmonitionSetting extends PluginSettingTab {
         let { containerEl } = this;
 
         containerEl.empty();
-        containerEl.addClass("admonition-settings")
+        containerEl.addClass("admonition-settings");
         containerEl.createEl("h2", { text: "Admonition Settings" });
 
         let syntax = new Setting(containerEl)
@@ -418,7 +418,7 @@ class SettingsModal extends Modal {
 
                     SettingsModal.removeValidationError(text);
 
-                    this.icon = {
+                    this.icon = modal.icon ?? {
                         name: v as AdmonitionIconName,
                         type: ic as AdmonitionIconType
                     };
@@ -430,11 +430,7 @@ class SettingsModal extends Modal {
                     iconEl.innerHTML = getIconNode(this.icon).outerHTML;
                 };
 
-                const modal = new IconSuggestionModal(
-                    this.app,
-                    text,
-                    iconNames
-                );
+                const modal = new IconSuggestionModal(this.app, text);
 
                 modal.onClose = validate;
 
