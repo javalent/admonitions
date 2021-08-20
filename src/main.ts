@@ -397,6 +397,7 @@ export default class ObsidianAdmonition
 
         this.registerMarkdownPostProcessor(async (el, ctx) => {
             if (!this.data.enableMarkdownProcessor) return;
+
             if (END_REGEX.test(el.textContent) && push) {
                 push = false;
                 const lastElement = createDiv();
@@ -420,7 +421,14 @@ export default class ObsidianAdmonition
             }
 
             if (!TYPE_REGEX.test(el.textContent) && !push) return;
-
+            if (
+                !(
+                    Array.from(el.children).find((e) =>
+                        TYPE_REGEX.test(e.textContent)
+                    ) instanceof HTMLParagraphElement
+                )
+            )
+                return; 
             if (!push) {
                 push = true;
                 let child = new MarkdownRenderChild(el);

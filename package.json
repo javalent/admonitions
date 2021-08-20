@@ -1,6 +1,6 @@
 {
     "name": "obsidian-admonition",
-    "version": "6.2.7",
+    "version": "6.2.8",
     "description": "Admonition block-styled content for Obsidian.md",
     "main": "main.js",
     "scripts": {
