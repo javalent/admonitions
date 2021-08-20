@@ -630,8 +630,11 @@ title:
         types.forEach((type) => {
             if (this.data.syntaxHighlight) {
                 /** Process from @deathau's syntax highlight plugin */
+                const [, cmPatchedType] = `${type}`.match(
+                    /^([\w+#-]*)[^\n`]*$/
+                );
                 window.CodeMirror.defineMode(
-                    `ad-${type}`,
+                    `ad-${cmPatchedType}`,
                     (config, options) => {
                         return window.CodeMirror.getMode({}, "hypermd");
                     }
