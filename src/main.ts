@@ -857,7 +857,10 @@ title:
                                 .slice(slicer)
                                 .find((str) =>
                                     new RegExp(
-                                        `\\[.*\\]\\s*${task.innerText}`
+                                        `\\[.*\\]\\s*${task.innerText.replace(
+                                            /[.*+?^${}()|[\]\\]/g,
+                                            "\\$&"
+                                        )}`
                                     ).test(str)
                                 );
                             slicer =
