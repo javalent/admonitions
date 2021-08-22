@@ -421,15 +421,16 @@ export default class ObsidianAdmonition
             }
 
             if (!TYPE_REGEX.test(el.textContent) && !push) return;
-            if (
-                !(
-                    Array.from(el.children).find((e) =>
-                        TYPE_REGEX.test(e.textContent)
-                    ) instanceof HTMLParagraphElement
-                )
-            )
-                return; 
+
             if (!push) {
+                if (
+                    !(
+                        Array.from(el.children).find((e) =>
+                            TYPE_REGEX.test(e.textContent)
+                        ) instanceof HTMLParagraphElement
+                    )
+                )
+                    return;
                 push = true;
                 let child = new MarkdownRenderChild(el);
                 id = getID();
@@ -653,6 +654,7 @@ title:
         this.app.workspace.layoutReady
             ? this.layoutReady()
             : this.app.workspace.on(
+                  //@ts-expect-error
                   "layout-ready",
                   this.layoutReady.bind(this)
               );
@@ -667,6 +669,7 @@ title:
         this.app.workspace.layoutReady
             ? this.layoutReady()
             : this.app.workspace.on(
+                  //@ts-expect-error
                   "layout-ready",
                   this.layoutReady.bind(this)
               );
