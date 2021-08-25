@@ -11,12 +11,7 @@ import {
 } from "obsidian";
 /* import { prettyPrint as html } from "html"; */
 
-import {
-    Admonition,
-    ObsidianAdmonitionPlugin,
-    ISettingsData,
-    RPGIconName
-} from "./@types";
+import { Admonition, ObsidianAdmonitionPlugin, ISettingsData } from "./@types";
 import {
     getAdmonitionElement,
     getAdmonitionElementAsync,
@@ -428,7 +423,7 @@ export default class ObsidianAdmonition
                     ) instanceof HTMLParagraphElement
                 )
             )
-                return; 
+                return;
             if (!push) {
                 push = true;
                 let child = new MarkdownRenderChild(el);
