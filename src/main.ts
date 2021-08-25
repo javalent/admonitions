@@ -416,15 +416,15 @@ export default class ObsidianAdmonition
             }
 
             if (!TYPE_REGEX.test(el.textContent) && !push) return;
-            if (
-                !(
-                    Array.from(el.children).find((e) =>
-                        TYPE_REGEX.test(e.textContent)
-                    ) instanceof HTMLParagraphElement
-                )
-            )
-                return;
             if (!push) {
+                if (
+                    !(
+                        Array.from(el.children).find((e) =>
+                            TYPE_REGEX.test(e.textContent)
+                        ) instanceof HTMLParagraphElement
+                    )
+                )
+                    return;
                 push = true;
                 let child = new MarkdownRenderChild(el);
                 id = getID();
@@ -849,7 +849,10 @@ title:
                                 .slice(slicer)
                                 .find((str) =>
                                     new RegExp(
-                                        `\\[.*\\]\\s*${task.innerText}`
+                                        `\\[.*\\]\\s*${task.innerText.replace(
+                                            /[.*+?^${}()|[\]\\]/g,
+                                            "\\$&"
+                                        )}`
                                     ).test(str)
                                 );
                             slicer =
