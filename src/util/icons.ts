@@ -67,6 +67,11 @@ export function getIconModuleName(icon: AdmonitionIconDefinition) {
 }
 
 export function getIconNode(item: AdmonitionIconDefinition): Element {
+    if (item.type === "image") {
+        const img = new Image();
+        img.src = item.name;
+        return img;
+    }
     if (item.type === "rpg") {
         if (!RPG[item.name as RPGIconName]) return null;
         const el = createDiv();

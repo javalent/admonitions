@@ -29,8 +29,8 @@ export interface ISettingsData {
 }
 
 export type AdmonitionIconDefinition = {
-    type?: "font-awesome" | "rpg";
-    name?: IconName | RPGIconName;
+    type?: "font-awesome" | "rpg" | "image";
+    name?: IconName | RPGIconName | string;
 };
 
 export type AdmonitionIconName = AdmonitionIconDefinition["name"];

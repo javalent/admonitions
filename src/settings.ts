@@ -373,6 +373,7 @@ class SettingsModal extends Modal {
                     titleSpan.prepend(iconEl);
                 });
             });
+        typeSetting.controlEl.addClass("admonition-type-setting");
 
         typeSetting.descEl.createSpan({
             text: "This is used to create the admonition (e.g.,  "
@@ -390,12 +391,19 @@ class SettingsModal extends Modal {
             text: ")"
         });
 
+        const input = createEl("input", {
+            attr: {
+                type: "file",
+                name: "image",
+                accept: "image/*"
+            }
+        });
         let iconText: TextComponent;
         const iconSetting = new Setting(settingDiv)
             .setName("Admonition Icon")
             .addText((text) => {
                 iconText = text;
-                text.setValue(this.icon.name);
+                if (this.icon.type !== "image") text.setValue(this.icon.name);
 
                 const validate = async () => {
                     const v = text.inputEl.value;
@@ -435,7 +443,63 @@ class SettingsModal extends Modal {
                 modal.onClose = validate;
 
                 text.inputEl.onblur = validate;
+            })
+            .addButton((b) => {
+                b.setButtonText("Upload Image").setTooltip("Upload Image");
+                b.buttonEl.addClass("admonition-file-upload");
+                b.buttonEl.appendChild(input);
+                b.onClick(() => input.click());
             });
+
+        /** Image Uploader */
+        input.onchange = async () => {
+            const { files } = input;
+
+            if (!files.length) return;
+
+            const image = files[0];
+            const reader = new FileReader();
+            reader.onloadend = (evt) => {
+                var image = new Image();
+                image.onload = () => {
+                    try {
+                        // Resize the image
+                        const canvas = document.createElement("canvas"),
+                            max_size = 24;
+                        let width = image.width,
+                            height = image.height;
+                        if (width > height) {
+                            if (width > max_size) {
+                                height *= max_size / width;
+                                width = max_size;
+                            }
+                        } else {
+                            if (height > max_size) {
+                                width *= max_size / height;
+                                height = max_size;
+                            }
+                        }
+                        canvas.width = width;
+                        canvas.height = height;
+                        canvas
+                            .getContext("2d")
+                            .drawImage(image, 0, 0, width, height);
+
+                        this.icon = {
+                            name: canvas.toDataURL("image/png"),
+                            type: "image"
+                        };
+                        this.display();
+                    } catch (e) {
+                        new Notice("There was an error parsing the image.");
+                    }
+                };
+                image.src = evt.target.result.toString();
+            };
+            reader.readAsDataURL(image);
+
+            input.value = null;
+        };
 
         const desc = iconSetting.descEl.createDiv();
         desc.createEl("a", {
@@ -508,7 +572,10 @@ class SettingsModal extends Modal {
                         error = true;
                     }
 
-                    if (!getIconType(iconText.inputEl.value)) {
+                    if (
+                        !getIconType(iconText.inputEl.value) &&
+                        this.icon.type !== "image"
+                    ) {
                         SettingsModal.setValidationError(
                             iconText,
                             "Invalid icon name."
@@ -516,7 +583,7 @@ class SettingsModal extends Modal {
                         error = true;
                     }
 
-                    if (iconText.inputEl.value.length == 0) {
+                    if (!this.icon.name.length) {
                         SettingsModal.setValidationError(
                             iconText,
                             "Icon cannot be empty."
@@ -578,9 +645,13 @@ class SettingsModal extends Modal {
             ".unset-align-items"
         );
 
-        if (textInput.inputEl.parentElement.children[1]) {
+        if (
+            textInput.inputEl.parentElement.querySelector(".invalid-feedback")
+        ) {
             textInput.inputEl.parentElement.removeChild(
-                textInput.inputEl.parentElement.children[1]
+                textInput.inputEl.parentElement.querySelector(
+                    ".invalid-feedback"
+                )
             );
         }
     }
