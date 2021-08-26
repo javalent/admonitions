@@ -760,126 +760,131 @@ title:
             };
             ctx.addChild(markdownRenderChild);
 
-            const contentHolder = admonitionElement.createDiv(
-                "admonition-content-holder"
-            );
+            if (content && content.length) {
+                const contentHolder = admonitionElement.createDiv(
+                    "admonition-content-holder"
+                );
 
-            const admonitionContent =
-                contentHolder.createDiv("admonition-content");
+                const admonitionContent =
+                    contentHolder.createDiv("admonition-content");
 
-            /**
-             * Render the content as markdown and append it to the admonition.
-             */
+                /**
+                 * Render the content as markdown and append it to the admonition.
+                 */
 
-            if (/^`{3,}mermaid/m.test(content)) {
-                const wasCollapsed = !admonitionElement.hasAttribute("open");
-                if (admonitionElement instanceof HTMLDetailsElement) {
-                    admonitionElement.setAttribute("open", "open");
-                }
-                setImmediate(() => {
+                if (/^`{3,}mermaid/m.test(content)) {
+                    const wasCollapsed =
+                        !admonitionElement.hasAttribute("open");
+                    if (admonitionElement instanceof HTMLDetailsElement) {
+                        admonitionElement.setAttribute("open", "open");
+                    }
+                    setImmediate(() => {
+                        MarkdownRenderer.renderMarkdown(
+                            content,
+                            admonitionContent,
+                            ctx.sourcePath,
+                            markdownRenderChild
+                        );
+                        if (
+                            admonitionElement instanceof HTMLDetailsElement &&
+                            wasCollapsed
+                        ) {
+                            admonitionElement.removeAttribute("open");
+                        }
+                    });
+                } else {
                     MarkdownRenderer.renderMarkdown(
                         content,
                         admonitionContent,
                         ctx.sourcePath,
                         markdownRenderChild
                     );
-                    if (
-                        admonitionElement instanceof HTMLDetailsElement &&
-                        wasCollapsed
-                    ) {
-                        admonitionElement.removeAttribute("open");
-                    }
-                });
-            } else {
-                MarkdownRenderer.renderMarkdown(
-                    content,
-                    admonitionContent,
-                    ctx.sourcePath,
-                    markdownRenderChild
+                }
+
+                if (this.data.copyButton) {
+                    let copy = contentHolder
+                        .createDiv("admonition-content-copy")
+                        .appendChild(COPY_BUTTON_ICON.cloneNode(true));
+                    copy.addEventListener("click", () => {
+                        navigator.clipboard
+                            .writeText(content.trim())
+                            .then(async () => {
+                                new Notice(
+                                    "Admonition content copied to clipboard."
+                                );
+                            });
+                    });
+                }
+
+                const taskLists = admonitionContent.querySelectorAll(
+                    ".contains-task-list"
                 );
-            }
+                if (taskLists.length) {
+                    const view =
+                        this.app.workspace.getActiveViewOfType(MarkdownView);
 
-            if (this.data.copyButton) {
-                let copy = contentHolder
-                    .createDiv("admonition-content-copy")
-                    .appendChild(COPY_BUTTON_ICON.cloneNode(true));
-                copy.addEventListener("click", () => {
-                    navigator.clipboard
-                        .writeText(content.trim())
-                        .then(async () => {
-                            new Notice(
-                                "Admonition content copied to clipboard."
-                            );
-                        });
-                });
-            }
-
-            const taskLists = admonitionContent.querySelectorAll(
-                ".contains-task-list"
-            );
-            if (taskLists.length) {
-                const view =
-                    this.app.workspace.getActiveViewOfType(MarkdownView);
-
-                if (view && view instanceof MarkdownView) {
-                    const file = view.file;
-                    const fileContent = view.currentMode.get();
-                    const splitContent = src.split("\n");
-                    let slicer = 0;
-                    const start = fileContent.indexOf(src);
-                    for (let i = 0; i < taskLists.length; i++) {
-                        let tasks: NodeListOf<HTMLLIElement> =
-                            taskLists[i].querySelectorAll(".task-list-item");
-                        if (!tasks.length) continue;
-                        for (let j = 0; j < tasks.length; j++) {
-                            let task = tasks[j];
-                            if (!task.children.length) continue;
-                            const inputs = task.querySelectorAll(
-                                "input[type='checkbox']"
-                            ) as NodeListOf<HTMLInputElement>;
-                            if (!inputs.length) continue;
-                            const input = inputs[0];
-
-                            if (
-                                !input.nextSibling ||
-                                input.nextSibling.nodeName != "#text"
-                            )
-                                continue;
-                            const line = splitContent
-                                .slice(slicer)
-                                .find((str) =>
-                                    new RegExp(
-                                        `\\[.*\\]\\s*${task.innerText.replace(
-                                            /[.*+?^${}()|[\]\\]/g,
-                                            "\\$&"
-                                        )}`
-                                    ).test(str)
+                    if (view && view instanceof MarkdownView) {
+                        const file = view.file;
+                        const fileContent = view.currentMode.get();
+                        const splitContent = src.split("\n");
+                        let slicer = 0;
+                        const start = fileContent.indexOf(src);
+                        for (let i = 0; i < taskLists.length; i++) {
+                            let tasks: NodeListOf<HTMLLIElement> =
+                                taskLists[i].querySelectorAll(
+                                    ".task-list-item"
                                 );
-                            slicer =
-                                slicer +
-                                splitContent.slice(slicer).indexOf(line) +
-                                1;
+                            if (!tasks.length) continue;
+                            for (let j = 0; j < tasks.length; j++) {
+                                let task = tasks[j];
+                                if (!task.children.length) continue;
+                                const inputs = task.querySelectorAll(
+                                    "input[type='checkbox']"
+                                ) as NodeListOf<HTMLInputElement>;
+                                if (!inputs.length) continue;
+                                const input = inputs[0];
 
-                            const lineNumber = slicer;
+                                if (
+                                    !input.nextSibling ||
+                                    input.nextSibling.nodeName != "#text"
+                                )
+                                    continue;
+                                const line = splitContent
+                                    .slice(slicer)
+                                    .find((str) =>
+                                        new RegExp(
+                                            `\\[.*\\]\\s*${task.innerText.replace(
+                                                /[.*+?^${}()|[\]\\]/g,
+                                                "\\$&"
+                                            )}`
+                                        ).test(str)
+                                    );
+                                slicer =
+                                    slicer +
+                                    splitContent.slice(slicer).indexOf(line) +
+                                    1;
 
-                            input.dataset["line"] = `${lineNumber}`;
-                            input.onclick = async (evt) => {
-                                view.previewMode.renderer.onCheckboxClick(
-                                    evt,
-                                    input
-                                );
-                            };
+                                const lineNumber = slicer;
+
+                                input.dataset["line"] = `${lineNumber}`;
+                                input.onclick = async (evt) => {
+                                    view.previewMode.renderer.onCheckboxClick(
+                                        evt,
+                                        input
+                                    );
+                                };
+                            }
                         }
                     }
                 }
+
+                const links =
+                    admonitionContent.querySelectorAll<HTMLAnchorElement>(
+                        "a.internal-link"
+                    );
+
+                this.addLinksToCache(links, ctx.sourcePath);
             }
-
-            const links =
-                admonitionContent.querySelectorAll<HTMLAnchorElement>(
-                    "a.internal-link"
-                );
-
-            this.addLinksToCache(links, ctx.sourcePath);
 
             /**
              * Replace the <pre> tag with the new admonition.
