@@ -647,10 +647,7 @@ title:
 
         this.app.workspace.layoutReady
             ? this.layoutReady()
-            : this.app.workspace.on(
-                  "layout-ready",
-                  this.layoutReady.bind(this)
-              );
+            : this.app.workspace.onLayoutReady(this.layoutReady.bind(this));
     }
 
     turnOffSyntaxHighlighting(types: string[] = Object.keys(this.admonitions)) {
@@ -661,10 +658,7 @@ title:
         });
         this.app.workspace.layoutReady
             ? this.layoutReady()
-            : this.app.workspace.on(
-                  "layout-ready",
-                  this.layoutReady.bind(this)
-              );
+            : this.app.workspace.onLayoutReady(this.layoutReady.bind(this));
     }
 
     layoutReady() {
