@@ -587,7 +587,7 @@ export class InsertAdmonitionModal extends Modal {
                         }
                         this.editor.getDoc().replaceSelection(
                             `\`\`\`ad-${this.type}\n${titleLine}${collapseLine}
-
+${this.editor.getDoc().getSelection()}
 
 \`\`\`\n`
                         );
