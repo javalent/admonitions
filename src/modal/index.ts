@@ -401,11 +401,14 @@ export class InsertAdmonitionModal extends Modal {
         ? this.plugin.data.defaultCollapseType
         : "none";
     private element: HTMLElement;
+    admonitionEl: HTMLDivElement;
     constructor(
         private plugin: ObsidianAdmonitionPlugin,
         private editor: Editor
     ) {
         super(plugin.app);
+
+        this.containerEl.addClass("insert-admonition-modal");
 
         this.onOpen = () => this.display(true);
     }
@@ -423,7 +426,7 @@ export class InsertAdmonitionModal extends Modal {
                 this.plugin.admonitionArray
             );
 
-            modal.onClose = () => {
+            const build = () => {
                 if (
                     t.inputEl.value &&
                     this.plugin.admonitions[t.inputEl.value]
@@ -434,24 +437,32 @@ export class InsertAdmonitionModal extends Modal {
                             this.type[0].toUpperCase() +
                             this.type.slice(1).toLowerCase();
                     }
+                    titleInput.setValue(this.title);
                 } else {
                     new Notice("No admonition type by that name exists.");
                     t.inputEl.value = "";
                 }
 
-                this.display();
+                this.buildAdmonition();
             };
+
+            t.inputEl.onblur = build;
+
+            modal.onClose = build;
             if (focus) {
                 modal.open();
                 t.inputEl.focus();
             }
         });
 
+        let titleInput: TextComponent;
+
         const titleSetting = new Setting(contentEl);
         titleSetting
             .setName("Admonition Title")
             .setDesc("Leave blank to render without a title.")
             .addText((t) => {
+                titleInput = t;
                 t.setValue(this.title);
 
                 t.onChange((v) => {
@@ -480,75 +491,75 @@ export class InsertAdmonitionModal extends Modal {
             });
 
         const collapseSetting = new Setting(contentEl);
-        collapseSetting.setName("Make Collapsible");
-
-        const open = collapseSetting.controlEl.createDiv({
-            attr: { style: "margin-right: 0.25rem;" }
-        });
-        const closed = collapseSetting.controlEl.createDiv({
-            attr: { style: "margin-right: 0.25rem;" }
-        });
-        const none = collapseSetting.controlEl.createDiv({
-            attr: { style: "margin-right: 0.25rem;" }
-        });
-
-        const openInput = open.createEl("input", {
-            type: "radio",
-            attr: {
-                ...{ id: "admonition-open", name: "admonition-collapse" },
-                ...(this.collapse === "open" && { checked: true })
-            }
-        });
-        openInput.onchange = (evt) => {
-            this.collapse = "open";
-            this.display();
-        };
-
-        open.createEl("label", {
-            text: "Open",
-            attr: {
-                for: "admonition-open"
-            }
+        collapseSetting.setName("Make Collapsible").addDropdown((d) => {
+            d.addOption("open", "Open");
+            d.addOption("closed", "Closed");
+            d.addOption("none", "None");
+            d.setValue(this.collapse);
+            d.onChange((v: "open" | "closed" | "none") => {
+                this.collapse = v;
+                this.buildAdmonition();
+            });
         });
 
-        const closedInput = closed.createEl("input", {
-            type: "radio",
-            attr: {
-                ...{ id: "admonition-closed", name: "admonition-collapse" },
-                ...(this.collapse === "closed" && { checked: true })
-            }
-        });
-        closedInput.onchange = (evt) => {
-            this.collapse = "closed";
-            this.display();
-        };
+        this.admonitionEl = this.contentEl.createDiv();
+        this.buildAdmonition();
 
-        closed.createEl("label", {
-            text: "Closed",
-            attr: {
-                for: "admonition-closed"
-            }
-        });
-        const noneInput = none.createEl("input", {
-            type: "radio",
-            attr: {
-                ...{ id: "admonition-none", name: "admonition-collapse" },
-                ...(this.collapse === "none" && { checked: true })
-            }
-        });
+        new Setting(contentEl)
+            .addButton((b) =>
+                b
+                    .setButtonText("Insert")
+                    .setCta()
+                    .onClick(() => {
+                        try {
+                            let titleLine = "",
+                                collapseLine = "";
+                            if (
+                                this.title.length &&
+                                this.title.toLowerCase() !=
+                                    this.type.toLowerCase()
+                            ) {
+                                titleLine = `title: ${this.title}\n`;
+                            }
+                            if (
+                                (this.plugin.data.autoCollapse &&
+                                    this.collapse !=
+                                        this.plugin.data.defaultCollapseType) ||
+                                (!this.plugin.data.autoCollapse &&
+                                    this.collapse != "none")
+                            ) {
+                                collapseLine = `collapse: ${this.collapse}\n`;
+                            }
+                            this.editor.getDoc().replaceSelection(
+                                `\`\`\`ad-${
+                                    this.type
+                                }\n${titleLine}${collapseLine}
+${this.editor.getDoc().getSelection()}
 
-        noneInput.onchange = (evt) => {
-            this.collapse = "none";
-            this.display();
-        };
-
-        none.createEl("label", {
-            text: "None",
-            attr: {
-                for: "admonition-none"
-            }
-        });
-
+\`\`\`\n`
+                            );
+                            const cursor = this.editor.getCursor();
+                            this.editor.setCursor(cursor.line - 3);
+                        } catch (e) {
+                            new Notice(
+                                "There was an issue inserting the admonition."
+                            );
+                        }
+                        this.close();
+                    })
+            )
+            .addExtraButton((b) => {
+                b.setIcon("cross")
+                    .setTooltip("Cancel")
+                    .onClick(() => this.close());
+                b.extraSettingsEl.setAttr("tabindex", 0);
+                b.extraSettingsEl.onkeydown = (evt) => {
+                    evt.key == "Enter" && this.close()
+                };
+            });
+    }
+    buildAdmonition() {
+        this.admonitionEl.empty();
         if (this.type && this.plugin.admonitions[this.type]) {
             this.element = getAdmonitionElement(
                 this.type,
@@ -561,46 +572,7 @@ export class InsertAdmonitionModal extends Modal {
                 cls: "admonition-content",
                 text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et euismod nulla."
             });
-            this.contentEl.appendChild(this.element);
+            this.admonitionEl.appendChild(this.element);
         }
-
-        new Setting(contentEl)
-            .addButton((b) =>
-                b.setButtonText("Insert").onClick(() => {
-                    try {
-                        let titleLine = "",
-                            collapseLine = "";
-                        if (
-                            this.title.length &&
-                            this.title.toLowerCase() != this.type.toLowerCase()
-                        ) {
-                            titleLine = `title: ${this.title}\n`;
-                        }
-                        if (
-                            (this.plugin.data.autoCollapse &&
-                                this.collapse !=
-                                    this.plugin.data.defaultCollapseType) ||
-                            (!this.plugin.data.autoCollapse &&
-                                this.collapse != "none")
-                        ) {
-                            collapseLine = `collapse: ${this.collapse}\n`;
-                        }
-                        this.editor.getDoc().replaceSelection(
-                            `\`\`\`ad-${this.type}\n${titleLine}${collapseLine}
-${this.editor.getDoc().getSelection()}
-
-\`\`\`\n`
-                        );
-                        const cursor = this.editor.getCursor();
-                        this.editor.setCursor(cursor.line - 3);
-                    } catch (e) {
-                        new Notice(
-                            "There was an issue inserting the admonition."
-                        );
-                    }
-                    this.close();
-                })
-            )
-            .addExtraButton((b) => b.setIcon("cross").setTooltip("Cancel"));
     }
 }

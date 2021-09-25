@@ -227,3 +227,9 @@ input.is-invalid {
 .admonition-file-upload > input[type="file"] {
     display: none;
 }
+
+.insert-admonition-modal button:focus,
+.insert-admonition-modal .clickable-icon:focus {
+    box-shadow: 0px 0px 5px rgb(0 0 0 / 50%);
+    border-color: var(--background-modifier-border-focus);
+}
