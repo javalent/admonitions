@@ -26,6 +26,8 @@ import { ADD_COMMAND_NAME, REMOVE_COMMAND_NAME } from "./util";
 
 import { IconSuggestionModal } from "./modal";
 
+import { t } from "src/lang/helpers";
+
 /** Taken from https://stackoverflow.com/questions/34849001/check-if-css-selector-is-valid/42149818 */
 const isSelectorValid = ((dummyElement) => (selector: string) => {
     try {
@@ -47,11 +49,11 @@ export default class AdmonitionSetting extends PluginSettingTab {
 
         containerEl.empty();
         containerEl.addClass("admonition-settings");
-        containerEl.createEl("h2", { text: "Admonition Settings" });
+        containerEl.createEl("h2", { text: t("Admonition Settings") });
 
         let syntax = new Setting(containerEl)
             .setDesc(
-                "Use Obsidian's markdown syntax highlighter in admonition code blocks. This setting is experimental and could cause errors."
+              t("Use Obsidian's markdown syntax highlighter in admonition code blocks. This setting is experimental and could cause errors.")
             )
             .addToggle((t) => {
                 t.setValue(this.plugin.data.syntaxHighlight);
@@ -67,11 +69,11 @@ export default class AdmonitionSetting extends PluginSettingTab {
             });
         let name = syntax.nameEl.createDiv();
         name.appendChild(WARNING_ICON.cloneNode(true));
-        name.appendChild(createSpan({ text: " Markdown Syntax Highlighting" }));
+        name.appendChild(createSpan({ text: t(" Markdown Syntax Highlighting") }));
 
         let sync = new Setting(containerEl)
             .setDesc(
-                "Try to sync internal links to the metadata cache to display in graph view. This setting could have unintended consequences. Use at your own risk."
+              t("Try to sync internal links to the metadata cache to display in graph view. This setting could have unintended consequences. Use at your own risk.")
             )
             .addToggle((t) => {
                 t.setValue(this.plugin.data.syncLinks).onChange(async (v) => {
@@ -84,7 +86,7 @@ export default class AdmonitionSetting extends PluginSettingTab {
         let syncName = sync.nameEl.createDiv();
         syncName.appendChild(WARNING_ICON.cloneNode(true));
         syncName.appendChild(
-            createSpan({ text: " Sync Links to Metadata Cache" })
+            createSpan({ text: t(" Sync Links to Metadata Cache") })
         );
 
         let markdown = new Setting(containerEl)
@@ -106,24 +108,24 @@ export default class AdmonitionSetting extends PluginSettingTab {
                 );
             });
         markdown.descEl.createSpan({
-            text: "Allows admonitions to be created using "
+            text: t("Allows admonitions to be created using ")
         });
         markdown.descEl.createEl("code", { text: "!!! ad-<type>" });
         markdown.descEl.createSpan({
-            text: " or "
+            text: t(" or ")
         });
         markdown.descEl.createEl("code", { text: "??? ad-<type>" });
         markdown.descEl.createSpan({
-            text: ", instead of using a code block."
+            text: t(", instead of using a code block.")
         });
         let markdownName = markdown.nameEl.createDiv();
         markdownName.appendChild(WARNING_ICON.cloneNode(true));
         markdownName.appendChild(
-            createSpan({ text: " Enable Non-codeblock Admonitions" })
+            createSpan({ text: t(" Enable Non-codeblock Admonitions") })
         );
 
         const collapeSetting = new Setting(containerEl)
-            .setName("Collapsible by Default")
+            .setName(t("Collapsible by Default"))
 
             .addToggle((t) => {
                 t.setValue(this.plugin.data.autoCollapse).onChange(
@@ -135,17 +137,17 @@ export default class AdmonitionSetting extends PluginSettingTab {
                 );
             });
         collapeSetting.descEl.createSpan({
-            text: "All admonitions will be collapsible by default. Use "
+            text: t("All admonitions will be collapsible by default. Use ")
         });
         collapeSetting.descEl.createEl("code", { text: "collapse: none" });
         collapeSetting.descEl.createSpan({
-            text: " to prevent."
+            text: t(" to prevent.")
         });
         if (this.plugin.data.autoCollapse) {
             new Setting(containerEl)
-                .setName("Default Collapse Type")
+                .setName(t("Default Collapse Type"))
                 .setDesc(
-                    "Collapsible admonitions will be either opened or closed."
+                    t("Collapsible admonitions will be either opened or closed.")
                 )
                 .addDropdown((d) => {
                     d.addOption("open", "open");
@@ -158,8 +160,8 @@ export default class AdmonitionSetting extends PluginSettingTab {
                 });
         }
         new Setting(containerEl)
-            .setName("Add Copy Button")
-            .setDesc("Add a 'copy content' button to admonitions.")
+            .setName(t("Add Copy Button"))
+            .setDesc(t("Add a 'copy content' button to admonitions."))
             .addToggle((t) => {
                 t.setValue(this.plugin.data.copyButton);
                 t.onChange(async (v) => {
@@ -181,11 +183,11 @@ export default class AdmonitionSetting extends PluginSettingTab {
             "admonition-setting-additional-container"
         );
         new Setting(additionalContainer)
-            .setName("Add New")
-            .setDesc("Add a new Admonition type.")
+            .setName(t("Add New"))
+            .setDesc(t("Add a new Admonition type."))
             .addButton((button: ButtonComponent): ButtonComponent => {
                 let b = button
-                    .setTooltip("Add Additional")
+                    .setTooltip(t("Add Additional"))
                     .setButtonText("+")
                     .onClick(async () => {
                         let modal = new SettingsModal(this.app);
@@ -226,7 +228,7 @@ export default class AdmonitionSetting extends PluginSettingTab {
             if (!admonition.command) {
                 setting.addExtraButton((b) => {
                     b.setIcon(ADD_COMMAND_NAME.toString())
-                        .setTooltip("Register Commands")
+                        .setTooltip(t("Register Commands"))
                         .onClick(async () => {
                             this.plugin.registerCommandsFor(admonition);
                             await this.plugin.saveSettings();
@@ -236,7 +238,7 @@ export default class AdmonitionSetting extends PluginSettingTab {
             } else {
                 setting.addExtraButton((b) => {
                     b.setIcon(REMOVE_COMMAND_NAME.toString())
-                        .setTooltip("Unregister Commands")
+                        .setTooltip(t("Unregister Commands"))
                         .onClick(async () => {
                             this.plugin.unregisterCommandsFor(admonition);
                             await this.plugin.saveSettings();
@@ -248,7 +250,7 @@ export default class AdmonitionSetting extends PluginSettingTab {
             setting
                 .addExtraButton((b) => {
                     b.setIcon("pencil")
-                        .setTooltip("Edit")
+                        .setTooltip(t("Edit"))
                         .onClick(() => {
                             let modal = new SettingsModal(this.app, admonition);
 
@@ -271,7 +273,7 @@ export default class AdmonitionSetting extends PluginSettingTab {
                 })
                 .addExtraButton((b) => {
                     b.setIcon("trash")
-                        .setTooltip("Delete")
+                        .setTooltip(t("Delete"))
                         .onClick(() => {
                             this.plugin.removeAdmonition(admonition);
                             this.display();
@@ -327,7 +329,7 @@ class SettingsModal extends Modal {
         contentEl.appendChild(admonitionPreview);
         let typeText: TextComponent;
         const typeSetting = new Setting(settingDiv)
-            .setName("Admonition Type")
+            .setName(t("Admonition Type"))
             /* .setDesc("This is used to create the admonition (e.g., note or abstract)") */
 
             .addText((text) => {
@@ -336,7 +338,7 @@ class SettingsModal extends Modal {
                     if (!v.length) {
                         SettingsModal.setValidationError(
                             text,
-                            "Admonition type cannot be empty."
+                            t("Admonition type cannot be empty.")
                         );
                         return;
                     }
@@ -344,7 +346,7 @@ class SettingsModal extends Modal {
                     if (v.includes(" ")) {
                         SettingsModal.setValidationError(
                             text,
-                            "Admonition type cannot include spaces."
+                            t("Admonition type cannot include spaces.")
                         );
                         return;
                     }
@@ -352,7 +354,7 @@ class SettingsModal extends Modal {
                     if (!isSelectorValid(v)) {
                         SettingsModal.setValidationError(
                             text,
-                            "Types must be a valid CSS selector."
+                            t("Types must be a valid CSS selector.")
                         );
                         return;
                     }
@@ -400,7 +402,7 @@ class SettingsModal extends Modal {
         });
         let iconText: TextComponent;
         const iconSetting = new Setting(settingDiv)
-            .setName("Admonition Icon")
+            .setName(t("Admonition Icon"))
             .addText((text) => {
                 iconText = text;
                 if (this.icon.type !== "image") text.setValue(this.icon.name);
@@ -411,7 +413,7 @@ class SettingsModal extends Modal {
                     if (!ic) {
                         SettingsModal.setValidationError(
                             text,
-                            "Invalid icon name."
+                            t("Invalid icon name.")
                         );
                         return;
                     }
@@ -419,7 +421,7 @@ class SettingsModal extends Modal {
                     if (v.length == 0) {
                         SettingsModal.setValidationError(
                             text,
-                            "Icon cannot be empty."
+                            t("Icon cannot be empty.")
                         );
                         return;
                     }
@@ -445,7 +447,7 @@ class SettingsModal extends Modal {
                 text.inputEl.onblur = validate;
             })
             .addButton((b) => {
-                b.setButtonText("Upload Image").setTooltip("Upload Image");
+                b.setButtonText(t("Upload Image")).setTooltip(t("Upload Image"));
                 b.buttonEl.addClass("admonition-file-upload");
                 b.buttonEl.appendChild(input);
                 b.onClick(() => input.click());
@@ -519,7 +521,7 @@ class SettingsModal extends Modal {
         });
         desc.createSpan({ text: " to use next to the title." });
 
-        const color = new Setting(settingDiv).setName("Color");
+        const color = new Setting(settingDiv).setName(t("Color"));
         color.controlEl.createEl(
             "input",
             {
@@ -544,14 +546,14 @@ class SettingsModal extends Modal {
         let footerEl = contentEl.createDiv();
         let footerButtons = new Setting(footerEl);
         footerButtons.addButton((b) => {
-            b.setTooltip("Save")
+            b.setTooltip(t("Save"))
                 .setIcon("checkmark")
                 .onClick(async () => {
                     let error = false;
                     if (!typeText.inputEl.value.length) {
                         SettingsModal.setValidationError(
                             typeText,
-                            "Admonition type cannot be empty."
+                            t("Admonition type cannot be empty.")
                         );
                         error = true;
                     }
@@ -559,7 +561,7 @@ class SettingsModal extends Modal {
                     if (typeText.inputEl.value.includes(" ")) {
                         SettingsModal.setValidationError(
                             typeText,
-                            "Admonition type cannot include spaces."
+                            t("Admonition type cannot include spaces.")
                         );
                         error = true;
                     }
@@ -567,7 +569,7 @@ class SettingsModal extends Modal {
                     if (!isSelectorValid(typeText.inputEl.value)) {
                         SettingsModal.setValidationError(
                             typeText,
-                            "Types must be a valid CSS selector."
+                            t("Types must be a valid CSS selector.")
                         );
                         error = true;
                     }
@@ -578,7 +580,7 @@ class SettingsModal extends Modal {
                     ) {
                         SettingsModal.setValidationError(
                             iconText,
-                            "Invalid icon name."
+                            t("Invalid icon name.")
                         );
                         error = true;
                     }
@@ -586,7 +588,7 @@ class SettingsModal extends Modal {
                     if (!this.icon.name.length) {
                         SettingsModal.setValidationError(
                             iconText,
-                            "Icon cannot be empty."
+                            t("Icon cannot be empty.")
                         );
                         error = true;
                     }
