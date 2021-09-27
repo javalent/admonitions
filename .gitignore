@@ -2,6 +2,9 @@
 *.iml
 .idea
 
+# vscode
+workspace.code-workspace
+
 # npm
 node_modules
 
