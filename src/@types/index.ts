@@ -3,6 +3,7 @@ import { IconName } from "src/util";
 
 export interface Admonition {
     type: string;
+    title?: string;
     icon: AdmonitionIconDefinition;
     color: string;
     command: boolean;
