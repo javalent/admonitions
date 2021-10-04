@@ -397,21 +397,18 @@ class SettingsModal extends Modal {
             text: ")"
         });
 
-        const titleSetting = new Setting(settingDiv)
+        new Setting(settingDiv)
             .setName(t("Admonition Title"))
             .setDesc(
                 t("This will be the default title for this admonition type.")
             )
             .addText((text) => {
-                typeText = text;
-                typeText.setValue(this.title).onChange((v) => {
+                text.setValue(this.title).onChange((v) => {
                     if (!v.length) {
                         this.title = null;
                         this.updateTitle(admonitionPreview, this.type);
                         return;
                     }
-
-                    SettingsModal.removeValidationError(text);
 
                     this.title = v;
                     this.updateTitle(admonitionPreview, this.title);

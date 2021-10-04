@@ -200,6 +200,33 @@ input.is-invalid {
     color: #dc3545;
 }
 
+.suggestion-content.admonition-icon {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-flow: row wrap;
+}
+
+.suggestion-content.admonition-icon > .suggestion-text.admonition-text {
+    width: fit-content;
+}
+
+.suggestion-content.admonition-icon
+    > .suggestion-flair.admonition-suggester-icon {
+    width: min-content;
+    position: relative;
+    top: unset;
+    left: unset;
+    right: unset;
+    bottom: unset;
+    display: flex;
+    align-items: center;
+}
+
+.suggestion-content.admonition-icon > .suggestion-note {
+    width: 100%;
+}
+
 .admonition-suggester-icon svg {
     width: 1em;
 }

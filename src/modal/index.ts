@@ -5,6 +5,7 @@ import {
     FuzzySuggestModal,
     Modal,
     Notice,
+    Platform,
     Scope,
     Setting,
     SuggestModal,
@@ -68,7 +69,7 @@ class Suggester<T> {
             return false;
         });
     }
-    chooseSuggestion(evt: KeyboardEvent) {
+    chooseSuggestion(evt: KeyboardEvent | MouseEvent) {
         if (!this.items || !this.items.length) return;
         const currentValue = this.items[this.selectedItem];
         if (currentValue) {
@@ -110,6 +111,9 @@ class Suggester<T> {
         const currentValue = this.items[this.selectedItem];
         if (currentValue) {
             this.owner.selectSuggestion(currentValue, event);
+        }
+        if (Platform.isMobile) {
+            this.chooseSuggestion(event);
         }
     }
     wrap(value: number, size: number): number {
@@ -280,8 +284,9 @@ export class IconSuggestionModal extends SuggestionModal<AdmonitionIconDefinitio
     ) {
         let { item, match: matches } = result || {};
         let content = el.createDiv({
-            cls: "suggestion-content icon"
+            cls: "suggestion-content admonition-icon"
         });
+        let text = content.createDiv("suggestion-text admonition-text");
         if (!item) {
             content.setText(this.emptyStateText);
             content.parentElement.addClass("is-selected");
@@ -295,24 +300,23 @@ export class IconSuggestionModal extends SuggestionModal<AdmonitionIconDefinitio
             let match = matches.matches.find((m) => m[0] === i);
             if (match) {
                 let element = matchElements[matches.matches.indexOf(match)];
-                content.appendChild(element);
+                text.appendChild(element);
                 element.appendText(item.name.substring(match[0], match[1]));
 
                 i += match[1] - match[0] - 1;
                 continue;
             }
 
-            content.appendText(item.name[i]);
+            text.appendText(item.name[i]);
         }
 
         const iconDiv = createDiv("suggestion-flair admonition-suggester-icon");
         iconDiv.appendChild(getIconNode(item));
+        content.appendChild(iconDiv);
         content.createDiv({
             cls: "suggestion-note",
             text: getIconModuleName(item)
         });
-
-        content.prepend(iconDiv);
     }
     getItems() {
         return this.icons;
@@ -554,7 +558,7 @@ ${this.editor.getDoc().getSelection()}
                     .onClick(() => this.close());
                 b.extraSettingsEl.setAttr("tabindex", 0);
                 b.extraSettingsEl.onkeydown = (evt) => {
-                    evt.key == "Enter" && this.close()
+                    evt.key == "Enter" && this.close();
                 };
             });
     }
