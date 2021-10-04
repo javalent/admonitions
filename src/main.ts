@@ -684,12 +684,14 @@ title:
         }
         try {
             let {
-                title = type[0].toUpperCase() + type.slice(1).toLowerCase(),
+                title,
                 collapse,
                 content,
                 icon,
                 color = this.admonitions[type].color
-            } = getParametersFromSource(type, src);
+            } = getParametersFromSource(type, src, this.admonitions[type]);
+
+            console.log(title, this.admonitions[type].title);
 
             let match = new RegExp(`^!!! ad-(${this.types.join("|")})$`, "gm");
 

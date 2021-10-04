@@ -53,7 +53,9 @@ export default class AdmonitionSetting extends PluginSettingTab {
 
         let syntax = new Setting(containerEl)
             .setDesc(
-              t("Use Obsidian's markdown syntax highlighter in admonition code blocks. This setting is experimental and could cause errors.")
+                t(
+                    "Use Obsidian's markdown syntax highlighter in admonition code blocks. This setting is experimental and could cause errors."
+                )
             )
             .addToggle((t) => {
                 t.setValue(this.plugin.data.syntaxHighlight);
@@ -69,11 +71,15 @@ export default class AdmonitionSetting extends PluginSettingTab {
             });
         let name = syntax.nameEl.createDiv();
         name.appendChild(WARNING_ICON.cloneNode(true));
-        name.appendChild(createSpan({ text: t(" Markdown Syntax Highlighting") }));
+        name.appendChild(
+            createSpan({ text: t(" Markdown Syntax Highlighting") })
+        );
 
         let sync = new Setting(containerEl)
             .setDesc(
-              t("Try to sync internal links to the metadata cache to display in graph view. This setting could have unintended consequences. Use at your own risk.")
+                t(
+                    "Try to sync internal links to the metadata cache to display in graph view. This setting could have unintended consequences. Use at your own risk."
+                )
             )
             .addToggle((t) => {
                 t.setValue(this.plugin.data.syncLinks).onChange(async (v) => {
@@ -147,7 +153,9 @@ export default class AdmonitionSetting extends PluginSettingTab {
             new Setting(containerEl)
                 .setName(t("Default Collapse Type"))
                 .setDesc(
-                    t("Collapsible admonitions will be either opened or closed.")
+                    t(
+                        "Collapsible admonitions will be either opened or closed."
+                    )
                 )
                 .addDropdown((d) => {
                     d.addOption("open", "open");
@@ -198,7 +206,8 @@ export default class AdmonitionSetting extends PluginSettingTab {
                                     type: modal.type,
                                     color: modal.color,
                                     icon: modal.icon,
-                                    command: false
+                                    command: false,
+                                    title: modal.title
                                 });
                                 this.display();
                             }
@@ -253,6 +262,10 @@ export default class AdmonitionSetting extends PluginSettingTab {
                         .setTooltip(t("Edit"))
                         .onClick(() => {
                             let modal = new SettingsModal(this.app, admonition);
+                            console.log(
+                                "🚀 ~ file: settings.ts ~ line 265 ~ admonition",
+                                admonition
+                            );
 
                             modal.onClose = async () => {
                                 if (modal.saved) {
@@ -262,7 +275,8 @@ export default class AdmonitionSetting extends PluginSettingTab {
                                         type: modal.type,
                                         color: modal.color,
                                         icon: modal.icon,
-                                        command: hasCommand
+                                        command: hasCommand,
+                                        title: modal.title
                                     });
                                     this.display();
                                 }
@@ -295,15 +309,17 @@ export default class AdmonitionSetting extends PluginSettingTab {
 class SettingsModal extends Modal {
     color: string = "#7d7d7d";
     icon: AdmonitionIconDefinition = {};
-    type: string = "";
+    type: string;
     saved: boolean = false;
     error: boolean = false;
+    title: string;
     constructor(app: App, admonition?: Admonition) {
         super(app);
         if (admonition) {
             this.color = admonition.color;
             this.icon = admonition.icon;
             this.type = admonition.type;
+            this.title = admonition.title;
         }
     }
 
@@ -313,12 +329,11 @@ class SettingsModal extends Modal {
         contentEl.empty();
 
         const settingDiv = contentEl.createDiv();
+        const title = this.title ?? this.type ?? "...";
 
         let admonitionPreview = await getAdmonitionElement(
             this.type,
-            this.type.length
-                ? this.type[0].toUpperCase() + this.type.slice(1).toLowerCase()
-                : "...",
+            title[0].toUpperCase() + title.slice(1).toLowerCase(),
             this.icon,
             this.color
         );
@@ -330,8 +345,6 @@ class SettingsModal extends Modal {
         let typeText: TextComponent;
         const typeSetting = new Setting(settingDiv)
             .setName(t("Admonition Type"))
-            /* .setDesc("This is used to create the admonition (e.g., note or abstract)") */
-
             .addText((text) => {
                 typeText = text;
                 typeText.setValue(this.type).onChange((v) => {
@@ -362,17 +375,8 @@ class SettingsModal extends Modal {
                     SettingsModal.removeValidationError(text);
 
                     this.type = v;
-                    let titleSpan = admonitionPreview.querySelector(
-                        ".admonition-title-content"
-                    );
-
-                    let iconEl = admonitionPreview.querySelector(
-                        ".admonition-title-icon"
-                    );
-                    titleSpan.textContent =
-                        this.type[0].toUpperCase() +
-                        this.type.slice(1).toLowerCase();
-                    titleSpan.prepend(iconEl);
+                    if (!this.title)
+                        this.updateTitle(admonitionPreview, this.type);
                 });
             });
         typeSetting.controlEl.addClass("admonition-type-setting");
@@ -392,6 +396,27 @@ class SettingsModal extends Modal {
         typeSetting.descEl.createSpan({
             text: ")"
         });
+
+        const titleSetting = new Setting(settingDiv)
+            .setName(t("Admonition Title"))
+            .setDesc(
+                t("This will be the default title for this admonition type.")
+            )
+            .addText((text) => {
+                typeText = text;
+                typeText.setValue(this.title).onChange((v) => {
+                    if (!v.length) {
+                        this.title = null;
+                        this.updateTitle(admonitionPreview, this.type);
+                        return;
+                    }
+
+                    SettingsModal.removeValidationError(text);
+
+                    this.title = v;
+                    this.updateTitle(admonitionPreview, this.title);
+                });
+            });
 
         const input = createEl("input", {
             attr: {
@@ -447,7 +472,9 @@ class SettingsModal extends Modal {
                 text.inputEl.onblur = validate;
             })
             .addButton((b) => {
-                b.setButtonText(t("Upload Image")).setTooltip(t("Upload Image"));
+                b.setButtonText(t("Upload Image")).setTooltip(
+                    t("Upload Image")
+                );
                 b.buttonEl.addClass("admonition-file-upload");
                 b.buttonEl.appendChild(input);
                 b.onClick(() => input.click());
@@ -611,6 +638,15 @@ class SettingsModal extends Modal {
                 });
             return b;
         });
+    }
+    updateTitle(admonitionPreview: HTMLElement, title: string) {
+        let titleSpan = admonitionPreview.querySelector(
+            ".admonition-title-content"
+        );
+        let iconEl = admonitionPreview.querySelector(".admonition-title-icon");
+        titleSpan.textContent =
+            title[0].toUpperCase() + title.slice(1).toLowerCase();
+        titleSpan.prepend(iconEl);
     }
     onOpen() {
         this.display();

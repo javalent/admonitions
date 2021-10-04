@@ -53,9 +53,5 @@ const localeMap: { [k: string]: Partial<typeof en> } = {
 const locale = localeMap[moment.locale()];
 
 export function t(str: keyof typeof en): string {
-  if (!locale) {
-    console.error('Error: kanban locale not found', moment.locale());
-  }
-
   return (locale && locale[str]) || en[str];
 }
