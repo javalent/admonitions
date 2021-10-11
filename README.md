@@ -351,7 +351,6 @@ If an admonition is collapsible, it will receive the following CSS:
 ```css
 details.admonition:not([open]) {
     padding-bottom: 0;
-    box-shadow: none;
 }
 
 details.admonition > summary {
