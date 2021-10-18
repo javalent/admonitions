@@ -285,7 +285,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
     //do work
 
     const admonitions = document.querySelectorAll(
-        "pre[class^='language-ad']"
+        "pre[class*='language-ad']"
     ) as NodeListOf<HTMLPreElement>;
 
     if (!admonitions.length) return;
