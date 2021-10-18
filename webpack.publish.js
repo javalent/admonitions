@@ -10,11 +10,13 @@ module.exports = {
     output: {
         path: path.resolve(__dirname, "./publish"),
         filename: "publish.admonition.txt",
-        libraryTarget: "commonjs"
+        library: {
+            type: "umd"
+        }
     },
     target: "web",
     mode: isDevMode ? "development" : "production",
-    ...(/* isDevMode ? { devtool: "eval" } :  */{}),
+    .../* isDevMode ? { devtool: "eval" } :  */ {},
     module: {
         rules: [
             {
@@ -60,6 +62,5 @@ module.exports = {
             src: path.resolve(__dirname, "src")
         }
     },
-    externals: {
-    }
+    externals: {}
 };
