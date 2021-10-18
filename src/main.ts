@@ -691,7 +691,6 @@ title:
                 color = this.admonitions[type].color
             } = getParametersFromSource(type, src, this.admonitions[type]);
 
-            console.log(title, this.admonitions[type].title);
 
             let match = new RegExp(`^!!! ad-(${this.types.join("|")})$`, "gm");
 

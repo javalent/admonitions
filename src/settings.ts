@@ -262,10 +262,6 @@ export default class AdmonitionSetting extends PluginSettingTab {
                         .setTooltip(t("Edit"))
                         .onClick(() => {
                             let modal = new SettingsModal(this.app, admonition);
-                            console.log(
-                                "🚀 ~ file: settings.ts ~ line 265 ~ admonition",
-                                admonition
-                            );
 
                             modal.onClose = async () => {
                                 if (modal.saved) {
