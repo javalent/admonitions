@@ -101,7 +101,7 @@ export default class ObsidianAdmonition
 {
     admonitions: { [admonitionType: string]: Admonition } = {};
     data: ISettingsData;
-    contextMap: Map<string, MarkdownPostProcessorContext> = new Map();
+
     get types() {
         return Object.keys(this.admonitions);
     }
@@ -268,75 +268,6 @@ export default class ObsidianAdmonition
                 }
             }
         });
-        /*         this.addCommand({
-            id: "replace-with-html",
-            name: "Replace Admonitions with HTML",
-            callback: async () => {
-                let view = this.app.workspace.getActiveViewOfType(MarkdownView);
-                if (
-                    !view ||
-                    !(view instanceof MarkdownView) ||
-                    view.getMode() !== "preview"
-                )
-                    return;
-
-                const ensure = new Modal(this.app);
-
-                ensure.contentEl.createEl("h2", {
-                    text: "This will overwrite all admonitions in the open note. Are you sure?"
-                });
-                new Setting(ensure.contentEl)
-                    .addButton((b) =>
-                        b.setButtonText("Yes").onClick(async () => {
-                            let admonitions =
-                                view.contentEl.querySelectorAll<HTMLElement>(
-                                    ".admonition-plugin"
-                                );
-
-                            let content = (
-                                (await this.app.vault.read(view.file)) ?? ""
-                            ).split("\n");
-                            if (!content) return;
-                            for (let admonition of Array.from(
-                                admonitions
-                            ).reverse()) {
-                                if (
-                                    admonition.id &&
-                                    this.contextMap.has(admonition.id)
-                                ) {
-                                    const ctx = this.contextMap.get(
-                                        admonition.id
-                                    );
-                                    const { lineStart, lineEnd } =
-                                        ctx.getSectionInfo(admonition) ?? {};
-                                    if (!lineStart || !lineEnd) continue;
-
-                                    const element = admonition.cloneNode(
-                                        true
-                                    ) as HTMLElement;
-
-                                    element.removeAttribute("id");
-
-                                    content.splice(
-                                        lineStart,
-                                        lineEnd - lineStart + 1,
-                                        html(element.outerHTML)
-                                    );
-                                }
-                            }
-                            await this.app.vault.modify(
-                                view.file,
-                                content.join("\n")
-                            );
-                            ensure.close();
-                        })
-                    )
-                    .addExtraButton((b) =>
-                        b.setIcon("cross").onClick(() => ensure.close())
-                    );
-                ensure.open();
-            }
-        }); */
 
         this.addCommand({
             id: "insert-admonition",
@@ -631,10 +562,7 @@ title:
 
         this.app.workspace.layoutReady
             ? this.layoutReady()
-            : this.app.workspace.on(
-                  "layout-ready",
-                  this.layoutReady.bind(this)
-              );
+            : this.app.workspace.onLayoutReady(() => this.layoutReady());
     }
 
     turnOffSyntaxHighlighting(types: string[] = Object.keys(this.admonitions)) {
@@ -645,10 +573,7 @@ title:
         });
         this.app.workspace.layoutReady
             ? this.layoutReady()
-            : this.app.workspace.on(
-                  "layout-ready",
-                  this.layoutReady.bind(this)
-              );
+            : this.app.workspace.onLayoutReady(() => this.layoutReady());
     }
 
     layoutReady() {
@@ -731,18 +656,12 @@ title:
             /**
              * Create a unloadable component.
              */
-            let markdownRenderChild = new MarkdownRenderChild(
+            /* let markdownRenderChild = new MarkdownRenderChild(
                 admonitionElement
             );
             markdownRenderChild.containerEl = admonitionElement;
 
-            markdownRenderChild.onload = () => {
-                this.contextMap.set(id, ctx);
-            };
-            markdownRenderChild.onunload = () => {
-                this.contextMap.delete(id);
-            };
-            ctx.addChild(markdownRenderChild);
+            ctx.addChild(markdownRenderChild); */
 
             const contentHolder = admonitionElement.createDiv(
                 "admonition-content-holder"
@@ -758,7 +677,7 @@ title:
                 content,
                 admonitionContent,
                 ctx.sourcePath,
-                markdownRenderChild
+                null
             );
 
             if (this.data.copyButton) {

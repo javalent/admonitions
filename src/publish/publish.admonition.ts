@@ -1,34 +1,4 @@
-
 import "../assets/main.css";
-
-interface DomElementInfo {
-    /**
-     * The class to be assigned. Can be a space-separated string or an array of strings.
-     */
-    cls?: string | string[];
-    /**
-     * The textContent to be assigned.
-     */
-    text?: string;
-    /**
-     * HTML attributes to be added.
-     */
-    attr?: {
-        [key: string]: string | number | boolean | null;
-    };
-    /**
-     * HTML title (for hover tooltip).
-     */
-    title?: string;
-    /**
-     * The parent element to be assigned to.
-     */
-    parent?: Node;
-    value?: string;
-    type?: string;
-    prepend?: boolean;
-    href?: string;
-}
 
 function createEl<K extends keyof HTMLElementTagNameMap>(
     tag: K,
@@ -168,7 +138,6 @@ function getAdmonitionElement(
         ? createDiv()
         : markdownHolder.children[0] ??  */ createDiv();
 
-
         //get children of markdown element, then remove them
         const markdownElements = Array.from(
             markdownHolder.children[0]?.childNodes || []
@@ -279,20 +248,110 @@ interface AdmonitionPublishDefinition {
     color: string;
 }
 
-const ADMONITION_ICON_MAP: { [admonitionType: string]: AdmonitionPublishDefinition } = {};
+const ADMONITION_ICON_MAP: {
+    [admonitionType: string]: AdmonitionPublishDefinition;
+} = {};
+if (document.readyState === "complete") {
+    postprocess();
+    registerToProcess();
+} else {
+    window.onload = () => {
+        postprocess();
+        registerToProcess();
+    };
+}
 
-document.addEventListener("DOMContentLoaded", function (event) {
+function registerToProcess() {
+    const sizer = document.querySelector(".markdown-preview-sizer");
+    console.log(sizer, sizer.childNodes);
+
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.type == "childList" && mutation.addedNodes.length) {
+                mutation.addedNodes.forEach((node) => {
+                    if (
+                        node &&
+                        node instanceof Element &&
+                        node.children.length &&
+                        node.firstElementChild?.tagName === "PRE"
+                    ) {
+                        //postprocess(node);
+                        preObserver.observe(node.firstChild, {
+                            attributes: true,
+                            childList: false,
+                            characterData: false,
+                            subtree: false
+                        });
+                    }
+                });
+            }
+        });
+    });
+    observer.observe(sizer, {
+        attributes: false,
+        childList: true,
+        subtree: false
+    });
+
+    const preObserver = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (
+                mutation.target instanceof HTMLPreElement &&
+                !blockSet.has(mutation.target) &&
+                mutation.type === "attributes" &&
+                mutation.attributeName === "class" &&
+                Array.from(mutation.target.classList).some((cls) =>
+                    /language-ad-(\w+)/.test(cls)
+                )
+            ) {
+                blockSet.add(mutation.target);
+                processAdmonitionBlock(mutation.target);
+            }
+        });
+    });
+}
+
+function processAdmonitionBlock(admonitionBlock: HTMLPreElement) {
+    const [, type] = admonitionBlock.classList
+        .toString()
+        .match(/language-ad-(\w+)/);
+    if (!type) return;
+    if (!(type in ADMONITION_ICON_MAP)) return;
+
+    let {
+        title = type[0].toUpperCase() + type.slice(1).toLowerCase(),
+        collapse,
+        content,
+        icon = ADMONITION_ICON_MAP[type].icon,
+        color = ADMONITION_ICON_MAP[type].color
+    } = getParametersFromSource(type, admonitionBlock.innerText);
+
+    let admonition = getAdmonitionElement(type, title, icon, color, collapse);
+
+    const contentHolder = admonition.createDiv("admonition-content-holder");
+
+    const admonitionContent = contentHolder.createDiv("admonition-content");
+
+    admonitionContent.innerText = content;
+
+    admonitionBlock.replaceWith(admonition);
+}
+
+const blockSet: Set<HTMLPreElement> = new Set();
+
+function postprocess() {
     //do work
-
-    const admonitions = document.querySelectorAll(
+    const admonitions = document.querySelectorAll<HTMLPreElement>(
         "pre[class*='language-ad']"
-    ) as NodeListOf<HTMLPreElement>;
+    );
 
     if (!admonitions.length) return;
 
     for (let admonitionBlock of Array.from(admonitions)) {
-
-        const [, type] = admonitionBlock.classList.toString().match(/language-ad-(\w+)/);
+        blockSet.add(admonitionBlock);
+        const [, type] = admonitionBlock.classList
+            .toString()
+            .match(/language-ad-(\w+)/);
         if (!type) continue;
         if (!(type in ADMONITION_ICON_MAP)) continue;
 
@@ -301,7 +360,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
             collapse,
             content,
             icon = ADMONITION_ICON_MAP[type].icon,
-            color = ADMONITION_ICON_MAP[type].color,
+            color = ADMONITION_ICON_MAP[type].color
         } = getParametersFromSource(type, admonitionBlock.innerText);
 
         let admonition = getAdmonitionElement(
@@ -320,4 +379,4 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
         admonitionBlock.replaceWith(admonition);
     }
-});
+}

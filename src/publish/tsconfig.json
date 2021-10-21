@@ -11,7 +11,7 @@
         "moduleResolution": "node",
         "importHelpers": true,
         "lib": ["dom", "es2019"],
-        "types": [""]
+        "types": ["obsidian"]
     },
     "include": ["**/*.ts"]
 }
