@@ -803,6 +803,7 @@ title:
              * Replace the <pre> tag with the new admonition.
              */
             el.replaceWith(admonitionElement);
+            return admonitionElement;
         } catch (e) {
             console.error(e);
             const pre = createEl("pre");
