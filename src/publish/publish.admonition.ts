@@ -248,6 +248,7 @@ interface AdmonitionPublishDefinition {
     color: string;
 }
 
+const blockSet: Set<HTMLPreElement> = new Set();
 const ADMONITION_ICON_MAP: {
     [admonitionType: string]: AdmonitionPublishDefinition;
 } = {};
@@ -334,8 +335,6 @@ function processAdmonitionBlock(admonitionBlock: HTMLPreElement) {
 
     admonitionBlock.replaceWith(admonition);
 }
-
-const blockSet: Set<HTMLPreElement> = new Set();
 
 function postprocess() {
     //do work
