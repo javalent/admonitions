@@ -610,7 +610,6 @@ title:
         el: HTMLElement,
         sourcePath: string
     ) {
-        console.log("🚀 ~ file: main.ts ~ line 613 ~ type", type);
         if (!this.admonitions[type]) {
             return;
         }
