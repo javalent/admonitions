@@ -104,6 +104,15 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et euismod nulla.
 ```
 ````
 
+### No Content
+
+An admonition with no content will render as just the title block.
+
+````
+```ad-note
+```
+````
+
 ## Nesting Admonitions
 
 Nesting admonitions may be done by increasing the number of backticks.
@@ -218,6 +227,14 @@ Only one admonition of each type may exist at any given time; if another admonit
 If a default admonition is overridden, it can be restored by deleting the user-defined admonition.
 
 Please note that by default, the background color of the title is simply the color of the admonition at 10% opacity. CSS must be used to update this.
+
+### Images as Icons
+
+Images can be uploaded to use as an admonition icon instead of an icon from Font Awesome or RPG Awesome.
+
+These images will be resized to 24px x 24px to be stored in the plugin's saved data.
+
+To remove an image icon, simply choose an icon in the icon chooser text box.
 
 ## Customization
 
@@ -334,7 +351,6 @@ If an admonition is collapsible, it will receive the following CSS:
 ```css
 details.admonition:not([open]) {
     padding-bottom: 0;
-    box-shadow: none;
 }
 
 details.admonition > summary {
@@ -689,4 +705,8 @@ Please ensure you have automated backups.
 If you're using Obsidian to run/plan a TTRPG, you may find my other plugin useful:
 
 -   [Obsidian Leaflet](https://github.com/valentine195/obsidian-leaflet-plugin) - Add interactive maps to Obsidian.md notes
--   [Dice Roller](https://github.com/valentine195/obsidian-dice-roller) - Roll & re-roll dice in notes
+-   [Dice Roller](https://github.com/valentine195/obsidian-dice-roller) - Add some randomness to your notes
+-   [Initiative Tracker](https://github.com/valentine195/obsidian-initiative-tracker) - Track TTRPG Initiative in Obsidian
+-   [5e Statblocks](https://github.com/valentine195/obsidian-5e-statblocks) - 5e-style statblocks inside notes!
+
+<a href="https://www.buymeacoffee.com/valentine195"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=☕&slug=valentine195&button_colour=e3e7ef&font_colour=262626&font_family=Inter&outline_colour=262626&coffee_colour=ff0000"></a>

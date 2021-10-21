@@ -3,7 +3,11 @@ import { MarkdownRenderer, Notice } from "obsidian";
 /* import { nanoid } from "nanoid"; */
 
 import { getIconNode } from "./icons";
-import { AdmonitionIconDefinition, INestedAdmonition } from "../@types";
+import {
+    Admonition,
+    AdmonitionIconDefinition,
+    INestedAdmonition
+} from "../@types";
 
 export function getID() {
     return "ID_xyxyxyxyxyxy".replace(/[xy]/g, function (c) {
@@ -49,7 +53,14 @@ function startsWithAny(str: string, needles: string[]) {
     return false;
 }
 
-export function getParametersFromSource(type: string, src: string) {
+export function getParametersFromSource(
+    type: string,
+    src: string,
+    admonition: Admonition
+) {
+    const admonitionTitle =
+        admonition.title ??
+        type[0].toUpperCase() + type.slice(1).toLowerCase();
     const keywordTokens = ["title:", "collapse:", "icon:", "color:"];
 
     const keywords = ["title", "collapse", "icon", "color"];
@@ -79,12 +90,7 @@ export function getParametersFromSource(type: string, src: string) {
         ++skipLines;
     }
 
-    let {
-        title = type[0].toUpperCase() + type.slice(1).toLowerCase(),
-        collapse,
-        icon,
-        color
-    } = params;
+    let { title = admonitionTitle, collapse, icon, color } = params;
 
     let content = lines.slice(skipLines).join("\n");
 
@@ -104,7 +110,7 @@ export function getParametersFromSource(type: string, src: string) {
      * If the admonition should collapse, but title was blanked, set the default title.
      */
     if (title.trim() === "" && collapse !== undefined && collapse !== "none") {
-        title = type[0].toUpperCase() + type.slice(1).toLowerCase();
+        title = admonitionTitle;
         new Notice("An admonition must have a title if it is collapsible.");
     }
 
