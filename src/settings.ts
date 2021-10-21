@@ -134,9 +134,21 @@ export default class AdmonitionSetting extends PluginSettingTab {
 
         const publish = new Setting(containerEl)
             .setName("Generate JS for Publish")
-            .setDesc("Generate a javascript file to enable Admonitions on the web.")
+            .setDesc(
+                createFragment((f) => {
+                    f.createSpan({
+                        text: "Generate a javascript file to place in your "
+                    });
+                    f.createEl("code", { text: "publish.js" });
+                    f.createSpan({ text: "file." });
+                    f.createEl("br");
+                    f.createEl("strong", {
+                        text: "Please note that this can only be done on self-hosted publish sites."
+                    });
+                })
+            )
             .addButton((b) => {
-                b.setButtonText("Generate")
+                b.setButtonText("Generate");
                 b.onClick((evt) => {
                     const admonition_icons: {
                         [admonition_type: string]: {
