@@ -41,22 +41,22 @@ export declare class ObsidianAdmonitionPlugin extends Plugin_2 {
     admonitions: { [admonitionType: string]: Admonition };
     data: ISettingsData;
     get admonitionArray(): Admonition[];
-    turnOnSyntaxHighlighting: (types?: string[]) => void;
-    turnOffSyntaxHighlighting: (types?: string[]) => void;
-    enableMarkdownProcessor: () => void;
-    disableMarkdownProcessor: () => void;
-    saveSettings: () => Promise<void>;
-    loadSettings: () => Promise<void>;
-    addAdmonition: (admonition: Admonition) => Promise<void>;
-    removeAdmonition: (admonition: Admonition) => Promise<void>;
-    onload: () => Promise<void>;
-    onunload: () => Promise<void>;
-    postprocessor: (
+    turnOnSyntaxHighlighting(types?: string[]): void;
+    turnOffSyntaxHighlighting(types?: string[]): void;
+    enableMarkdownProcessor(): void;
+    disableMarkdownProcessor(): void;
+    saveSettings(): Promise<void>;
+    loadSettings(): Promise<void>;
+    addAdmonition(admonition: Admonition): Promise<void>;
+    removeAdmonition(admonition: Admonition): Promise<void>;
+    onload(): Promise<void>;
+    onunload(): Promise<void>;
+    postprocessor(
         type: string,
         src: string,
         el: HTMLElement,
-        ctx: MarkdownPostProcessorContext
-    ) => void;
+        sourcePath: string
+    ): void;
     unregisterCommandsFor(admonition: Admonition): void;
     registerCommandsFor(admonition: Admonition): void;
 }
