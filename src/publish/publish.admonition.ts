@@ -263,8 +263,6 @@ if (document.readyState === "complete") {
 
 function registerToProcess() {
     const sizer = document.querySelector(".markdown-preview-sizer");
-    console.log(sizer, sizer.childNodes);
-
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
             if (mutation.type == "childList" && mutation.addedNodes.length) {
