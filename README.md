@@ -502,7 +502,7 @@ If you experience any bugs using this setting, please create an issue and I will
 
 ## Publish
 
-Obsidian plugins do not work on publish sites; however, version 7.0.0 has an option to generate a JavaScript file that can be used on **self-hosted** Publish sites.
+Obsidian plugins do not work on publish sites; however, version 6.4.0+ has an option to generate a JavaScript file that can be used on **self-hosted** Publish sites.
 
 **Obsidian Publish only allows external JavaScript on self hosted publish sites. If your Publish is ran through Obsidian, this will not work.**
 
