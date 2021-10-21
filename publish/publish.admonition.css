@@ -85,7 +85,6 @@
 
 details.admonition:not([open]) {
     padding-bottom: 0;
-    box-shadow: none;
 }
 
 details.admonition > summary {
@@ -171,8 +170,12 @@ details.admonition[open] > summary > .collapser > .handle {
 }
 
 .has-invalid-message {
-    flex-grow: unset;
-    flex-flow: column nowrap;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    grid-template-areas:
+        "text image"
+        "inv inv";
 }
 
 input.is-invalid {
@@ -183,12 +186,44 @@ input.is-invalid {
     background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
 }
 
+.admonition-type-setting input {
+    grid-column: span 2;
+}
+
 .invalid-feedback {
     display: block;
+    grid-area: inv;
     width: 100%;
     margin-top: 0.25rem;
     font-size: 0.875em;
     color: #dc3545;
+}
+
+.suggestion-content.admonition-icon {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-flow: row wrap;
+}
+
+.suggestion-content.admonition-icon > .suggestion-text.admonition-text {
+    width: fit-content;
+}
+
+.suggestion-content.admonition-icon
+    > .suggestion-flair.admonition-suggester-icon {
+    width: min-content;
+    position: relative;
+    top: unset;
+    left: unset;
+    right: unset;
+    bottom: unset;
+    display: flex;
+    align-items: center;
+}
+
+.suggestion-content.admonition-icon > .suggestion-note {
+    width: 100%;
 }
 
 .admonition-suggester-icon svg {
@@ -199,5 +234,29 @@ input.is-invalid {
 
 .admonition li.task-list-item.is-checked p {
     text-decoration: line-through;
+}
+
+.admonition-settings .coffee {
+    width: 60%;
+    color: var(--text-faint);
+    margin: 1rem auto;
+    text-align: center;
+}
+.admonition-settings .coffee img {
+    height: 30px;
+}
+
+.admonition-file-upload {
+    margin-right: 0;
+    margin-left: 12px;
+}
+.admonition-file-upload > input[type="file"] {
+    display: none;
+}
+
+.insert-admonition-modal button:focus,
+.insert-admonition-modal .clickable-icon:focus {
+    box-shadow: 0px 0px 5px rgb(0 0 0 / 50%);
+    border-color: var(--background-modifier-border-focus);
 }
 
