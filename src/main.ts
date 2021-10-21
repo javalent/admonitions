@@ -608,7 +608,7 @@ title:
         type: string,
         src: string,
         el: HTMLElement,
-        ctx: MarkdownPostProcessorContext
+        sourcePath: string
     ) {
         if (!this.admonitions[type]) {
             return;
@@ -621,7 +621,6 @@ title:
                 icon,
                 color = this.admonitions[type].color
             } = getParametersFromSource(type, src, this.admonitions[type]);
-
 
             let match = new RegExp(`^!!! ad-(${this.types.join("|")})$`, "gm");
 
@@ -673,12 +672,6 @@ title:
             /**
              * Create a unloadable component.
              */
-            /* let markdownRenderChild = new MarkdownRenderChild(
-                admonitionElement
-            );
-            markdownRenderChild.containerEl = admonitionElement;
-
-            ctx.addChild(markdownRenderChild); */
 
             if (content && content.length) {
                 const contentHolder = admonitionElement.createDiv(
@@ -702,7 +695,7 @@ title:
                         MarkdownRenderer.renderMarkdown(
                             content,
                             admonitionContent,
-                            ctx.sourcePath,
+                            sourcePath,
                             null
                         );
                         if (
@@ -716,7 +709,7 @@ title:
                     MarkdownRenderer.renderMarkdown(
                         content,
                         admonitionContent,
-                        ctx.sourcePath,
+                        sourcePath,
                         null
                     );
                 }
@@ -803,13 +796,14 @@ title:
                         "a.internal-link"
                     );
 
-                this.addLinksToCache(links, ctx.sourcePath);
+                this.addLinksToCache(links, sourcePath);
             }
 
             /**
              * Replace the <pre> tag with the new admonition.
              */
             el.replaceWith(admonitionElement);
+            return admonitionElement;
         } catch (e) {
             console.error(e);
             const pre = createEl("pre");
