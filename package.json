@@ -1,6 +1,6 @@
 {
     "name": "obsidian-admonition",
-    "version": "6.3.8",
+    "version": "6.3.9",
     "description": "Admonition block-styled content for Obsidian.md",
     "main": "main.js",
     "scripts": {
@@ -8,8 +8,8 @@
         "rollup:publish": "rollup --config rollup.publish.js -w",
         "rollup:build": "rollup --config rollup.config.js",
         "dev": "webpack --config webpack.dev.js -w",
-        "publish": "webpack --config webpack.publish.js -w",
-        "build": "webpack"
+        "publish": "webpack --config webpack.publish.js",
+        "build": "npm run publish && webpack"
     },
     "keywords": [],
     "author": "Jeremy Valentine",
