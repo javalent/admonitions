@@ -55,7 +55,7 @@ export declare class ObsidianAdmonitionPlugin extends Plugin_2 {
         type: string,
         src: string,
         el: HTMLElement,
-        sourcePath: string
+        ctx: MarkdownPostProcessorContext
     ): void;
     unregisterCommandsFor(admonition: Admonition): void;
     registerCommandsFor(admonition: Admonition): void;

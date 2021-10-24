@@ -169,7 +169,7 @@ export default class ObsidianAdmonition
         };
         this.registerMarkdownCodeBlockProcessor(
             `ad-${admonition.type}`,
-            this.postprocessor.bind(this, admonition.type)
+            (src, el, ctx) => this.postprocessor(admonition.type, src, el, ctx)
         );
         if (this.data.syntaxHighlight) {
             this.turnOnSyntaxHighlighting([admonition.type]);
@@ -213,7 +213,7 @@ export default class ObsidianAdmonition
         Object.keys(this.admonitions).forEach((type) => {
             this.registerMarkdownCodeBlockProcessor(
                 `ad-${type}`,
-                this.postprocessor.bind(this, type)
+                (src, el, ctx) => this.postprocessor(type, src, el, ctx)
             );
             if (this.admonitions[type].command) {
                 this.registerCommandsFor(this.admonitions[type]);
@@ -608,12 +608,18 @@ title:
         type: string,
         src: string,
         el: HTMLElement,
-        sourcePath: string
+        ctx?: MarkdownPostProcessorContext
     ) {
         if (!this.admonitions[type]) {
             return;
         }
         try {
+            const sourcePath =
+                typeof ctx == "string"
+                    ? ctx
+                    : ctx?.sourcePath ??
+                      this.app.workspace.getActiveFile()?.path ??
+                      "";
             let {
                 title,
                 collapse,
@@ -669,9 +675,22 @@ title:
                 id
             );
 
-            /**
-             * Create a unloadable component.
-             */
+            let markdownRenderChild = new MarkdownRenderChild(
+                admonitionElement
+            );
+            markdownRenderChild.containerEl = admonitionElement;
+            if (ctx && !(typeof ctx == "string")) {
+                /**
+                 * Create a unloadable component.
+                 */
+                markdownRenderChild.onload = () => {
+                    /* this.contextMap.set(id, ctx); */
+                };
+                markdownRenderChild.onunload = () => {
+                    /* this.contextMap.delete(id); */
+                };
+                ctx.addChild(markdownRenderChild);
+            }
 
             if (content && content.length) {
                 const contentHolder = admonitionElement.createDiv(
@@ -696,7 +715,7 @@ title:
                             content,
                             admonitionContent,
                             sourcePath,
-                            null
+                            markdownRenderChild
                         );
                         if (
                             admonitionElement instanceof HTMLDetailsElement &&
@@ -710,7 +729,7 @@ title:
                         content,
                         admonitionContent,
                         sourcePath,
-                        null
+                        markdownRenderChild
                     );
                 }
 
