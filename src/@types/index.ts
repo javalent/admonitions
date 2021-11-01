@@ -7,6 +7,7 @@ export interface Admonition {
     icon: AdmonitionIconDefinition;
     color: string;
     command: boolean;
+    injectColor: boolean;
 }
 
 export interface INestedAdmonition {
@@ -27,6 +28,7 @@ export interface ISettingsData {
     syncLinks: boolean;
     version: string;
     enableMarkdownProcessor: boolean;
+    injectColor: boolean;
 }
 
 export type AdmonitionIconDefinition = {

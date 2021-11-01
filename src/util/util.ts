@@ -59,8 +59,7 @@ export function getParametersFromSource(
     admonition: Admonition
 ) {
     const admonitionTitle =
-        admonition.title ??
-        type[0].toUpperCase() + type.slice(1).toLowerCase();
+        admonition.title ?? type[0].toUpperCase() + type.slice(1).toLowerCase();
     const keywordTokens = ["title:", "collapse:", "icon:", "color:"];
 
     const keywords = ["title", "collapse", "icon", "color"];
@@ -121,15 +120,16 @@ export /* async */ function getAdmonitionElement(
     type: string,
     title: string,
     icon: AdmonitionIconDefinition,
-    color: string,
+    color?: string,
     collapse?: string,
     id?: string
 ): HTMLElement {
-    let admonition,
-        titleEl,
-        attrs: { style: string; open?: string } = {
-            style: `--admonition-color: ${color};`
-        };
+    let admonition, titleEl;
+    let attrs: { style?: string; open?: string } = color
+        ? {
+              style: `--admonition-color: ${color};`
+          }
+        : {};
     if (collapse && collapse != "none") {
         if (collapse === "open") {
             attrs.open = "open";
@@ -213,15 +213,17 @@ export async function getAdmonitionElementAsync(
     type: string,
     title: string,
     icon: AdmonitionIconDefinition,
-    color: string,
+    color?: string,
     collapse?: string,
     id?: string
 ): Promise<HTMLElement> {
     let admonition,
         titleEl,
-        attrs: { style: string; open?: string } = {
-            style: `--admonition-color: ${color};`
-        };
+        attrs: { style?: string; open?: string } = color
+            ? {
+                  style: `--admonition-color: ${color};`
+              }
+            : {};
     if (collapse) {
         if (collapse === "open") {
             attrs.open = "open";

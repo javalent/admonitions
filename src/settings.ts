@@ -42,6 +42,7 @@ const isSelectorValid = ((dummyElement) => (selector: string) => {
 
 export default class AdmonitionSetting extends PluginSettingTab {
     plugin: ObsidianAdmonitionPlugin;
+    additionalEl: HTMLDivElement;
     constructor(app: App, plugin: ObsidianAdmonitionPlugin) {
         super(app, plugin);
         this.plugin = plugin;
@@ -241,6 +242,28 @@ export default class AdmonitionSetting extends PluginSettingTab {
                 });
             });
 
+        new Setting(containerEl)
+            .setName("Set Admonition Colors")
+            .setDesc(
+                "Disable this setting to turn off admonition coloring by default. Can be overridden in the admonition definition."
+            )
+            .addToggle((t) =>
+                t
+                    .setValue(this.plugin.data.injectColor)
+                    .setTooltip(
+                        `${
+                            this.plugin.data.injectColor ? "Disable" : "Enable"
+                        } Admonition Color`
+                    )
+                    .onChange(async (v) => {
+                        this.plugin.data.injectColor = v;
+
+                        await this.plugin.saveSettings();
+
+                        await this.buildTypes();
+                    })
+            );
+
         const additionalContainer = containerEl.createDiv(
             "admonition-setting-additional-container"
         );
@@ -252,7 +275,7 @@ export default class AdmonitionSetting extends PluginSettingTab {
                     .setTooltip(t("Add Additional"))
                     .setButtonText("+")
                     .onClick(async () => {
-                        let modal = new SettingsModal(this.app);
+                        let modal = new SettingsModal(this.plugin);
 
                         modal.onClose = async () => {
                             if (modal.saved) {
@@ -261,7 +284,8 @@ export default class AdmonitionSetting extends PluginSettingTab {
                                     color: modal.color,
                                     icon: modal.icon,
                                     command: false,
-                                    title: modal.title
+                                    title: modal.title,
+                                    injectColor: modal.injectColor
                                 });
                                 this.display();
                             }
@@ -273,18 +297,33 @@ export default class AdmonitionSetting extends PluginSettingTab {
                 return b;
             });
 
-        const additional = additionalContainer.createDiv("additional");
+        this.additionalEl = additionalContainer.createDiv("additional");
+        await this.buildTypes();
+
+        const div = containerEl.createDiv("coffee");
+        div.createEl("a", {
+            href: "https://www.buymeacoffee.com/valentine195"
+        }).createEl("img", {
+            attr: {
+                src: "https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=☕&slug=valentine195&button_colour=e3e7ef&font_colour=262626&font_family=Inter&outline_colour=262626&coffee_colour=ff0000"
+            }
+        });
+    }
+    async buildTypes() {
+        this.additionalEl.empty();
         for (let a in this.plugin.data.userAdmonitions) {
             const admonition = this.plugin.data.userAdmonitions[a];
 
-            let setting = new Setting(additional);
+            let setting = new Setting(this.additionalEl);
 
             let admonitionElement = await getAdmonitionElement(
                 admonition.type,
                 admonition.type[0].toUpperCase() +
                     admonition.type.slice(1).toLowerCase(),
                 admonition.icon,
-                admonition.color
+                admonition.injectColor ?? this.plugin.data.injectColor
+                    ? admonition.color
+                    : null
             );
             setting.infoEl.replaceWith(admonitionElement);
 
@@ -315,7 +354,10 @@ export default class AdmonitionSetting extends PluginSettingTab {
                     b.setIcon("pencil")
                         .setTooltip(t("Edit"))
                         .onClick(() => {
-                            let modal = new SettingsModal(this.app, admonition);
+                            let modal = new SettingsModal(
+                                this.plugin,
+                                admonition
+                            );
 
                             modal.onClose = async () => {
                                 if (modal.saved) {
@@ -326,7 +368,8 @@ export default class AdmonitionSetting extends PluginSettingTab {
                                         color: modal.color,
                                         icon: modal.icon,
                                         command: hasCommand,
-                                        title: modal.title
+                                        title: modal.title,
+                                        injectColor: modal.injectColor
                                     });
                                     this.display();
                                 }
@@ -344,15 +387,6 @@ export default class AdmonitionSetting extends PluginSettingTab {
                         });
                 });
         }
-
-        const div = containerEl.createDiv("coffee");
-        div.createEl("a", {
-            href: "https://www.buymeacoffee.com/valentine195"
-        }).createEl("img", {
-            attr: {
-                src: "https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=☕&slug=valentine195&button_colour=e3e7ef&font_colour=262626&font_family=Inter&outline_colour=262626&coffee_colour=ff0000"
-            }
-        });
     }
 }
 
@@ -363,13 +397,19 @@ class SettingsModal extends Modal {
     saved: boolean = false;
     error: boolean = false;
     title: string;
-    constructor(app: App, admonition?: Admonition) {
-        super(app);
+    injectColor: boolean = this.plugin.data.injectColor;
+    admonitionPreview: HTMLElement;
+    constructor(
+        public plugin: ObsidianAdmonitionPlugin,
+        admonition?: Admonition
+    ) {
+        super(plugin.app);
         if (admonition) {
             this.color = admonition.color;
             this.icon = admonition.icon;
             this.type = admonition.type;
             this.title = admonition.title;
+            this.injectColor = admonition.injectColor ?? this.injectColor;
         }
     }
 
@@ -381,17 +421,17 @@ class SettingsModal extends Modal {
         const settingDiv = contentEl.createDiv();
         const title = this.title ?? this.type ?? "...";
 
-        let admonitionPreview = await getAdmonitionElement(
+        this.admonitionPreview = await getAdmonitionElement(
             this.type,
             title[0].toUpperCase() + title.slice(1).toLowerCase(),
             this.icon,
-            this.color
+            this.injectColor ?? this.plugin.data.injectColor ? this.color : null
         );
-        admonitionPreview.createDiv("admonition-content").createEl("p", {
+        this.admonitionPreview.createDiv("admonition-content").createEl("p", {
             text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et euismod nulla."
         });
 
-        contentEl.appendChild(admonitionPreview);
+        contentEl.appendChild(this.admonitionPreview);
         let typeText: TextComponent;
         const typeSetting = new Setting(settingDiv)
             .setName(t("Admonition Type"))
@@ -426,7 +466,7 @@ class SettingsModal extends Modal {
 
                     this.type = v;
                     if (!this.title)
-                        this.updateTitle(admonitionPreview, this.type);
+                        this.updateTitle(this.admonitionPreview, this.type);
                 });
             });
         typeSetting.controlEl.addClass("admonition-type-setting");
@@ -456,12 +496,12 @@ class SettingsModal extends Modal {
                 text.setValue(this.title).onChange((v) => {
                     if (!v.length) {
                         this.title = null;
-                        this.updateTitle(admonitionPreview, this.type);
+                        this.updateTitle(this.admonitionPreview, this.type);
                         return;
                     }
 
                     this.title = v;
-                    this.updateTitle(admonitionPreview, this.title);
+                    this.updateTitle(this.admonitionPreview, this.title);
                 });
             });
 
@@ -473,8 +513,28 @@ class SettingsModal extends Modal {
             }
         });
         let iconText: TextComponent;
-        const iconSetting = new Setting(settingDiv)
+        new Setting(settingDiv)
             .setName(t("Admonition Icon"))
+            .setDesc(
+                createFragment((desc) => {
+                    desc.createEl("a", {
+                        text: "Font Awesome Icon",
+                        href: "https://fontawesome.com/icons?d=gallery&p=2&s=solid&m=free",
+                        attr: {
+                            tabindex: -1
+                        }
+                    });
+                    desc.createSpan({ text: " or " });
+                    desc.createEl("a", {
+                        text: "RPG Awesome Icon",
+                        href: "https://nagoshiashumari.github.io/Rpg-Awesome/",
+                        attr: {
+                            tabindex: -1
+                        }
+                    });
+                    desc.createSpan({ text: " to use next to the title." });
+                })
+            )
             .addText((text) => {
                 iconText = text;
                 if (this.icon.type !== "image") text.setValue(this.icon.name);
@@ -505,7 +565,7 @@ class SettingsModal extends Modal {
                         type: ic as AdmonitionIconType
                     };
 
-                    let iconEl = admonitionPreview.querySelector(
+                    let iconEl = this.admonitionPreview.querySelector(
                         ".admonition-title-icon"
                     );
 
@@ -577,45 +637,8 @@ class SettingsModal extends Modal {
             input.value = null;
         };
 
-        const desc = iconSetting.descEl.createDiv();
-        desc.createEl("a", {
-            text: "Font Awesome Icon",
-            href: "https://fontawesome.com/icons?d=gallery&p=2&s=solid&m=free",
-            attr: {
-                tabindex: -1
-            }
-        });
-        desc.createSpan({ text: " or " });
-        desc.createEl("a", {
-            text: "RPG Awesome Icon",
-            href: "https://nagoshiashumari.github.io/Rpg-Awesome/",
-            attr: {
-                tabindex: -1
-            }
-        });
-        desc.createSpan({ text: " to use next to the title." });
-
-        const color = new Setting(settingDiv).setName(t("Color"));
-        color.controlEl.createEl(
-            "input",
-            {
-                type: "color",
-                value: rgbToHex(this.color)
-            },
-            (el) => {
-                el.value = rgbToHex(this.color);
-                el.oninput = ({ target }) => {
-                    let color = hexToRgb((target as HTMLInputElement).value);
-
-                    if (!color) return;
-                    this.color = `${color.r}, ${color.g}, ${color.b}`;
-                    admonitionPreview.setAttribute(
-                        "style",
-                        `--admonition-color: ${this.color};`
-                    );
-                };
-            }
-        );
+        const color = settingDiv.createDiv("admonition-color-settings");
+        this.createColor(color);
 
         let footerEl = contentEl.createDiv();
         let footerButtons = new Setting(footerEl);
@@ -685,6 +708,55 @@ class SettingsModal extends Modal {
                 });
             return b;
         });
+    }
+    createColor(el: HTMLDivElement) {
+        el.empty();
+        const desc = this.injectColor
+            ? "Set the admonition color. Disable to set manually using CSS."
+            : "Admonition color is disabled and must be manually set using CSS.";
+        new Setting(el)
+            .setName(t("Color"))
+            .setDesc(desc)
+            .addText((t) => {
+                t.inputEl.setAttribute("type", "color");
+
+                if (!this.injectColor) {
+                    t.inputEl.setAttribute("disabled", "true");
+                }
+
+                t.setValue(rgbToHex(this.color)).onChange((v) => {
+                    let color = hexToRgb(v);
+                    if (!color) return;
+                    this.color = `${color.r}, ${color.g}, ${color.b}`;
+                    this.admonitionPreview.setAttribute(
+                        "style",
+                        `--admonition-color: ${this.color};`
+                    );
+                });
+            })
+            .addToggle((t) =>
+                t
+                    .setValue(this.injectColor)
+                    .setTooltip(
+                        `${
+                            this.injectColor ? "Disable" : "Enable"
+                        } Admonition Color`
+                    )
+                    .onChange((v) => {
+                        this.injectColor = v;
+
+                        if (!v) {
+                            this.admonitionPreview.removeAttribute("style");
+                        } else {
+                            this.admonitionPreview.setAttribute(
+                                "style",
+                                `--admonition-color: ${this.color};`
+                            );
+                        }
+
+                        this.createColor(el);
+                    })
+            );
     }
     updateTitle(admonitionPreview: HTMLElement, title: string) {
         let titleSpan = admonitionPreview.querySelector(

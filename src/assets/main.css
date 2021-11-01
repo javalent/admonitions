@@ -231,6 +231,14 @@ input.is-invalid {
     width: 1em;
 }
 
+.admonition-color-settings .setting-item-control {
+    gap: 1rem;
+}
+.admonition-color-settings input[type="color"]:disabled {
+    opacity: 0.75;
+    cursor: not-allowed;
+}
+
 /** Internal */
 
 .admonition li.task-list-item.is-checked p {

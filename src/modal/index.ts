@@ -477,11 +477,15 @@ export class InsertAdmonitionModal extends Modal {
                         this.noTitle = false;
                     }
                     if (this.element) {
+                        const admonition = this.plugin.admonitions[this.type];
                         const element = getAdmonitionElement(
                             this.type,
                             this.title,
-                            this.plugin.admonitions[this.type].icon,
-                            this.plugin.admonitions[this.type].color,
+                            admonition.icon,
+                            admonition.injectColor ??
+                                this.plugin.data.injectColor
+                                ? admonition.color
+                                : null,
                             this.collapse
                         );
                         element.createDiv({
@@ -565,11 +569,14 @@ ${this.editor.getDoc().getSelection()}
     buildAdmonition() {
         this.admonitionEl.empty();
         if (this.type && this.plugin.admonitions[this.type]) {
+            const admonition = this.plugin.admonitions[this.type];
             this.element = getAdmonitionElement(
                 this.type,
                 this.title,
-                this.plugin.admonitions[this.type].icon,
-                this.plugin.admonitions[this.type].color,
+                admonition.icon,
+                admonition.injectColor ?? this.plugin.data.injectColor
+                    ? admonition.color
+                    : null,
                 this.collapse
             );
             this.element.createDiv({

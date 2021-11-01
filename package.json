@@ -7,9 +7,13 @@
         "rollup:dev": "rollup --config rollup.config-dev.js -w",
         "rollup:publish": "rollup --config rollup.publish.js -w",
         "rollup:build": "rollup --config rollup.config.js",
-        "dev": "webpack --config webpack.dev.js -w",
+        "dev": "set NODE_OPTIONS=--openssl-legacy-provider && webpack --config webpack.dev.js -w",
         "publish": "webpack --config webpack.publish.js",
-        "build": "npm run publish && webpack"
+        "build": "npm run publish && webpack",
+        "release": "standard-version"
+    },
+    "standard-version": {
+        "t": ""
     },
     "keywords": [],
     "author": "Jeremy Valentine",
@@ -39,6 +43,7 @@
         "webpack-cli": "^4.7.2"
     },
     "dependencies": {
-        "@fortawesome/free-brands-svg-icons": "^5.15.4"
+        "@fortawesome/free-brands-svg-icons": "^5.15.4",
+        "standard-version": "^9.3.2"
     }
 }

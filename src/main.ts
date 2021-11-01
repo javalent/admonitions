@@ -94,7 +94,8 @@ const DEFAULT_APP_SETTINGS: ISettingsData = {
     autoCollapse: false,
     defaultCollapseType: "open",
     syncLinks: true,
-    enableMarkdownProcessor: false
+    enableMarkdownProcessor: false,
+    injectColor: true
 };
 
 export default class ObsidianAdmonition
@@ -395,12 +396,14 @@ export default class ObsidianAdmonition
                             "An admonition must have a title if it is collapsible."
                         );
                     }
-
+                    const admonition = this.admonitions[type];
                     const admonitionElement = await getAdmonitionElementAsync(
                         type,
                         title.trim(),
-                        this.admonitions[type].icon,
-                        this.admonitions[type].color,
+                        admonition.icon,
+                        admonition.injectColor ?? this.data.injectColor
+                            ? admonition.color
+                            : null,
                         collapse
                     );
 
@@ -664,13 +667,16 @@ title:
             const id = getID();
 
             /* const iconNode = icon ? this.admonitions[type].icon; */
-
+            const admonition = this.admonitions[type];
             let admonitionElement = getAdmonitionElement(
                 type,
                 title,
                 iconDefinitions.find(({ name }) => icon === name) ??
-                    this.admonitions[type].icon,
-                color ?? this.admonitions[type].color,
+                    admonition.icon,
+                color ??
+                    (admonition.injectColor ?? this.data.injectColor
+                        ? admonition.color
+                        : null),
                 collapse,
                 id
             );
