@@ -628,7 +628,7 @@ title:
                 collapse,
                 content,
                 icon,
-                color = this.admonitions[type].color
+                color
             } = getParametersFromSource(type, src, this.admonitions[type]);
 
             let match = new RegExp(`^!!! ad-(${this.types.join("|")})$`, "gm");
