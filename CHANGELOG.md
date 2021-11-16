@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [6.6.0](https://github.com/valentine195/obsidian-admonition/compare/6.5.1...6.6.0) (2021-11-16)
+
+
+### Features
+
+* parent element now receives styles ([1297cc1](https://github.com/valentine195/obsidian-admonition/commit/1297cc1659f02b9510669b00034943515fef8365))
+
 ### [6.5.1](https://github.com/valentine195/obsidian-admonition/compare/6.5.0...6.5.1) (2021-11-01)
 
 
