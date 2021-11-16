@@ -344,6 +344,10 @@ To set the color of admonition types via CSS, specific the following the `--admo
 }
 ```
 
+### Parent Element
+
+As of version 6.6, the admonition's parent element *also* receives classes: `.admonition-parent` and `.admonition-<type>-parent`.
+
 ### Collapsible
 
 If an admonition is collapsible, it will receive the following CSS:
