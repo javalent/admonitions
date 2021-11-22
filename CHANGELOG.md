@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [6.7.0](https://github.com/valentine195/obsidian-admonition/compare/6.6.1...6.7.0) (2021-11-22)
+
+
+### Features
+
+* added ability to default to no title ([0983790](https://github.com/valentine195/obsidian-admonition/commit/0983790cd930657d69c96c885c23eabcb884987e)), closes [#118](https://github.com/valentine195/obsidian-admonition/issues/118) [#123](https://github.com/valentine195/obsidian-admonition/issues/123)
+
 ### [6.6.1](https://github.com/valentine195/obsidian-admonition/compare/6.6.0...6.6.1) (2021-11-16)
 
 
