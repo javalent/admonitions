@@ -84,12 +84,12 @@ export function getParametersFromSource(
         }
 
         params[foundKeyword] = lines[i]
-            .substr(keywordTokens[keywordIndex].length)
+            .slice(keywordTokens[keywordIndex].length)
             .trim();
         ++skipLines;
     }
 
-    let { title = admonitionTitle, collapse, icon, color } = params;
+    let { title, collapse, icon, color } = params;
 
     let content = lines.slice(skipLines).join("\n");
 
@@ -105,201 +105,23 @@ export function getParametersFromSource(
         collapse = "closed";
     }
 
+    if (!title || !title.length) {
+        if (!admonition.noTitle) {
+            title = admonitionTitle;
+        }
+    }
     /**
      * If the admonition should collapse, but title was blanked, set the default title.
      */
-    if (title.trim() === "" && collapse !== undefined && collapse !== "none") {
+    if (
+        title &&
+        title.trim() === "" &&
+        collapse !== undefined &&
+        collapse !== "none"
+    ) {
         title = admonitionTitle;
         new Notice("An admonition must have a title if it is collapsible.");
     }
 
     return { title, collapse, content, icon, color };
-}
-
-export /* async */ function getAdmonitionElement(
-    type: string,
-    title: string,
-    icon: AdmonitionIconDefinition,
-    color?: string,
-    collapse?: string,
-    id?: string
-): HTMLElement {
-    let admonition, titleEl;
-    let attrs: { style?: string; open?: string } = color
-        ? {
-              style: `--admonition-color: ${color};`
-          }
-        : {};
-    if (collapse && collapse != "none") {
-        if (collapse === "open") {
-            attrs.open = "open";
-        }
-        admonition = createEl("details", {
-            cls: `admonition admonition-${type} admonition-plugin`,
-            attr: attrs
-        });
-        titleEl = admonition.createEl("summary", {
-            cls: `admonition-title ${!title?.trim().length ? "no-title" : ""}`
-        });
-    } else {
-        admonition = createDiv({
-            cls: `admonition admonition-${type} admonition-plugin`,
-            attr: attrs
-        });
-        titleEl = admonition.createDiv({
-            cls: `admonition-title ${!title?.trim().length ? "no-title" : ""}`
-        });
-    }
-
-    if (id) {
-        admonition.id = id;
-    }
-
-    if (title && title.trim().length) {
-        /**
-         * Title structure
-         * <div|summary>.admonition-title
-         *      <element>.admonition-title-content - Rendered Markdown top-level element (e.g. H1/2/3 etc, p)
-         *          div.admonition-title-icon
-         *              svg
-         *          div.admonition-title-markdown - Container of rendered markdown
-         *              ...rendered markdown children...
-         */
-
-        //get markdown
-        const markdownHolder = createDiv();
-        MarkdownRenderer.renderMarkdown(title, markdownHolder, "", null);
-
-        //admonition-title-content is first child of rendered markdown
-
-        const admonitionTitleContent =
-            markdownHolder.children[0]?.tagName === "P"
-                ? createDiv()
-                : markdownHolder.children[0];
-
-        //get children of markdown element, then remove them
-        const markdownElements = Array.from(
-            markdownHolder.children[0]?.childNodes || []
-        );
-        admonitionTitleContent.innerHTML = "";
-        admonitionTitleContent.addClass("admonition-title-content");
-
-        //build icon element
-        const iconEl = admonitionTitleContent.createDiv(
-            "admonition-title-icon"
-        );
-        if (icon && icon.name && icon.type) {
-            iconEl.appendChild(getIconNode(icon));
-        }
-
-        //add markdown children back
-        const admonitionTitleMarkdown = admonitionTitleContent.createDiv(
-            "admonition-title-markdown"
-        );
-        for (let i = 0; i < markdownElements.length; i++) {
-            admonitionTitleMarkdown.appendChild(markdownElements[i]);
-        }
-        titleEl.appendChild(admonitionTitleContent || createDiv());
-    }
-
-    //add them to title element
-
-    if (collapse) {
-        titleEl.createDiv("collapser").createDiv("handle");
-    }
-    return admonition;
-}
-export async function getAdmonitionElementAsync(
-    type: string,
-    title: string,
-    icon: AdmonitionIconDefinition,
-    color?: string,
-    collapse?: string,
-    id?: string
-): Promise<HTMLElement> {
-    let admonition,
-        titleEl,
-        attrs: { style?: string; open?: string } = color
-            ? {
-                  style: `--admonition-color: ${color};`
-              }
-            : {};
-    if (collapse) {
-        if (collapse === "open") {
-            attrs.open = "open";
-        }
-        admonition = createEl("details", {
-            cls: `admonition admonition-${type} admonition-plugin admonition-plugin-async`,
-            attr: attrs
-        });
-        titleEl = admonition.createEl("summary", {
-            cls: `admonition-title ${!title.trim().length ? "no-title" : ""}`
-        });
-    } else {
-        admonition = createDiv({
-            cls: `admonition admonition-${type} admonition-plugin`,
-            attr: attrs
-        });
-        titleEl = admonition.createDiv({
-            cls: `admonition-title ${!title.trim().length ? "no-title" : ""}`
-        });
-    }
-
-    if (id) {
-        admonition.id = id;
-    }
-
-    if (title && title.trim().length) {
-        //
-        // Title structure
-        // <div|summary>.admonition-title
-        //      <element>.admonition-title-content - Rendered Markdown top-level element (e.g. H1/2/3 etc, p)
-        //          div.admonition-title-icon
-        //              svg
-        //          div.admonition-title-markdown - Container of rendered markdown
-        //              ...rendered markdown children...
-        //
-
-        //get markdown
-        const markdownHolder = createDiv();
-        await MarkdownRenderer.renderMarkdown(title, markdownHolder, "", null);
-
-        //admonition-title-content is first child of rendered markdown
-
-        const admonitionTitleContent =
-            markdownHolder.children[0].tagName === "P"
-                ? createDiv()
-                : markdownHolder.children[0];
-
-        //get children of markdown element, then remove them
-        const markdownElements = Array.from(
-            markdownHolder.children[0]?.childNodes || []
-        );
-        admonitionTitleContent.innerHTML = "";
-        admonitionTitleContent.addClass("admonition-title-content");
-
-        //build icon element
-        const iconEl = admonitionTitleContent.createDiv(
-            "admonition-title-icon"
-        );
-        if (icon && icon.name && icon.type) {
-            iconEl.appendChild(getIconNode(icon));
-        }
-
-        //add markdown children back
-        const admonitionTitleMarkdown = admonitionTitleContent.createDiv(
-            "admonition-title-markdown"
-        );
-        for (let i = 0; i < markdownElements.length; i++) {
-            admonitionTitleMarkdown.appendChild(markdownElements[i]);
-        }
-        titleEl.appendChild(admonitionTitleContent || createDiv());
-    }
-
-    //add them to title element
-
-    if (collapse) {
-        titleEl.createDiv("collapser").createDiv("handle");
-    }
-    return admonition;
 }

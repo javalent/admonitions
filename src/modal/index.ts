@@ -13,12 +13,7 @@ import {
 } from "obsidian";
 import { createPopper, Instance as PopperInstance } from "@popperjs/core";
 
-import {
-    getAdmonitionElement,
-    getIconModuleName,
-    getIconNode,
-    iconDefinitions
-} from "../util";
+import { getIconModuleName, getIconNode, iconDefinitions } from "../util";
 import {
     Admonition,
     AdmonitionIconDefinition,
@@ -478,7 +473,7 @@ export class InsertAdmonitionModal extends Modal {
                     }
                     if (this.element) {
                         const admonition = this.plugin.admonitions[this.type];
-                        const element = getAdmonitionElement(
+                        const element = this.plugin.getAdmonitionElement(
                             this.type,
                             this.title,
                             admonition.icon,
@@ -570,7 +565,7 @@ ${this.editor.getDoc().getSelection()}
         this.admonitionEl.empty();
         if (this.type && this.plugin.admonitions[this.type]) {
             const admonition = this.plugin.admonitions[this.type];
-            this.element = getAdmonitionElement(
+            this.element = this.plugin.getAdmonitionElement(
                 this.type,
                 this.title,
                 admonition.icon,

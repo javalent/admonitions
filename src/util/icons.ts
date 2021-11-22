@@ -3,11 +3,12 @@ import { fas } from "@fortawesome/free-solid-svg-icons";
 import { fab } from "@fortawesome/free-brands-svg-icons";
 import {
     IconDefinition,
-    IconName,
     findIconDefinition,
     icon,
     library
 } from "@fortawesome/fontawesome-svg-core";
+
+import type { IconName } from "@fortawesome/fontawesome-svg-core";
 
 import { RPG } from "./rpgawesome";
 import { AdmonitionIconDefinition, RPGIconName } from "src/@types";

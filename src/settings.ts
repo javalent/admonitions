@@ -15,12 +15,7 @@ import {
     ObsidianAdmonitionPlugin
 } from "./@types";
 
-import {
-    getAdmonitionElement,
-    getIconNode,
-    getIconType,
-    WARNING_ICON
-} from "./util";
+import { getIconNode, getIconType, WARNING_ICON } from "./util";
 
 import { ADD_COMMAND_NAME, REMOVE_COMMAND_NAME } from "./util";
 
@@ -241,6 +236,17 @@ export default class AdmonitionSetting extends PluginSettingTab {
                     await this.plugin.saveSettings();
                 });
             });
+        new Setting(containerEl)
+            .setName(t("Parse Titles as Markdown"))
+            .setDesc(t("Admonition Titles will be rendered as markdown."))
+            .addToggle((t) => {
+                t.setValue(this.plugin.data.parseTitles);
+                t.onChange(async (v) => {
+                    this.plugin.data.parseTitles = v;
+
+                    await this.plugin.saveSettings();
+                });
+            });
 
         new Setting(containerEl)
             .setName("Set Admonition Colors")
@@ -285,7 +291,9 @@ export default class AdmonitionSetting extends PluginSettingTab {
                                     icon: modal.icon,
                                     command: false,
                                     title: modal.title,
-                                    injectColor: modal.injectColor
+                                    injectColor: modal.injectColor,
+                                    noTitle: modal.noTitle,
+                                    copy: modal.copy
                                 });
                                 this.display();
                             }
@@ -316,7 +324,7 @@ export default class AdmonitionSetting extends PluginSettingTab {
 
             let setting = new Setting(this.additionalEl);
 
-            let admonitionElement = await getAdmonitionElement(
+            let admonitionElement = this.plugin.getAdmonitionElement(
                 admonition.type,
                 admonition.type[0].toUpperCase() +
                     admonition.type.slice(1).toLowerCase(),
@@ -369,7 +377,9 @@ export default class AdmonitionSetting extends PluginSettingTab {
                                         icon: modal.icon,
                                         command: hasCommand,
                                         title: modal.title,
-                                        injectColor: modal.injectColor
+                                        injectColor: modal.injectColor,
+                                        noTitle: modal.noTitle,
+                                        copy: modal.copy
                                     });
                                     this.display();
                                 }
@@ -398,7 +408,9 @@ class SettingsModal extends Modal {
     error: boolean = false;
     title: string;
     injectColor: boolean = this.plugin.data.injectColor;
+    noTitle: boolean = false;
     admonitionPreview: HTMLElement;
+    copy: boolean;
     constructor(
         public plugin: ObsidianAdmonitionPlugin,
         admonition?: Admonition
@@ -410,6 +422,8 @@ class SettingsModal extends Modal {
             this.type = admonition.type;
             this.title = admonition.title;
             this.injectColor = admonition.injectColor ?? this.injectColor;
+            this.noTitle = admonition.noTitle ?? false;
+            this.copy = admonition.copy ?? this.plugin.data.copyButton;
         }
     }
 
@@ -421,7 +435,7 @@ class SettingsModal extends Modal {
         const settingDiv = contentEl.createDiv();
         const title = this.title ?? this.type ?? "...";
 
-        this.admonitionPreview = await getAdmonitionElement(
+        this.admonitionPreview = this.plugin.getAdmonitionElement(
             this.type,
             title[0].toUpperCase() + title.slice(1).toLowerCase(),
             this.icon,
@@ -503,6 +517,34 @@ class SettingsModal extends Modal {
                     this.title = v;
                     this.updateTitle(this.admonitionPreview, this.title);
                 });
+            });
+        new Setting(settingDiv)
+            .setName(t("No Admonition Title by Default"))
+            .setDesc(
+                createFragment((e) => {
+                    e.createSpan({
+                        text: t("The admonition will have no title unless ")
+                    });
+                    e.createEl("code", { text: "title" });
+                    e.createSpan({ text: t(" is explicitly provided.") });
+                })
+            )
+            .addToggle((t) => {
+                t.setValue(this.noTitle).onChange((v) => (this.noTitle = v));
+            });
+        new Setting(settingDiv)
+            .setName(t("Show Copy Button"))
+            .setDesc(
+                createFragment((e) => {
+                    e.createSpan({
+                        text: t(
+                            "A copy button will be added to the admonition."
+                        )
+                    });
+                })
+            )
+            .addToggle((t) => {
+                t.setValue(this.copy).onChange((v) => (this.copy = v));
             });
 
         const input = createEl("input", {

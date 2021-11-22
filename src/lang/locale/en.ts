@@ -47,5 +47,15 @@ export default {
         "There was an error parsing the image.",
     "Admonition Icon": "Admonition Icon",
     Color: "Color",
-    Save: "Save"
+    Save: "Save",
+    "No Admonition Title by Default": "No Admonition Title by Default",
+    "The admonition will have no title unless ":
+        "The admonition will have no title unless ",
+    " is explicitly provided.": " is explicitly provided.",
+    "Show Copy Button": "Show Copy Button",
+    "A copy button will be added to the admonition.":
+        "A copy button will be added to the admonition.",
+    "Parse Titles as Markdown": "Parse Titles as Markdown",
+    "Admonition Titles will be rendered as markdown.":
+        "Admonition Titles will be rendered as markdown."
 };

@@ -1,24 +1,25 @@
 import {
     addIcon,
+    MarkdownPostProcessor,
     MarkdownPostProcessorContext,
-    MarkdownPreviewView,
+    MarkdownPreviewRenderer,
     MarkdownRenderChild,
     MarkdownRenderer,
     MarkdownView,
+    normalizePath,
     Notice,
     Plugin,
     TFile
 } from "obsidian";
 /* import { prettyPrint as html } from "html"; */
 
-import { Admonition, ObsidianAdmonitionPlugin, ISettingsData } from "./@types";
 import {
-    getAdmonitionElement,
-    getAdmonitionElementAsync,
-    getID,
-    getMatches,
-    getParametersFromSource
-} from "./util";
+    Admonition,
+    ObsidianAdmonitionPlugin,
+    ISettingsData,
+    AdmonitionIconDefinition
+} from "./@types";
+import { getID, getMatches, getParametersFromSource } from "./util";
 import {
     ADMONITION_MAP,
     ADD_ADMONITION_COMMAND_ICON,
@@ -50,6 +51,7 @@ declare module "obsidian" {
     }
     interface MarkdownPreviewRenderer {
         onCheckboxClick: (evt: MouseEvent, el: HTMLInputElement) => void;
+        unregisterCodeBlockPostProcessor(lang: string): void;
     }
 }
 Object.fromEntries =
@@ -83,7 +85,12 @@ Object.fromEntries =
 
 import "./assets/main.css";
 import AdmonitionSetting from "./settings";
-import { IconName, COPY_BUTTON_ICON, iconDefinitions } from "./util/icons";
+import {
+    IconName,
+    COPY_BUTTON_ICON,
+    iconDefinitions,
+    getIconNode
+} from "./util/icons";
 import { InsertAdmonitionModal } from "./modal";
 
 const DEFAULT_APP_SETTINGS: ISettingsData = {
@@ -95,7 +102,8 @@ const DEFAULT_APP_SETTINGS: ISettingsData = {
     defaultCollapseType: "open",
     syncLinks: true,
     enableMarkdownProcessor: false,
-    injectColor: true
+    injectColor: true,
+    parseTitles: true
 };
 
 export default class ObsidianAdmonition
@@ -104,6 +112,8 @@ export default class ObsidianAdmonition
 {
     admonitions: { [admonitionType: string]: Admonition } = {};
     data: ISettingsData;
+
+    postprocessors: Map<string, MarkdownPostProcessor> = new Map();
 
     get types() {
         return Object.keys(this.admonitions);
@@ -168,14 +178,16 @@ export default class ObsidianAdmonition
             ...ADMONITION_MAP,
             ...this.data.userAdmonitions
         };
-        this.registerMarkdownCodeBlockProcessor(
-            `ad-${admonition.type}`,
-            (src, el, ctx) => this.postprocessor(admonition.type, src, el, ctx)
-        );
         if (this.data.syntaxHighlight) {
             this.turnOnSyntaxHighlighting([admonition.type]);
         }
+
         await this.saveSettings();
+        const processor = this.registerMarkdownCodeBlockProcessor(
+            `ad-${admonition.type}`,
+            (src, el, ctx) => this.postprocessor(admonition.type, src, el, ctx)
+        );
+        this.postprocessors.set(admonition.type, processor);
     }
 
     async removeAdmonition(admonition: Admonition) {
@@ -195,6 +207,17 @@ export default class ObsidianAdmonition
             this.unregisterCommandsFor(admonition);
         }
 
+        if (this.postprocessors.has(admonition.type)) {
+            MarkdownPreviewRenderer.unregisterPostProcessor(
+                this.postprocessors.get(admonition.type)
+            );
+            //@ts-expect-error
+            MarkdownPreviewRenderer.unregisterCodeBlockPostProcessor(
+                `ad-${admonition.type}`
+            );
+            this.postprocessors.delete(admonition.type);
+        }
+
         await this.saveSettings();
     }
     async onload(): Promise<void> {
@@ -212,10 +235,11 @@ export default class ObsidianAdmonition
         }
 
         Object.keys(this.admonitions).forEach((type) => {
-            this.registerMarkdownCodeBlockProcessor(
+            const processor = this.registerMarkdownCodeBlockProcessor(
                 `ad-${type}`,
                 (src, el, ctx) => this.postprocessor(type, src, el, ctx)
             );
+            this.postprocessors.set(type, processor);
             if (this.admonitions[type].command) {
                 this.registerCommandsFor(this.admonitions[type]);
             }
@@ -397,15 +421,16 @@ export default class ObsidianAdmonition
                         );
                     }
                     const admonition = this.admonitions[type];
-                    const admonitionElement = await getAdmonitionElementAsync(
-                        type,
-                        title.trim(),
-                        admonition.icon,
-                        admonition.injectColor ?? this.data.injectColor
-                            ? admonition.color
-                            : null,
-                        collapse
-                    );
+                    const admonitionElement =
+                        await this.getAdmonitionElementAsync(
+                            type,
+                            title.trim(),
+                            admonition.icon,
+                            admonition.injectColor ?? this.data.injectColor
+                                ? admonition.color
+                                : null,
+                            collapse
+                        );
 
                     const contentHolder = admonitionElement.createDiv(
                         "admonition-content-holder"
@@ -623,13 +648,8 @@ title:
                     : ctx?.sourcePath ??
                       this.app.workspace.getActiveFile()?.path ??
                       "";
-            let {
-                title,
-                collapse,
-                content,
-                icon,
-                color
-            } = getParametersFromSource(type, src, this.admonitions[type]);
+            let { title, collapse, content, icon, color } =
+                getParametersFromSource(type, src, this.admonitions[type]);
 
             let match = new RegExp(`^!!! ad-(${this.types.join("|")})$`, "gm");
 
@@ -668,7 +688,7 @@ title:
 
             /* const iconNode = icon ? this.admonitions[type].icon; */
             const admonition = this.admonitions[type];
-            let admonitionElement = getAdmonitionElement(
+            let admonitionElement = this.getAdmonitionElement(
                 type,
                 title,
                 iconDefinitions.find(({ name }) => icon === name) ??
@@ -739,7 +759,7 @@ title:
                     );
                 }
 
-                if (this.data.copyButton) {
+                if (admonition.copy ?? this.data.copyButton) {
                     let copy = contentHolder
                         .createDiv("admonition-content-copy")
                         .appendChild(COPY_BUTTON_ICON.cloneNode(true));
@@ -891,5 +911,210 @@ title:
                 cache[sourcePath] = resolved;
             }
         }
+    }
+    getAdmonitionElement(
+        type: string,
+        title: string,
+        icon: AdmonitionIconDefinition,
+        color?: string,
+        collapse?: string,
+        id?: string
+    ): HTMLElement {
+        let admonition, titleEl;
+        let attrs: { style?: string; open?: string } = color
+            ? {
+                  style: `--admonition-color: ${color};`
+              }
+            : {};
+        if (collapse && collapse != "none") {
+            if (collapse === "open") {
+                attrs.open = "open";
+            }
+            admonition = createEl("details", {
+                cls: `admonition admonition-${type} admonition-plugin`,
+                attr: attrs
+            });
+            titleEl = admonition.createEl("summary", {
+                cls: `admonition-title ${
+                    !title?.trim().length ? "no-title" : ""
+                }`
+            });
+        } else {
+            admonition = createDiv({
+                cls: `admonition admonition-${type} admonition-plugin`,
+                attr: attrs
+            });
+            titleEl = admonition.createDiv({
+                cls: `admonition-title ${
+                    !title?.trim().length ? "no-title" : ""
+                }`
+            });
+        }
+
+        if (id) {
+            admonition.id = id;
+        }
+
+        if (title && title.trim().length) {
+            /**
+             * Title structure
+             * <div|summary>.admonition-title
+             *      <element>.admonition-title-content - Rendered Markdown top-level element (e.g. H1/2/3 etc, p)
+             *          div.admonition-title-icon
+             *              svg
+             *          div.admonition-title-markdown - Container of rendered markdown
+             *              ...rendered markdown children...
+             */
+
+            //get markdown
+            const markdownHolder = createDiv();
+            MarkdownRenderer.renderMarkdown(title, markdownHolder, "", null);
+
+            //admonition-title-content is first child of rendered markdown
+
+            const admonitionTitleContent =
+                markdownHolder.children[0]?.tagName === "P"
+                    ? createDiv()
+                    : markdownHolder.children[0];
+
+            //get children of markdown element, then remove them
+            const markdownElements = Array.from(
+                markdownHolder.children[0]?.childNodes || []
+            );
+            admonitionTitleContent.innerHTML = "";
+            admonitionTitleContent.addClass("admonition-title-content");
+
+            //build icon element
+            const iconEl = admonitionTitleContent.createDiv(
+                "admonition-title-icon"
+            );
+            if (icon && icon.name && icon.type) {
+                iconEl.appendChild(getIconNode(icon));
+            }
+
+            //add markdown children back
+            const admonitionTitleMarkdown = admonitionTitleContent.createDiv(
+                "admonition-title-markdown"
+            );
+            for (let i = 0; i < markdownElements.length; i++) {
+                admonitionTitleMarkdown.appendChild(markdownElements[i]);
+            }
+            titleEl.appendChild(admonitionTitleContent || createDiv());
+        }
+
+        //add them to title element
+
+        if (collapse) {
+            titleEl.createDiv("collapser").createDiv("handle");
+        }
+        return admonition;
+    }
+    async getAdmonitionElementAsync(
+        type: string,
+        title: string,
+        icon: AdmonitionIconDefinition,
+        color?: string,
+        collapse?: string,
+        id?: string
+    ): Promise<HTMLElement> {
+        let admonition,
+            titleEl,
+            attrs: { style?: string; open?: string } = color
+                ? {
+                      style: `--admonition-color: ${color};`
+                  }
+                : {};
+        if (collapse) {
+            if (collapse === "open") {
+                attrs.open = "open";
+            }
+            admonition = createEl("details", {
+                cls: `admonition admonition-${type} admonition-plugin admonition-plugin-async`,
+                attr: attrs
+            });
+            titleEl = admonition.createEl("summary", {
+                cls: `admonition-title ${
+                    !title.trim().length ? "no-title" : ""
+                }`
+            });
+        } else {
+            admonition = createDiv({
+                cls: `admonition admonition-${type} admonition-plugin`,
+                attr: attrs
+            });
+            titleEl = admonition.createDiv({
+                cls: `admonition-title ${
+                    !title.trim().length ? "no-title" : ""
+                }`
+            });
+        }
+
+        if (id) {
+            admonition.id = id;
+        }
+
+        if (title && title.trim().length) {
+            //
+            // Title structure
+            // <div|summary>.admonition-title
+            //      <element>.admonition-title-content - Rendered Markdown top-level element (e.g. H1/2/3 etc, p)
+            //          div.admonition-title-icon
+            //              svg
+            //          div.admonition-title-markdown - Container of rendered markdown
+            //              ...rendered markdown children...
+            //
+
+            //get markdown
+            if (this.data.parseTitles) {
+                const markdownHolder = createDiv();
+                await MarkdownRenderer.renderMarkdown(
+                    title,
+                    markdownHolder,
+                    "",
+                    null
+                );
+
+                //admonition-title-content is first child of rendered markdown
+
+                const admonitionTitleContent =
+                    markdownHolder.children[0].tagName === "P"
+                        ? createDiv()
+                        : markdownHolder.children[0];
+
+                //get children of markdown element, then remove them
+                const markdownElements = Array.from(
+                    markdownHolder.children[0]?.childNodes || []
+                );
+                admonitionTitleContent.innerHTML = "";
+                admonitionTitleContent.addClass("admonition-title-content");
+
+                //build icon element
+                const iconEl = admonitionTitleContent.createDiv(
+                    "admonition-title-icon"
+                );
+                if (icon && icon.name && icon.type) {
+                    iconEl.appendChild(getIconNode(icon));
+                }
+
+                //add markdown children back
+                const admonitionTitleMarkdown =
+                    admonitionTitleContent.createDiv(
+                        "admonition-title-markdown"
+                    );
+                for (let i = 0; i < markdownElements.length; i++) {
+                    admonitionTitleMarkdown.appendChild(markdownElements[i]);
+                }
+                titleEl.appendChild(admonitionTitleContent || createDiv());
+            } else {
+                titleEl.appendChild(createDiv({ text: title }));
+            }
+        }
+
+        //add them to title element
+
+        if (collapse) {
+            titleEl.createDiv("collapser").createDiv("handle");
+        }
+        return admonition;
     }
 }
