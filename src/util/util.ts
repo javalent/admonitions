@@ -105,7 +105,7 @@ export function getParametersFromSource(
         collapse = "closed";
     }
 
-    if (!title || !title.length) {
+    if (!("title" in params)) {
         if (!admonition.noTitle) {
             title = admonitionTitle;
         }

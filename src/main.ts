@@ -848,8 +848,11 @@ title:
              * Replace the <pre> tag with the new admonition.
              */
             const parent = el.parentElement;
-            if (parent && !parent.hasClass('admonition-content')) {
-                parent.addClass('admonition-parent', `admonition-${type}-parent`)
+            if (parent && !parent.hasClass("admonition-content")) {
+                parent.addClass(
+                    "admonition-parent",
+                    `admonition-${type}-parent`
+                );
             }
             el.replaceWith(admonitionElement);
             return admonitionElement;
