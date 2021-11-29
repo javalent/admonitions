@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [6.7.1](https://github.com/valentine195/obsidian-admonition/compare/6.7.0...6.7.1) (2021-11-29)
+
+
+### Bug Fixes
+
+* admonitions without titles properly display again (close [#131](https://github.com/valentine195/obsidian-admonition/issues/131)) ([b3bd5c2](https://github.com/valentine195/obsidian-admonition/commit/b3bd5c2fe1010a85e79c5662dc83752de54f032f))
+
 ## [6.7.0](https://github.com/valentine195/obsidian-admonition/compare/6.6.1...6.7.0) (2021-11-22)
 
 ### Features
