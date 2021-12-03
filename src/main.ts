@@ -523,6 +523,8 @@ export default class ObsidianAdmonition
                         editor.getDoc().replaceSelection(
                             `\`\`\`ad-${admonition.type}
 
+${editor.getDoc().getSelection()}
+
 \`\`\`\n`
                         );
                         const cursor = editor.getCursor();
@@ -545,6 +547,8 @@ export default class ObsidianAdmonition
                         editor.getDoc().replaceSelection(
                             `\`\`\`ad-${admonition.type}
 title: 
+
+${editor.getDoc().getSelection()}
 
 \`\`\`\n`
                         );
@@ -570,11 +574,10 @@ title:
                         );
                     if (admonition.command) {
                         try {
-                            editor
-                                .getDoc()
-                                .replaceSelection(
-                                    `!!! ad-${admonition.type}\n\n--- admonition\n`
-                                );
+                            editor.getDoc().replaceSelection(
+                                `!!! ad-${admonition.type}\n
+${editor.getDoc().getSelection()}\n--- admonition\n`
+                            );
                             const cursor = editor.getCursor();
                             editor.setCursor(cursor.line - 2);
                         } catch (e) {
