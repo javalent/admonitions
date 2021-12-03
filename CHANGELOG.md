@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [6.7.2](https://github.com/valentine195/obsidian-admonition/compare/6.7.1...6.7.2) (2021-12-03)
+
+
+### Bug Fixes
+
+* insert admonition commands now properly wrap selected text ([758ce51](https://github.com/valentine195/obsidian-admonition/commit/758ce516b1e639f0d6829aea866c9d0fa3101747))
+
 ### [6.7.1](https://github.com/valentine195/obsidian-admonition/compare/6.7.0...6.7.1) (2021-11-29)
 
 
