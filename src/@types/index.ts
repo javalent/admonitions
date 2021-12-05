@@ -8,6 +8,8 @@ export interface Admonition {
     color: string;
     command: boolean;
     injectColor: boolean;
+    noTitle: boolean;
+    copy: boolean;
 }
 
 export interface INestedAdmonition {
@@ -29,6 +31,7 @@ export interface ISettingsData {
     version: string;
     enableMarkdownProcessor: boolean;
     injectColor: boolean;
+    parseTitles: boolean;
 }
 
 export type AdmonitionIconDefinition = {
@@ -61,6 +64,22 @@ export declare class ObsidianAdmonitionPlugin extends Plugin_2 {
     ): void;
     unregisterCommandsFor(admonition: Admonition): void;
     registerCommandsFor(admonition: Admonition): void;
+    getAdmonitionElement(
+        type: string,
+        title: string,
+        icon: AdmonitionIconDefinition,
+        color?: string,
+        collapse?: string,
+        id?: string
+    ): HTMLElement;
+    getAdmonitionElementAsync(
+        type: string,
+        title: string,
+        icon: AdmonitionIconDefinition,
+        color?: string,
+        collapse?: string,
+        id?: string
+    ): Promise<HTMLElement>;
 }
 
 export type RPGIconName =

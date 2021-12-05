@@ -432,6 +432,13 @@ Commands may be registered for each custom admonition type to insert them into a
 
 See [this section](#register-and-unregister-commands) for more information.
 
+### Mermaid Graphs
+
+Mermaid graphs are supported by Admonitions, but with some caveats:
+
+1. You cannot combine mermaid graphs and embeds/transclusions.
+2. Mermaid graphs do not work in collapsed-by-default admonitions.
+
 ## Non-code block Admonitions
 
 As of version 6.0.0, there is a new setting: Enable Non-codeblock Admonitions.
