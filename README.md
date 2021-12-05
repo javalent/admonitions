@@ -346,7 +346,7 @@ To set the color of admonition types via CSS, specific the following the `--admo
 
 ### Parent Element
 
-As of version 6.6, the admonition's parent element *also* receives classes: `.admonition-parent` and `.admonition-<type>-parent`.
+As of version 6.6, the admonition's parent element _also_ receives classes: `.admonition-parent` and `.admonition-<type>-parent`.
 
 ### Collapsible
 
@@ -506,18 +506,18 @@ If you experience any bugs using this setting, please create an issue and I will
 
 ## Publish
 
-Obsidian plugins do not work on publish sites; however, version 6.4.0+ has an option to generate a JavaScript file that can be used on **self-hosted** Publish sites.
+Obsidian plugins do not work on publish sites; however, version 6.4.0+ has an option to generate a JavaScript file that can be used on Publish sites with **custom domains**.
 
-**Obsidian Publish only allows external JavaScript on self hosted publish sites. If your Publish is ran through Obsidian, this will not work.**
+**Obsidian Publish only allows external JavaScript on publish sites with custom domains. If your Publish is ran through Obsidian, this will not work.**
 
 Instructions:
 
-1. Go the Admonition settings tab and click the "Generate JS for Publish" button. 
-2. Save the JavaScript file. 
-3. Copy the contents of the JS file to your `publish.js` file. 
-4. Add the contents of the `assets/main.css` file to your `publish.css` file. 
+1. Go the Admonition settings tab and click the "Generate JS for Publish" button.
+2. Save the JavaScript file.
+3. Copy the contents of the JS file to your `publish.js` file.
+4. Add the contents of the `assets/main.css` file to your `publish.css` file.
 
-Please note that I can give no guarantees of stability on your publish site. Other JavaScript you include may conflict with this file. If you run into an issue using it, please create an issue on this repository and I will try to help you. 
+Please note that I can give no guarantees of stability on your publish site. Other JavaScript you include may conflict with this file. If you run into an issue using it, please create an issue on this repository and I will try to help you.
 
 ## Settings
 
@@ -537,7 +537,7 @@ Allow use of non-codeblock admonitions, described [here](#non-code-block-admonit
 
 ### Generate JS for Publish
 
-This button will export a JavaScript file to be used on a **self-hosted** Obsidian Publish site. The generated JavaScript will only be valid for currently defined Admonition types. Any additional types created after generating the file will require a new file to be generated. 
+This button will export a JavaScript file to be used on a **self-hosted** Obsidian Publish site. The generated JavaScript will only be valid for currently defined Admonition types. Any additional types created after generating the file will require a new file to be generated.
 
 ### Collapsible By Default
 
