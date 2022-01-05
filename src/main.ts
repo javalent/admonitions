@@ -777,65 +777,32 @@ ${editor.getDoc().getSelection()}\n--- admonition\n`
                     });
                 }
 
-                const taskLists = admonitionContent.querySelectorAll(
-                    ".contains-task-list"
-                );
+                const taskLists =
+                    admonitionContent.querySelectorAll<HTMLInputElement>(
+                        ".task-list-item-checkbox"
+                    );
                 if (taskLists.length) {
-                    const view =
-                        this.app.workspace.getActiveViewOfType(MarkdownView);
-
-                    if (view && view instanceof MarkdownView) {
-                        const file = view.file;
-                        const fileContent = view.currentMode.get();
-                        const splitContent = src.split("\n");
+                    const file = this.app.vault.getAbstractFileByPath(
+                        ctx.sourcePath
+                    );
+                    const section = ctx.getSectionInfo(el);
+                    if (file && section) {
+                        const split = src.split("\n");
                         let slicer = 0;
-                        const start = fileContent.indexOf(src);
-                        for (let i = 0; i < taskLists.length; i++) {
-                            let tasks: NodeListOf<HTMLLIElement> =
-                                taskLists[i].querySelectorAll(
-                                    ".task-list-item"
-                                );
-                            if (!tasks.length) continue;
-                            for (let j = 0; j < tasks.length; j++) {
-                                let task = tasks[j];
-                                if (!task.children.length) continue;
-                                const inputs = task.querySelectorAll(
-                                    "input[type='checkbox']"
-                                ) as NodeListOf<HTMLInputElement>;
-                                if (!inputs.length) continue;
-                                const input = inputs[0];
+                        taskLists.forEach((task) => {
+                            const line =
+                                src.slice(slicer).search(/^\- \[.\]/m) + slicer;
+                            slicer = src.indexOf("\n", line);
+                            const box = src.slice(line, slicer).search(/\[.\]/);
+                            console.log(
+                                "🚀 ~ file: main.ts ~ line 797 ~ box",
+                                box
+                            );
 
-                                if (
-                                    !input.nextSibling ||
-                                    input.nextSibling.nodeName != "#text"
-                                )
-                                    continue;
-                                const line = splitContent
-                                    .slice(slicer)
-                                    .find((str) =>
-                                        new RegExp(
-                                            `\\[.*\\]\\s*${task.innerText.replace(
-                                                /[.*+?^${}()|[\]\\]/g,
-                                                "\\$&"
-                                            )}`
-                                        ).test(str)
-                                    );
-                                slicer =
-                                    slicer +
-                                    splitContent.slice(slicer).indexOf(line) +
-                                    1;
-
-                                const lineNumber = slicer;
-
-                                input.dataset["line"] = `${lineNumber}`;
-                                input.onclick = async (evt) => {
-                                    view.previewMode.renderer.onCheckboxClick(
-                                        evt,
-                                        input
-                                    );
-                                };
-                            }
-                        }
+                            task.onclick = (e) => {
+                                const { text, lineStart } = section;
+                            };
+                        });
                     }
                 }
 
