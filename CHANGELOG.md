@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [6.7.3](https://github.com/valentine195/obsidian-admonition/compare/6.7.2...6.7.3) (2022-01-05)
+
+
+### Bug Fixes
+
+* fixed checkbox behavior in admonitions (close [#135](https://github.com/valentine195/obsidian-admonition/issues/135)) ([db3f55e](https://github.com/valentine195/obsidian-admonition/commit/db3f55ed96ced410d3129faa38d7275b6613ccc7))
+
 ### [6.7.2](https://github.com/valentine195/obsidian-admonition/compare/6.7.1...6.7.2) (2021-12-03)
 
 
