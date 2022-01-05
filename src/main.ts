@@ -781,29 +781,18 @@ ${editor.getDoc().getSelection()}\n--- admonition\n`
                     admonitionContent.querySelectorAll<HTMLInputElement>(
                         ".task-list-item-checkbox"
                     );
-                if (taskLists.length) {
-                    const file = this.app.vault.getAbstractFileByPath(
-                        ctx.sourcePath
-                    );
-                    const section = ctx.getSectionInfo(el);
-                    if (file && section) {
-                        const split = src.split("\n");
-                        let slicer = 0;
-                        taskLists.forEach((task) => {
-                            const line =
-                                src.slice(slicer).search(/^\- \[.\]/m) + slicer;
-                            slicer = src.indexOf("\n", line);
-                            const box = src.slice(line, slicer).search(/\[.\]/);
-                            console.log(
-                                "🚀 ~ file: main.ts ~ line 797 ~ box",
-                                box
-                            );
+                if (taskLists?.length) {
+                    const split = src.split("\n");
+                    let slicer = 0;
+                    taskLists.forEach((task) => {
+                        const line = split
+                            .slice(slicer)
+                            .findIndex((l) => /^\- \[.\]/.test(l));
 
-                            task.onclick = (e) => {
-                                const { text, lineStart } = section;
-                            };
-                        });
-                    }
+                        if (line == -1) return;
+                        task.dataset.line = `${line + slicer + 1}`;
+                        slicer = line + slicer + 1;
+                    });
                 }
 
                 const links =
