@@ -268,3 +268,30 @@ input.is-invalid {
     box-shadow: 0px 0px 5px rgb(0 0 0 / 50%);
     border-color: var(--background-modifier-border-focus);
 }
+
+/** Live Preview */
+.is-live-preview .admonition-content > * {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+.is-live-preview .admonition-content > *:first-child {
+    margin-top: 16px;
+}
+
+.is-live-preview .admonition-content > *:last-child {
+    margin-bottom: 16px;
+}
+
+
+/* .is-live-preview .admonition-content .contains-task-list {
+    padding-left: 0;
+}
+.is-live-preview .admonition-content ul li {
+    text-indent: 0;
+} */
+
+.is-live-preview .admonition-content li,
+.is-live-preview .admonition-content ul {
+    line-height: 1;
+}
