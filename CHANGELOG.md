@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [6.7.4](https://github.com/valentine195/obsidian-admonition/compare/6.7.3...6.7.4) (2022-01-06)
+
+
+### Bug Fixes
+
+* partial fix for LP display issues ([85ca7b7](https://github.com/valentine195/obsidian-admonition/commit/85ca7b7d0c6553a4b01f4e327d8b86c2351530cf))
+
 ### [6.7.3](https://github.com/valentine195/obsidian-admonition/compare/6.7.2...6.7.3) (2022-01-05)
 
 
