@@ -275,6 +275,10 @@ input.is-invalid {
     margin-bottom: 0px;
 }
 
+.is-live-preview .admonition-content > * br {
+    display: none;
+}
+
 .is-live-preview .admonition-content > *:first-child {
     margin-top: 16px;
 }
@@ -283,15 +287,6 @@ input.is-invalid {
     margin-bottom: 16px;
 }
 
-
-/* .is-live-preview .admonition-content .contains-task-list {
-    padding-left: 0;
-}
-.is-live-preview .admonition-content ul li {
-    text-indent: 0;
-} */
-
-.is-live-preview .admonition-content li,
 .is-live-preview .admonition-content ul {
-    line-height: 1;
+    white-space: normal;
 }
