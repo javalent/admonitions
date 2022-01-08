@@ -18,3 +18,4 @@ webpack.dev.js
 
 
 generated/*
+.env
