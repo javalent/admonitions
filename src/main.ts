@@ -103,7 +103,8 @@ const DEFAULT_APP_SETTINGS: ISettingsData = {
     syncLinks: true,
     enableMarkdownProcessor: false,
     injectColor: true,
-    parseTitles: true
+    parseTitles: true,
+    allowMSSyntax: true
 };
 
 export default class ObsidianAdmonition
@@ -323,6 +324,71 @@ export default class ObsidianAdmonition
                 this.addLinksToCache(admonitionLinks, file.path);
             })
         );
+
+        this.enableMSSyntax();
+    }
+    enableMSSyntax() {
+        this.registerMarkdownPostProcessor((el, ctx) => {
+            if (!this.data.allowMSSyntax) return;
+            if (el.firstChild.nodeName !== "BLOCKQUOTE") return;
+
+            const section = ctx.getSectionInfo(el);
+            if (!section) return;
+            const text = section.text.split("\n");
+            const firstLine = text[section.lineStart];
+            if (!/^> \[!.+\]/.test(firstLine)) return;
+
+            const [, type, title, col] =
+                firstLine.match(/^> \[!(\w+)(?:: (.+))?\](x|\+|\-)?/) ?? [];
+
+            if (!type || !this.admonitions[type]) return;
+
+            let collapse;
+            switch (col) {
+                case "+": {
+                    collapse = "open";
+                    break;
+                }
+                case "-": {
+                    collapse = "closed";
+                    break;
+                }
+                case "x": {
+                    break;
+                }
+                default: {
+                    collapse = this.data.autoCollapse
+                        ? this.data.defaultCollapseType
+                        : null;
+                }
+            }
+
+            const admonition = this.getAdmonitionElement(
+                type,
+                title ??
+                    this.admonitions[type].title ??
+                    `${type[0].toUpperCase()}${type.slice(1).toLowerCase()}`,
+                this.admonitions[type].icon,
+                this.admonitions[type].color,
+                collapse
+            );
+
+            const content = text
+                .slice(section.lineStart + 1, section.lineEnd + 1)
+                .join("\n")
+                .replace(/> /g, "");
+
+            MarkdownRenderer.renderMarkdown(
+                content,
+                admonition
+                    .createDiv("admonition-content-holder")
+                    .createDiv("admonition-content"),
+                ctx.sourcePath,
+                null
+            );
+
+            el.firstElementChild.replaceWith(admonition);
+        });
     }
     enableMarkdownProcessor() {
         if (!this.data.enableMarkdownProcessor) return;

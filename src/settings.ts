@@ -128,6 +128,26 @@ export default class AdmonitionSetting extends PluginSettingTab {
             createSpan({ text: t(" Enable Non-codeblock Admonitions") })
         );
 
+        new Setting(containerEl)
+            .setName("Allow Microsoft Document Syntax")
+            .setDesc(
+                createFragment((e) => {
+                    e.createSpan({
+                        text: "The plugin will render blockquotes created using the "
+                    });
+                    e.createEl("a", {
+                        href: "https://docs.microsoft.com/en-us/contribute/markdown-reference",
+                        text: "Microsoft Document Syntax."
+                    });
+                })
+            )
+            .addToggle((t) => {
+                t.setValue(this.plugin.data.allowMSSyntax).onChange((v) => {
+                    this.plugin.data.allowMSSyntax = v;
+                    this.plugin.saveSettings();
+                });
+            });
+
         const publish = new Setting(containerEl)
             .setName("Generate JS for Publish")
             .setDesc(

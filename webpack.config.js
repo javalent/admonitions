@@ -62,6 +62,23 @@ module.exports = {
     },
     externals: {
         electron: "commonjs2 electron",
-        obsidian: "commonjs2 obsidian"
+        obsidian: "commonjs2 obsidian",
+
+        codemirror: "codemirror",
+        "@codemirror/autocomplete": "@codemirror/autocomplete",
+        "@codemirror/closebrackets": "@codemirror/closebrackets",
+        "@codemirror/commands": "@codemirror/commands",
+        "@codemirror/fold": "@codemirror/fold",
+        "@codemirror/gutter": "@codemirror/gutter",
+        "@codemirror/history": "@codemirror/history",
+        "@codemirror/language": "@codemirror/language",
+        "@codemirror/rangeset": "@codemirror/rangeset",
+        "@codemirror/rectangular-selection":
+            "@codemirror/rectangular-selection",
+        "@codemirror/search": "@codemirror/search",
+        "@codemirror/state": "@codemirror/state",
+        "@codemirror/stream-parser": "@codemirror/stream-parser",
+        "@codemirror/text": "@codemirror/text",
+        "@codemirror/view": "@codemirror/view"
     }
 };

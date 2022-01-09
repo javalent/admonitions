@@ -441,6 +441,8 @@ Mermaid graphs are supported by Admonitions, but with some caveats:
 
 ## Non-code block Admonitions
 
+Please note: An additional non-code block syntax can be seen in the [Microsoft Document Syntax](#microsoft-document-syntax) section.
+
 As of version 6.0.0, there is a new setting: Enable Non-codeblock Admonitions.
 
 This setting is highly experimental and may not work as expected, and there are a few caveats listed at the end of this section to keep in mind.
@@ -510,6 +512,38 @@ content
 2. Nested admonitions are not currently supported.
 
 If you experience any bugs using this setting, please create an issue and I will look into them.
+
+## Microsoft Document Syntax
+
+As of v6.8.0, an additional non-code block syntax can be used that is similar to the [Microsoft Document Syntax](https://docs.microsoft.com/en-us/contribute/markdown-reference) to render admonitions.
+
+> Please note: The type must be the same case as defined in settings.
+
+```md
+> [!quote]
+> This is an admonition!
+```
+
+![](https://raw.githubusercontent.com/valentine195/obsidian-admonition/master/images/msdocs.png)
+
+### Title
+
+A title can be added to the MSDoc-style admonition by appending it after the type.
+
+```md
+> [!quote: This is the title!]
+> This is an admonition!
+```
+
+### Collapse
+
+Collapse can be set by appending the following characters after the brackets:
+
+| Character | Collapse Type |
+| --------- | ------------- |
+| `+`       | `open`        |
+| `-`       | `closed`      |
+| `x`       | `none`        |
 
 ## Publish
 

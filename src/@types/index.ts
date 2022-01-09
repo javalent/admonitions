@@ -32,6 +32,7 @@ export interface ISettingsData {
     enableMarkdownProcessor: boolean;
     injectColor: boolean;
     parseTitles: boolean;
+    allowMSSyntax: boolean;
 }
 
 export type AdmonitionIconDefinition = {
