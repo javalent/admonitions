@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [6.8.0](https://github.com/valentine195/obsidian-admonition/compare/6.7.5...6.8.0) (2022-01-09)
+
+
+### Features
+
+* Adds MSDoc-style admonitions (close [#133](https://github.com/valentine195/obsidian-admonition/issues/133)) ([3af3922](https://github.com/valentine195/obsidian-admonition/commit/3af392265a6ec8f27002ece8a61d0f9d65626484))
+
 ### [6.7.5](https://github.com/valentine195/obsidian-admonition/compare/6.7.4...6.7.5) (2022-01-07)
 
 
