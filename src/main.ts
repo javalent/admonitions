@@ -13,6 +13,16 @@ import {
 } from "obsidian";
 /* import { prettyPrint as html } from "html"; */
 
+import { syntaxTree } from "@codemirror/language";
+import {
+    ViewPlugin,
+    DecorationSet,
+    EditorView,
+    ViewUpdate,
+    Decoration
+} from "@codemirror/view";
+
+import { tokenClassNodeProp } from "@codemirror/stream-parser";
 import {
     Admonition,
     ObsidianAdmonitionPlugin,
@@ -92,6 +102,8 @@ import {
     getIconNode
 } from "./util/icons";
 import { InsertAdmonitionModal } from "./modal";
+import { RangeSetBuilder, Range } from "@codemirror/rangeset";
+import { StateEffect, StateField, SelectionRange } from "@codemirror/state";
 
 const DEFAULT_APP_SETTINGS: ISettingsData = {
     userAdmonitions: {},
@@ -389,6 +401,134 @@ export default class ObsidianAdmonition
 
             el.firstElementChild.replaceWith(admonition);
         });
+
+        type TokenSpec = {
+            from: number;
+            to: number;
+            loc: { from: number; to: number };
+            value: string;
+            index: number;
+            type: "replace";
+        };
+
+        class StatefulDecorationSet {
+            editor: EditorView;
+            cache: { [cls: string]: Decoration } = Object.create(null);
+
+            constructor(editor: EditorView) {
+                this.editor = editor;
+            }
+
+            async compute(tokens: TokenSpec[]) {
+                const replace: Range<Decoration>[] = [];
+                for (let token of tokens) {
+                    /* let deco = this.cache[token.value];
+                    if (!deco) {
+                        deco = this.cache[token.value] = Decoration.widget({
+                            inclusive: true,
+                            loc: token.loc
+                        });
+                    }
+                    replace.push(deco.range(token.from, token.to)); */
+                }
+                return Decoration.set(replace, true);
+            }
+
+            async updateDecos(tokens: TokenSpec[]): Promise<void> {
+                const replacers = await this.compute(tokens);
+                // if our compute function returned nothing and the state field still has decorations, clear them out
+                if (replace || this.editor.state.field(field).size) {
+                    this.editor.dispatch({
+                        effects: [replace.of(replacers ?? Decoration.none)]
+                    });
+                }
+            }
+        }
+
+        const plugin = ViewPlugin.fromClass(
+            class {
+                manager: StatefulDecorationSet;
+                decorations: DecorationSet;
+
+                constructor(view: EditorView) {
+                    this.manager = new StatefulDecorationSet(view);
+                    this.decorations = this.build(view);
+                }
+
+                update(update: ViewUpdate) {
+                    if (
+                        update.docChanged ||
+                        update.viewportChanged ||
+                        update.selectionSet
+                    ) {
+                        this.decorations = this.build(update.view);
+                    }
+                }
+
+                destroy() {}
+
+                build(view: EditorView) {
+                    const targetElements: TokenSpec[] = [];
+                    const builder = new RangeSetBuilder<Decoration>();
+                    for (let { from, to } of view.visibleRanges) {
+                        const tree = syntaxTree(view.state);
+                        tree.iterate({
+                            from,
+                            to,
+                            enter: (type, from, to) => {
+                                const tokenProps =
+                                    type.prop(tokenClassNodeProp);
+
+                                const props = new Set(tokenProps?.split(" "));
+                                if (
+                                    props.has("hmd-codeblock") &&
+                                    !props.has("formatting-code-block")
+                                )
+                                    return;
+                                const original = view.state.doc.sliceString(
+                                    from,
+                                    to
+                                );
+                            }
+                        });
+                    }
+                    this.manager.updateDecos(targetElements);
+                    return builder.finish();
+                }
+            },
+            {
+                decorations: (v) => v.decorations
+            }
+        );
+
+        ////////////////
+        // Utility Code
+        ////////////////
+
+        const replace = StateEffect.define<DecorationSet>();
+        const field = StateField.define<DecorationSet>({
+            create(): DecorationSet {
+                return Decoration.none;
+            },
+            update(deco, tr): DecorationSet {
+                return tr.effects.reduce((deco, effect) => {
+                    if (effect.is(replace))
+                        return effect.value.update({
+                            filter: (_, __, decoration) => {
+                                return !rangesInclude(
+                                    tr.newSelection.ranges,
+                                    decoration.spec.loc.from,
+                                    decoration.spec.loc.to
+                                );
+                            }
+                        });
+                    return deco;
+                }, deco.map(tr.changes));
+            },
+            provide: (field) => EditorView.decorations.from(field)
+        });
+
+        return [field, plugin];
     }
     enableMarkdownProcessor() {
         if (!this.data.enableMarkdownProcessor) return;
@@ -1146,3 +1286,17 @@ ${editor.getDoc().getSelection()}\n--- admonition\n`
         return admonition;
     }
 }
+
+const rangesInclude = (
+    ranges: readonly SelectionRange[],
+    from: number,
+    to: number
+) => {
+    for (const range of ranges) {
+        const { from: rFrom, to: rTo } = range;
+        if (rFrom >= from && rFrom <= to) return true;
+        if (rTo >= from && rTo <= to) return true;
+        if (rFrom < from && rTo > to) return true;
+    }
+    return false;
+};

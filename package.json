@@ -20,6 +20,11 @@
     "license": "MIT",
     "devDependencies": {
         "@fortawesome/fontawesome-svg-core": "^1.2.32",
+        "@codemirror/language": "^0.19.7",
+        "@codemirror/rangeset": "^0.19.5",
+        "@codemirror/stream-parser": "https://github.com/lishid/stream-parser",
+        "@codemirror/text": "^0.19.5",
+        "@codemirror/view": "^0.19.37",
         "@fortawesome/free-regular-svg-icons": "^5.15.3",
         "@fortawesome/free-solid-svg-icons": "^5.15.1",
         "@popperjs/core": "^2.9.2",
