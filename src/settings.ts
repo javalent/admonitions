@@ -144,9 +144,34 @@ export default class AdmonitionSetting extends PluginSettingTab {
             .addToggle((t) => {
                 t.setValue(this.plugin.data.allowMSSyntax).onChange((v) => {
                     this.plugin.data.allowMSSyntax = v;
+                    this.display();
                     this.plugin.saveSettings();
                 });
             });
+        if (this.plugin.data.allowMSSyntax) {
+            new Setting(containerEl)
+                .setName("Render Microsoft Document Syntax in Live Preview")
+                .setDesc(
+                    createFragment((e) => {
+                        e.createSpan({
+                            text: "The plugin will render blockquotes created using the "
+                        });
+                        e.createEl("a", {
+                            href: "https://docs.microsoft.com/en-us/contribute/markdown-reference",
+                            text: "Microsoft Document Syntax"
+                        });
+                        e.createSpan({
+                            text: " in live preview mode."
+                        });
+                    })
+                )
+                .addToggle((t) => {
+                    t.setValue(this.plugin.data.livePreviewMS).onChange((v) => {
+                        this.plugin.data.livePreviewMS = v;
+                        this.plugin.saveSettings();
+                    });
+                });
+        }
 
         const publish = new Setting(containerEl)
             .setName("Generate JS for Publish")

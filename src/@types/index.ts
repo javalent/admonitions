@@ -33,6 +33,7 @@ export interface ISettingsData {
     injectColor: boolean;
     parseTitles: boolean;
     allowMSSyntax: boolean;
+    livePreviewMS: boolean;
 }
 
 export type AdmonitionIconDefinition = {

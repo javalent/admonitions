@@ -118,7 +118,8 @@ const DEFAULT_APP_SETTINGS: ISettingsData = {
     enableMarkdownProcessor: false,
     injectColor: true,
     parseTitles: true,
-    allowMSSyntax: true
+    allowMSSyntax: true,
+    livePreviewMS: true
 };
 
 export default class ObsidianAdmonition extends Plugin {
@@ -524,6 +525,7 @@ export default class ObsidianAdmonition extends Plugin {
                 }
 
                 update(update: ViewUpdate) {
+                    if (!self.data.livePreviewMS) return;
                     const md = update.view.state.field(editorViewField);
                     if (!md.leaf?.view) return;
                     const { state } = md.leaf?.getViewState() ?? {};
@@ -554,6 +556,8 @@ export default class ObsidianAdmonition extends Plugin {
                 destroy() {}
 
                 build(view: EditorView) {
+                    if (!self.data.allowMSSyntax) return;
+                    if (!self.data.livePreviewMS) return;
                     const targetElements: TokenSpec[] = [];
                     const md = view.state.field(editorViewField);
                     const { state } = md.leaf.getViewState() ?? {};
