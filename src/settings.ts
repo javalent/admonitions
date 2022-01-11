@@ -49,7 +49,13 @@ export default class AdmonitionSetting extends PluginSettingTab {
         containerEl.addClass("admonition-settings");
         containerEl.createEl("h2", { text: t("Admonition Settings") });
 
-        let syntax = new Setting(containerEl)
+        new Setting(containerEl)
+            .setName(
+                createFragment((e) => {
+                    e.appendChild(WARNING_ICON.cloneNode(true));
+                    e.createSpan({ text: t(" Markdown Syntax Highlighting") });
+                })
+            )
             .setDesc(
                 t(
                     "Use Obsidian's markdown syntax highlighter in admonition code blocks. This setting is experimental and could cause errors."
@@ -67,13 +73,14 @@ export default class AdmonitionSetting extends PluginSettingTab {
                     await this.plugin.saveSettings();
                 });
             });
-        let name = syntax.nameEl.createDiv();
-        name.appendChild(WARNING_ICON.cloneNode(true));
-        name.appendChild(
-            createSpan({ text: t(" Markdown Syntax Highlighting") })
-        );
 
-        let sync = new Setting(containerEl)
+        new Setting(containerEl)
+            .setName(
+                createFragment((e) => {
+                    e.appendChild(WARNING_ICON.cloneNode(true));
+                    e.createSpan({ text: t(" Sync Links to Metadata Cache") });
+                })
+            )
             .setDesc(
                 t(
                     "Try to sync internal links to the metadata cache to display in graph view. This setting could have unintended consequences. Use at your own risk."
@@ -87,16 +94,30 @@ export default class AdmonitionSetting extends PluginSettingTab {
                 });
             });
 
-        let syncName = sync.nameEl.createDiv();
-        syncName.appendChild(WARNING_ICON.cloneNode(true));
-        syncName.appendChild(
-            createSpan({ text: t(" Sync Links to Metadata Cache") })
-        );
-
-        let markdown = new Setting(containerEl)
-            /* .setDesc(
-                "Allows admonitions to be created using `!!! ad-<type>` or `??? ad-<type>`, instead of using a code block."
-            ) */
+        new Setting(containerEl)
+            .setName(
+                createFragment((e) => {
+                    e.appendChild(WARNING_ICON.cloneNode(true));
+                    e.createSpan({
+                        text: t(" Enable Non-codeblock Admonitions")
+                    });
+                })
+            )
+            .setDesc(
+                createFragment((e) => {
+                    e.createSpan({
+                        text: t("Allows admonitions to be created using ")
+                    });
+                    e.createEl("code", { text: "!!! ad-<type>" });
+                    e.createSpan({
+                        text: t(" or ")
+                    });
+                    e.createEl("code", { text: "??? ad-<type>" });
+                    e.createSpan({
+                        text: t(", instead of using a code block.")
+                    });
+                })
+            )
             .addToggle((t) => {
                 t.setValue(this.plugin.data.enableMarkdownProcessor).onChange(
                     async (v) => {
@@ -111,22 +132,6 @@ export default class AdmonitionSetting extends PluginSettingTab {
                     }
                 );
             });
-        markdown.descEl.createSpan({
-            text: t("Allows admonitions to be created using ")
-        });
-        markdown.descEl.createEl("code", { text: "!!! ad-<type>" });
-        markdown.descEl.createSpan({
-            text: t(" or ")
-        });
-        markdown.descEl.createEl("code", { text: "??? ad-<type>" });
-        markdown.descEl.createSpan({
-            text: t(", instead of using a code block.")
-        });
-        let markdownName = markdown.nameEl.createDiv();
-        markdownName.appendChild(WARNING_ICON.cloneNode(true));
-        markdownName.appendChild(
-            createSpan({ text: t(" Enable Non-codeblock Admonitions") })
-        );
 
         new Setting(containerEl)
             .setName("Allow Microsoft Document Syntax")
@@ -173,7 +178,7 @@ export default class AdmonitionSetting extends PluginSettingTab {
                 });
         }
 
-        const publish = new Setting(containerEl)
+        new Setting(containerEl)
             .setName("Generate JS for Publish")
             .setDesc(
                 createFragment((f) => {
@@ -225,9 +230,23 @@ export default class AdmonitionSetting extends PluginSettingTab {
                 });
             });
 
-        const collapeSetting = new Setting(containerEl)
+        new Setting(containerEl)
             .setName(t("Collapsible by Default"))
-
+            .setDesc(
+                createFragment((e) => {
+                    e.createSpan({
+                        text: t(
+                            "All admonitions will be collapsible by default. Use "
+                        )
+                    });
+                    e.createEl("code", {
+                        text: "collapse: none"
+                    });
+                    e.createSpan({
+                        text: t(" to prevent.")
+                    });
+                })
+            )
             .addToggle((t) => {
                 t.setValue(this.plugin.data.autoCollapse).onChange(
                     async (v) => {
@@ -237,13 +256,7 @@ export default class AdmonitionSetting extends PluginSettingTab {
                     }
                 );
             });
-        collapeSetting.descEl.createSpan({
-            text: t("All admonitions will be collapsible by default. Use ")
-        });
-        collapeSetting.descEl.createEl("code", { text: "collapse: none" });
-        collapeSetting.descEl.createSpan({
-            text: t(" to prevent.")
-        });
+
         if (this.plugin.data.autoCollapse) {
             new Setting(containerEl)
                 .setName(t("Default Collapse Type"))
