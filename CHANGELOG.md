@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [6.9.0](https://github.com/valentine195/obsidian-admonition/compare/6.8.0...6.9.0) (2022-01-11)
+
+
+### Features
+
+* add a toggle for MS syntax in live preview ([8b73f47](https://github.com/valentine195/obsidian-admonition/commit/8b73f47b60d2984deee062ac396dc0562f5cb535))
+* add live preview support to new blockquote admonitions ([936199c](https://github.com/valentine195/obsidian-admonition/commit/936199c182767d7563e60c03f414db2de1d18ab1))
+
+
+### Bug Fixes
+
+* clean up settings code ([b36e7e8](https://github.com/valentine195/obsidian-admonition/commit/b36e7e86d301024fc19a8e770ad594b67865e1d2))
+* fixed webpack external modules ([f6c70a7](https://github.com/valentine195/obsidian-admonition/commit/f6c70a70df01924ff4c38d6972fa7d27102964ae))
+
 ## [6.8.0](https://github.com/valentine195/obsidian-admonition/compare/6.7.5...6.8.0) (2022-01-09)
 
 
