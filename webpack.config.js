@@ -64,21 +64,13 @@ module.exports = {
         electron: "commonjs2 electron",
         obsidian: "commonjs2 obsidian",
 
-        codemirror: "codemirror",
-        "@codemirror/autocomplete": "@codemirror/autocomplete",
-        "@codemirror/closebrackets": "@codemirror/closebrackets",
-        "@codemirror/commands": "@codemirror/commands",
-        "@codemirror/fold": "@codemirror/fold",
-        "@codemirror/gutter": "@codemirror/gutter",
-        "@codemirror/history": "@codemirror/history",
-        "@codemirror/language": "@codemirror/language",
-        "@codemirror/rangeset": "@codemirror/rangeset",
-        "@codemirror/rectangular-selection":
-            "@codemirror/rectangular-selection",
-        "@codemirror/search": "@codemirror/search",
-        "@codemirror/state": "@codemirror/state",
-        "@codemirror/stream-parser": "@codemirror/stream-parser",
-        "@codemirror/text": "@codemirror/text",
-        "@codemirror/view": "@codemirror/view"
+        codemirror: "commonjs2 codemirror",
+        
+        
+        "\@codemirror/language": "commonjs2 @codemirror/language",
+        "\@codemirror/rangeset": "commonjs2 @codemirror/rangeset",
+        "\@codemirror/state": "commonjs @codemirror/state",
+        "\@codemirror/stream-parser": "commonjs2 @codemirror/stream-parser",
+        "\@codemirror/view": "commonjs2 @codemirror/view"
     }
 };

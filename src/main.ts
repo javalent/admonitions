@@ -6,12 +6,10 @@ import {
     MarkdownRenderChild,
     MarkdownRenderer,
     MarkdownView,
-    normalizePath,
     Notice,
     Plugin,
     TFile
 } from "obsidian";
-/* import { prettyPrint as html } from "html"; */
 
 import { syntaxTree } from "@codemirror/language";
 import {
@@ -23,6 +21,9 @@ import {
 } from "@codemirror/view";
 
 import { tokenClassNodeProp } from "@codemirror/stream-parser";
+import { RangeSetBuilder, Range } from "@codemirror/rangeset";
+import { StateEffect, StateField, SelectionRange } from "@codemirror/state";
+
 import {
     Admonition,
     ObsidianAdmonitionPlugin,
@@ -38,7 +39,6 @@ import {
     REMOVE_COMMAND_NAME
 } from "./util";
 
-/* import * as CodeMirror from "./codemirror/codemirror"; */
 import type codemirror from "codemirror";
 
 declare global {
@@ -93,7 +93,6 @@ Object.fromEntries =
         return obj;
     };
 
-import "./assets/main.css";
 import AdmonitionSetting from "./settings";
 import {
     IconName,
@@ -102,8 +101,7 @@ import {
     getIconNode
 } from "./util/icons";
 import { InsertAdmonitionModal } from "./modal";
-import { RangeSetBuilder, Range } from "@codemirror/rangeset";
-import { StateEffect, StateField, SelectionRange } from "@codemirror/state";
+import "./assets/main.css";
 
 const DEFAULT_APP_SETTINGS: ISettingsData = {
     userAdmonitions: {},
@@ -119,10 +117,7 @@ const DEFAULT_APP_SETTINGS: ISettingsData = {
     allowMSSyntax: true
 };
 
-export default class ObsidianAdmonition
-    extends Plugin
-    implements ObsidianAdmonitionPlugin
-{
+export default class ObsidianAdmonition extends Plugin {
     admonitions: { [admonitionType: string]: Admonition } = {};
     data: ISettingsData;
 
@@ -342,7 +337,7 @@ export default class ObsidianAdmonition
     enableMSSyntax() {
         this.registerMarkdownPostProcessor((el, ctx) => {
             if (!this.data.allowMSSyntax) return;
-            if (el.firstChild.nodeName !== "BLOCKQUOTE") return;
+            if (el?.firstChild?.nodeName !== "BLOCKQUOTE") return;
 
             const section = ctx.getSectionInfo(el);
             if (!section) return;
@@ -480,14 +475,16 @@ export default class ObsidianAdmonition
                                     type.prop(tokenClassNodeProp);
 
                                 const props = new Set(tokenProps?.split(" "));
-                                if (
-                                    props.has("hmd-codeblock") &&
-                                    !props.has("formatting-code-block")
-                                )
-                                    return;
+
+                                if (!props.has("quote")) return;
                                 const original = view.state.doc.sliceString(
                                     from,
                                     to
+                                );
+                                console.log(
+                                    "🚀 ~ file: main.ts ~ line 488 ~ original",
+                                    original,
+                                    props
                                 );
                             }
                         });
@@ -528,7 +525,7 @@ export default class ObsidianAdmonition
             provide: (field) => EditorView.decorations.from(field)
         });
 
-        return [field, plugin];
+        this.registerEditorExtension(plugin);
     }
     enableMarkdownProcessor() {
         if (!this.data.enableMarkdownProcessor) return;
