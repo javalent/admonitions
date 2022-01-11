@@ -1,5 +1,7 @@
 import {
     addIcon,
+    editorEditorField,
+    editorViewField,
     MarkdownPostProcessor,
     MarkdownPostProcessorContext,
     MarkdownPreviewRenderer,
@@ -8,6 +10,7 @@ import {
     MarkdownView,
     Notice,
     Plugin,
+    setIcon,
     TFile
 } from "obsidian";
 
@@ -17,7 +20,8 @@ import {
     DecorationSet,
     EditorView,
     ViewUpdate,
-    Decoration
+    Decoration,
+    WidgetType
 } from "@codemirror/view";
 
 import { tokenClassNodeProp } from "@codemirror/stream-parser";
@@ -400,11 +404,66 @@ export default class ObsidianAdmonition extends Plugin {
         type TokenSpec = {
             from: number;
             to: number;
-            loc: { from: number; to: number };
             value: string;
-            index: number;
-            type: "replace";
+            title: string;
+            type: string;
+            collapse: string;
         };
+
+        const admonition = StateEffect.define<DecorationSet>();
+        class AdmonitionWidget extends WidgetType {
+            constructor(
+                public type: string,
+                public title: string,
+                public collapse: string,
+                public content: string
+            ) {
+                super();
+            }
+            toDOM(view: EditorView): HTMLElement {
+                const admonitionElement = self.getAdmonitionElement(
+                    this.type,
+                    this.title ??
+                        self.admonitions[this.type].title ??
+                        this.type[0].toUpperCase() +
+                            this.type.slice(1).toLowerCase(),
+                    self.admonitions[this.type].icon,
+                    self.admonitions[this.type].color,
+                    this.collapse
+                );
+
+                const parent = createDiv(
+                    `cm-embed-block admonition-parent admonition-${this.type}-parent`
+                );
+                parent.appendChild(admonitionElement);
+                const edit = parent.createDiv({
+                    cls: "edit-block-button",
+                    attr: { "aria-label": "Edit this block" }
+                });
+
+                setIcon(edit, "code-glyph");
+
+                edit.onclick = () => {
+                    const position = view.posAtDOM(admonitionElement);
+                    view.dispatch({
+                        selection: {
+                            head: position,
+                            anchor: position
+                        }
+                    });
+                };
+
+                MarkdownRenderer.renderMarkdown(
+                    this.content.replace(/^> /gm, ""),
+                    admonitionElement
+                        .createDiv("admonition-content-holder")
+                        .createDiv("admonition-content"),
+                    "",
+                    null
+                );
+                return parent;
+            }
+        }
 
         class StatefulDecorationSet {
             editor: EditorView;
@@ -415,48 +474,80 @@ export default class ObsidianAdmonition extends Plugin {
             }
 
             async compute(tokens: TokenSpec[]) {
-                const replace: Range<Decoration>[] = [];
+                const admonition: Range<Decoration>[] = [];
                 for (let token of tokens) {
-                    /* let deco = this.cache[token.value];
+                    let deco = this.cache[token.value];
                     if (!deco) {
-                        deco = this.cache[token.value] = Decoration.widget({
+                        deco = this.cache[token.value] = Decoration.replace({
                             inclusive: true,
-                            loc: token.loc
+                            widget: new AdmonitionWidget(
+                                token.type,
+                                token.title,
+                                token.collapse,
+                                token.value
+                            ),
+                            block: true,
+                            from: token.from,
+                            to: token.to
                         });
                     }
-                    replace.push(deco.range(token.from, token.to)); */
+                    admonition.push(deco.range(token.from, token.to));
                 }
-                return Decoration.set(replace, true);
+                return Decoration.set(admonition, true);
             }
 
             async updateDecos(tokens: TokenSpec[]): Promise<void> {
-                const replacers = await this.compute(tokens);
+                const admonitions = await this.compute(tokens);
+
                 // if our compute function returned nothing and the state field still has decorations, clear them out
-                if (replace || this.editor.state.field(field).size) {
+                if (admonitions || this.editor.state.field(field).size) {
                     this.editor.dispatch({
-                        effects: [replace.of(replacers ?? Decoration.none)]
+                        effects: [admonition.of(admonitions ?? Decoration.none)]
                     });
                 }
             }
+            clearDecos() {
+                this.editor.dispatch({
+                    effects: [admonition.of(Decoration.none)]
+                });
+            }
         }
 
+        const self = this;
         const plugin = ViewPlugin.fromClass(
             class {
                 manager: StatefulDecorationSet;
-                decorations: DecorationSet;
-
+                source = false;
                 constructor(view: EditorView) {
                     this.manager = new StatefulDecorationSet(view);
-                    this.decorations = this.build(view);
+                    this.build(view);
                 }
 
                 update(update: ViewUpdate) {
+                    const md = update.view.state.field(editorViewField);
+                    if (!md.leaf?.view) return;
+                    const { state } = md.leaf?.getViewState() ?? {};
+
+                    if (
+                        state &&
+                        state.mode == "source" &&
+                        state.source == true
+                    ) {
+                        if (this.source == false) {
+                            this.source = true;
+                            this.manager.updateDecos([]);
+                        }
+                        return;
+                    }
+
                     if (
                         update.docChanged ||
                         update.viewportChanged ||
-                        update.selectionSet
+                        update.selectionSet ||
+                        this.source == true
                     ) {
-                        this.decorations = this.build(update.view);
+                        this.source = false;
+                        this.build(update.view);
                     }
                 }
 
@@ -464,58 +555,102 @@ export default class ObsidianAdmonition extends Plugin {
 
                 build(view: EditorView) {
                     const targetElements: TokenSpec[] = [];
-                    const builder = new RangeSetBuilder<Decoration>();
-                    for (let { from, to } of view.visibleRanges) {
-                        const tree = syntaxTree(view.state);
-                        tree.iterate({
-                            from,
-                            to,
-                            enter: (type, from, to) => {
-                                const tokenProps =
-                                    type.prop(tokenClassNodeProp);
+                    const md = view.state.field(editorViewField);
+                    const { state } = md.leaf.getViewState() ?? {};
 
-                                const props = new Set(tokenProps?.split(" "));
+                    if (
+                        state &&
+                        state.mode == "source" &&
+                        state.source == false
+                    ) {
+                        for (let { from, to } of view.visibleRanges) {
+                            const tree = syntaxTree(view.state);
+                            tree.iterate({
+                                from,
+                                to,
+                                enter: (types, from, _) => {
+                                    const tokenProps =
+                                        types.prop(tokenClassNodeProp);
 
-                                if (!props.has("quote")) return;
-                                const original = view.state.doc.sliceString(
-                                    from,
-                                    to
-                                );
-                                console.log(
-                                    "🚀 ~ file: main.ts ~ line 488 ~ original",
-                                    original,
-                                    props
-                                );
-                            }
-                        });
+                                    const props = new Set(
+                                        tokenProps?.split(" ")
+                                    );
+                                    if (!props.has("quote")) return;
+
+                                    const original =
+                                        view.state.doc.sliceString(from);
+                                    const split = original.split("\n");
+                                    const line = split[0];
+                                    if (!/^> \[!.+\]/.test(line)) return;
+
+                                    const [, type, title, col] =
+                                        line.match(
+                                            /^> \[!(\w+)(?:: (.+))?\](x|\+|\-)?/
+                                        ) ?? [];
+                                    if (!type || !self.admonitions[type])
+                                        return;
+                                    let collapse;
+                                    switch (col) {
+                                        case "+": {
+                                            collapse = "open";
+                                            break;
+                                        }
+                                        case "-": {
+                                            collapse = "closed";
+                                            break;
+                                        }
+                                        case "x": {
+                                            break;
+                                        }
+                                        default: {
+                                            collapse = self.data.autoCollapse
+                                                ? self.data.defaultCollapseType
+                                                : null;
+                                        }
+                                    }
+                                    const end = split.findIndex(
+                                        (v) => !/^>/.test(v)
+                                    );
+                                    const content = split
+                                        .slice(1, end > -1 ? end : undefined)
+                                        .join("\n");
+                                    const to =
+                                        from + line.length + content.length + 1;
+
+                                    targetElements.push({
+                                        from,
+                                        to,
+                                        value: content,
+                                        title,
+                                        type,
+                                        collapse
+                                    });
+                                }
+                            });
+                        }
                     }
+
                     this.manager.updateDecos(targetElements);
-                    return builder.finish();
                 }
-            },
-            {
-                decorations: (v) => v.decorations
             }
         );
 
         ////////////////
         // Utility Code
         ////////////////
-
-        const replace = StateEffect.define<DecorationSet>();
         const field = StateField.define<DecorationSet>({
             create(): DecorationSet {
                 return Decoration.none;
             },
             update(deco, tr): DecorationSet {
                 return tr.effects.reduce((deco, effect) => {
-                    if (effect.is(replace))
+                    if (effect.is(admonition))
                         return effect.value.update({
                             filter: (_, __, decoration) => {
                                 return !rangesInclude(
                                     tr.newSelection.ranges,
-                                    decoration.spec.loc.from,
-                                    decoration.spec.loc.to
+                                    decoration.spec.from,
+                                    decoration.spec.to
                                 );
                             }
                         });
@@ -525,7 +660,7 @@ export default class ObsidianAdmonition extends Plugin {
             provide: (field) => EditorView.decorations.from(field)
         });
 
-        this.registerEditorExtension(plugin);
+        this.registerEditorExtension([plugin, field]);
     }
     enableMarkdownProcessor() {
         if (!this.data.enableMarkdownProcessor) return;
