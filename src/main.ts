@@ -390,11 +390,15 @@ export default class ObsidianAdmonition extends Plugin {
                 .join("\n")
                 .replace(/> /g, "");
 
+            const contentEl = this.getAdmonitionContentElement(
+                type,
+                admonition,
+                content
+            );
+
             MarkdownRenderer.renderMarkdown(
                 content,
-                admonition
-                    .createDiv("admonition-content-holder")
-                    .createDiv("admonition-content"),
+                contentEl,
                 ctx.sourcePath,
                 null
             );
@@ -454,14 +458,14 @@ export default class ObsidianAdmonition extends Plugin {
                     });
                 };
 
-                MarkdownRenderer.renderMarkdown(
-                    this.content.replace(/^> /gm, ""),
-                    admonitionElement
-                        .createDiv("admonition-content-holder")
-                        .createDiv("admonition-content"),
-                    "",
-                    null
+                const content = this.content.replace(/^> /gm, "");
+                const contentEl = self.getAdmonitionContentElement(
+                    this.type,
+                    admonitionElement,
+                    content
                 );
+
+                MarkdownRenderer.renderMarkdown(content, contentEl, "", null);
                 return parent;
             }
         }
@@ -1064,13 +1068,11 @@ ${editor.getDoc().getSelection()}\n--- admonition\n`
             }
 
             if (content && content.length) {
-                const contentHolder = admonitionElement.createDiv(
-                    "admonition-content-holder"
+                const admonitionContent = this.getAdmonitionContentElement(
+                    type,
+                    admonitionElement,
+                    content
                 );
-
-                const admonitionContent =
-                    contentHolder.createDiv("admonition-content");
-
                 /**
                  * Render the content as markdown and append it to the admonition.
                  */
@@ -1102,21 +1104,6 @@ ${editor.getDoc().getSelection()}\n--- admonition\n`
                         sourcePath,
                         markdownRenderChild
                     );
-                }
-
-                if (admonition.copy ?? this.data.copyButton) {
-                    let copy = contentHolder
-                        .createDiv("admonition-content-copy")
-                        .appendChild(COPY_BUTTON_ICON.cloneNode(true));
-                    copy.addEventListener("click", () => {
-                        navigator.clipboard
-                            .writeText(content.trim())
-                            .then(async () => {
-                                new Notice(
-                                    "Admonition content copied to clipboard."
-                                );
-                            });
-                    });
                 }
 
                 const taskLists =
@@ -1312,6 +1299,27 @@ ${editor.getDoc().getSelection()}\n--- admonition\n`
             titleEl.createDiv("collapser").createDiv("handle");
         }
         return admonition;
+    }
+    getAdmonitionContentElement(
+        type: string,
+        admonitionElement: HTMLElement,
+        content: string
+    ) {
+        const contentHolder = admonitionElement.createDiv(
+            "admonition-content-holder"
+        );
+        const contentEl = contentHolder.createDiv("admonition-content");
+        if (this.admonitions[type].copy ?? this.data.copyButton) {
+            let copy = contentHolder
+                .createDiv("admonition-content-copy")
+                .appendChild(COPY_BUTTON_ICON.cloneNode(true));
+            copy.addEventListener("click", () => {
+                navigator.clipboard.writeText(content.trim()).then(async () => {
+                    new Notice("Admonition content copied to clipboard.");
+                });
+            });
+        }
+        return contentEl;
     }
     async getAdmonitionElementAsync(
         type: string,
