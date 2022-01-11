@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [6.9.2](https://github.com/valentine195/obsidian-admonition/compare/6.9.1...6.9.2) (2022-01-11)
+
+
+### Bug Fixes
+
+* add admonition copy button to MS syntax style admonitions ([7a1fc6c](https://github.com/valentine195/obsidian-admonition/commit/7a1fc6ca0ecca6370ac93496fba781a30a8a90f9))
+
 ### [6.9.1](https://github.com/valentine195/obsidian-admonition/compare/6.9.0...6.9.1) (2022-01-11)
 
 ## [6.9.0](https://github.com/valentine195/obsidian-admonition/compare/6.8.0...6.9.0) (2022-01-11)
