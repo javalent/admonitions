@@ -67,10 +67,10 @@ module.exports = {
         codemirror: "commonjs2 codemirror",
         
         
-        "\@codemirror/language": "commonjs2 @codemirror/language",
-        "\@codemirror/rangeset": "commonjs2 @codemirror/rangeset",
-        "\@codemirror/state": "commonjs @codemirror/state",
-        "\@codemirror/stream-parser": "commonjs2 @codemirror/stream-parser",
-        "\@codemirror/view": "commonjs2 @codemirror/view"
+        "@codemirror/language": "commonjs2 @codemirror/language",
+        "@codemirror/rangeset": "commonjs2 @codemirror/rangeset",
+        "@codemirror/state": "commonjs @codemirror/state",
+        "@codemirror/stream-parser": "commonjs2 @codemirror/stream-parser",
+        "@codemirror/view": "commonjs2 @codemirror/view"
     }
 };

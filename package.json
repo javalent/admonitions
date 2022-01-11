@@ -4,14 +4,12 @@
     "description": "Admonition block-styled content for Obsidian.md",
     "main": "main.js",
     "scripts": {
-        "build": "node esbuild.config.mjs production",
-        "dev": "node esbuild.config.mjs",
         "rollup:dev": "rollup --config rollup.config-dev.js -w",
         "rollup:publish": "rollup --config rollup.publish.js -w",
         "rollup:build": "rollup --config rollup.config.js",
-        "webpack:dev": "set NODE_OPTIONS=--openssl-legacy-provider && webpack --config webpack.dev.js -w",
-        "webpack:publish": "webpack --config webpack.publish.js",
-        "webpack:build": "npm run publish && webpack",
+        "dev": "set NODE_OPTIONS=--openssl-legacy-provider && webpack --config webpack.dev.js -w",
+        "publish": "webpack --config webpack.publish.js",
+        "build": "npm run publish && webpack",
         "release": "standard-version"
     },
     "standard-version": {
