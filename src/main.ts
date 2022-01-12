@@ -529,6 +529,7 @@ export default class ObsidianAdmonition extends Plugin {
                 }
 
                 update(update: ViewUpdate) {
+                    if (update.heightChanged) return;
                     if (!self.data.livePreviewMS) return;
                     const md = update.view.state.field(editorViewField);
                     if (!md.leaf?.view) return;
