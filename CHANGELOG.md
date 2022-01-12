@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [6.9.3](https://github.com/valentine195/obsidian-admonition/compare/6.9.2...6.9.3) (2022-01-12)
+
+
+### Bug Fixes
+
+* fixes issue with long scrolling notes with new MS syntax in LP (closes [#149](https://github.com/valentine195/obsidian-admonition/issues/149)) ([03582c6](https://github.com/valentine195/obsidian-admonition/commit/03582c661d77f49a605ae6231681fdadb8a55e92))
+
 ### [6.9.2](https://github.com/valentine195/obsidian-admonition/compare/6.9.1...6.9.2) (2022-01-11)
 
 
