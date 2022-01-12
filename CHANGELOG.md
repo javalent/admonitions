@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [6.9.4](https://github.com/valentine195/obsidian-admonition/compare/6.9.3...6.9.4) (2022-01-12)
+
+
+### Bug Fixes
+
+* Add release notes to releases ([ca4d88c](https://github.com/valentine195/obsidian-admonition/commit/ca4d88ca8f31078678bcbac3fa96139cc8a6e989))
+
 ### [6.9.3](https://github.com/valentine195/obsidian-admonition/compare/6.9.2...6.9.3) (2022-01-12)
 
 
