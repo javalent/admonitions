@@ -13,7 +13,8 @@
         "release": "standard-version"
     },
     "standard-version": {
-        "t": ""
+        "t": "",
+        "releaseCommitMessageFormat": "Obsidian Admonitions Release: v{{currentTag}}"
     },
     "keywords": [],
     "author": "Jeremy Valentine",
