@@ -270,7 +270,7 @@ input.is-invalid {
 }
 
 /** Live Preview */
-.is-live-preview .admonition-content > * {
+.is-live-preview .admonition, .is-live-preview .admonition-content > * {
     margin-top: 0px;
     margin-bottom: 0px;
 }
