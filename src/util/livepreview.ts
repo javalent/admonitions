@@ -1,5 +1,6 @@
 import type { SelectionRange, EditorState } from "@codemirror/state";
 import {
+    apiVersion,
     editorLivePreviewField,
     editorViewField,
     requireApiVersion
@@ -20,7 +21,10 @@ export const rangesInclude = (
 };
 
 export const isLivePreview = (state: EditorState) => {
-    if (requireApiVersion && requireApiVersion("0.13.21")) {
+    const md = state.field(editorViewField);
+    const { state: viewState } = md.leaf.getViewState() ?? {};
+
+    if (requireApiVersion && requireApiVersion("0.13.21") && false) {
         return state.field(editorLivePreviewField);
     } else {
         const md = state.field(editorViewField);

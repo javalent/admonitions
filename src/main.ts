@@ -561,7 +561,7 @@ export default class ObsidianAdmonition extends Plugin {
                     const targetElements: TokenSpec[] = [];
 
                     if (!isLivePreview(view.state)) return;
-                    
+
                     for (let { from, to } of view.visibleRanges) {
                         const tree = syntaxTree(view.state);
                         tree.iterate({
