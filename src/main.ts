@@ -26,8 +26,8 @@ import {
 } from "@codemirror/view";
 
 import { tokenClassNodeProp } from "@codemirror/stream-parser";
-import { RangeSetBuilder, Range } from "@codemirror/rangeset";
-import { StateEffect, StateField, SelectionRange } from "@codemirror/state";
+import { Range } from "@codemirror/rangeset";
+import { StateEffect, StateField } from "@codemirror/state";
 
 import {
     Admonition,
@@ -427,6 +427,14 @@ export default class ObsidianAdmonition extends Plugin {
             ) {
                 super();
             }
+            eq(widget: AdmonitionWidget) {
+                return (
+                    this.type == widget.type &&
+                    this.title == widget.title &&
+                    this.collapse == widget.collapse &&
+                    this.content == widget.content
+                );
+            }
             toDOM(view: EditorView): HTMLElement {
                 const admonitionElement = self.getAdmonitionElement(
                     this.type,
@@ -610,11 +618,7 @@ export default class ObsidianAdmonition extends Plugin {
                                 const content = split
                                     .slice(1, end > -1 ? end : undefined)
                                     .join("\n");
-                                console.log(
-                                    "🚀 ~ file: main.ts ~ line 623 ~ end",
-                                    end,
-                                    content
-                                );
+
                                 const to =
                                     from + line.length + content.length + 1;
 
