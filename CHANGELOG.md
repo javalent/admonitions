@@ -2,12 +2,29 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-### [6.9.4](https://github.com/valentine195/obsidian-admonition/compare/6.9.3...6.9.4) (2022-01-23)
+### [6.9.6](https://github.com/valentine195/obsidian-admonition/compare/6.9.5...6.9.6) (2022-01-18)
 
 
 ### Bug Fixes
 
-* fixes issue with an extra space in msdoc syntax not rendering ([0c08854](https://github.com/valentine195/obsidian-admonition/commit/0c0885461f7c410192d70bcf24253b878b129bdf))
+* improved live preview styling ([5a0c111](https://github.com/valentine195/obsidian-admonition/commit/5a0c11182c4935e491f52248123a98226e631660))
+* improves live preview detection ([4a941fc](https://github.com/valentine195/obsidian-admonition/commit/4a941fc6e0af271bf1996183d19b6a1fd295d2b5))
+* removed logs ([6a56b70](https://github.com/valentine195/obsidian-admonition/commit/6a56b706ed2248b4d142c37e7c314a4e5d6e68c9))
+* Update release notes again ([e9ba91f](https://github.com/valentine195/obsidian-admonition/commit/e9ba91f727a4c61ab9249f668c18760679616b2c))
+
+### [6.9.5](https://github.com/valentine195/obsidian-admonition/compare/6.9.4...6.9.5) (2022-01-12)
+
+
+### Bug Fixes
+
+* Remove Changelog boilerplate from release notes ([9ab1d18](https://github.com/valentine195/obsidian-admonition/commit/9ab1d18d4164e64ba74dcc151eff6cf1485ccb93))
+
+### [6.9.4](https://github.com/valentine195/obsidian-admonition/compare/6.9.3...6.9.4) (2022-01-12)
+
+
+### Bug Fixes
+
+* Add release notes to releases ([ca4d88c](https://github.com/valentine195/obsidian-admonition/commit/ca4d88ca8f31078678bcbac3fa96139cc8a6e989))
 
 ### [6.9.3](https://github.com/valentine195/obsidian-admonition/compare/6.9.2...6.9.3) (2022-01-12)
 

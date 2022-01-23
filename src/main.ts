@@ -1,6 +1,7 @@
 import {
     addIcon,
-    editorEditorField,
+    editorLivePreviewField,
+    requireApiVersion,
     editorViewField,
     MarkdownPostProcessor,
     MarkdownPostProcessorContext,
@@ -25,8 +26,8 @@ import {
 } from "@codemirror/view";
 
 import { tokenClassNodeProp } from "@codemirror/stream-parser";
-import { RangeSetBuilder, Range } from "@codemirror/rangeset";
-import { StateEffect, StateField, SelectionRange } from "@codemirror/state";
+import { Range } from "@codemirror/rangeset";
+import { StateEffect, StateField } from "@codemirror/state";
 
 import {
     Admonition,
@@ -106,6 +107,7 @@ import {
 } from "./util/icons";
 import { InsertAdmonitionModal } from "./modal";
 import "./assets/main.css";
+import { isLivePreview, rangesInclude } from "./util/livepreview";
 
 const DEFAULT_APP_SETTINGS: ISettingsData = {
     userAdmonitions: {},
@@ -425,6 +427,14 @@ export default class ObsidianAdmonition extends Plugin {
             ) {
                 super();
             }
+            eq(widget: AdmonitionWidget) {
+                return (
+                    this.type == widget.type &&
+                    this.title == widget.title &&
+                    this.collapse == widget.collapse &&
+                    this.content == widget.content
+                );
+            }
             toDOM(view: EditorView): HTMLElement {
                 const admonitionElement = self.getAdmonitionElement(
                     this.type,
@@ -531,15 +541,8 @@ export default class ObsidianAdmonition extends Plugin {
                 update(update: ViewUpdate) {
                     if (update.heightChanged) return;
                     if (!self.data.livePreviewMS) return;
-                    const md = update.view.state.field(editorViewField);
-                    if (!md.leaf?.view) return;
-                    const { state } = md.leaf?.getViewState() ?? {};
 
-                    if (
-                        state &&
-                        state.mode == "source" &&
-                        state.source == true
-                    ) {
+                    if (!isLivePreview(update.view.state)) {
                         if (this.source == false) {
                             this.source = true;
                             this.manager.updateDecos([]);
@@ -564,79 +567,71 @@ export default class ObsidianAdmonition extends Plugin {
                     if (!self.data.allowMSSyntax) return;
                     if (!self.data.livePreviewMS) return;
                     const targetElements: TokenSpec[] = [];
-                    const md = view.state.field(editorViewField);
-                    const { state } = md.leaf.getViewState() ?? {};
 
-                    if (
-                        state &&
-                        state.mode == "source" &&
-                        state.source == false
-                    ) {
-                        for (let { from, to } of view.visibleRanges) {
-                            const tree = syntaxTree(view.state);
-                            tree.iterate({
-                                from,
-                                to,
-                                enter: (types, from, _) => {
-                                    const tokenProps =
-                                        types.prop(tokenClassNodeProp);
+                    if (!isLivePreview(view.state)) return;
 
-                                    const props = new Set(
-                                        tokenProps?.split(" ")
-                                    );
-                                    if (!props.has("quote")) return;
+                    for (let { from, to } of view.visibleRanges) {
+                        const tree = syntaxTree(view.state);
+                        tree.iterate({
+                            from,
+                            to,
+                            enter: (types, from, _) => {
+                                const tokenProps =
+                                    types.prop(tokenClassNodeProp);
 
-                                    const original =
-                                        view.state.doc.sliceString(from);
-                                    const split = original.split("\n");
-                                    const line = split[0];
-                                    if (!/^> \[!.+\]/.test(line)) return;
+                                const props = new Set(tokenProps?.split(" "));
+                                if (!props.has("quote")) return;
 
-                                    const [, type, title, col] =
-                                        line.match(
-                                            /^> \[!(\w+)(?:: (.+))?\](x|\+|\-)?/
-                                        ) ?? [];
-                                    if (!type || !self.admonitions[type])
-                                        return;
-                                    let collapse;
-                                    switch (col) {
-                                        case "+": {
-                                            collapse = "open";
-                                            break;
-                                        }
-                                        case "-": {
-                                            collapse = "closed";
-                                            break;
-                                        }
-                                        case "x": {
-                                            break;
-                                        }
-                                        default: {
-                                            collapse = self.data.autoCollapse
-                                                ? self.data.defaultCollapseType
-                                                : null;
-                                        }
+                                const original =
+                                    view.state.doc.sliceString(from);
+                                const split = original.split("\n");
+                                const line = split[0];
+                                if (!/^> \[!.+\]/.test(line)) return;
+
+                                const [, type, title, col] =
+                                    line.match(
+                                        /^> \[!(\w+)(?:: (.+))?\](x|\+|\-)?/
+                                    ) ?? [];
+                                if (!type || !self.admonitions[type]) return;
+                                let collapse;
+                                switch (col) {
+                                    case "+": {
+                                        collapse = "open";
+                                        break;
                                     }
-                                    const end = split.findIndex(
-                                        (v) => !/^>/.test(v)
-                                    );
-                                    const content = split
-                                        .slice(1, end > -1 ? end : undefined)
-                                        .join("\n");
-                                    const to =
-                                        from + line.length + content.length + 1;
-
-                                    targetElements.push({
-                                        from,
-                                        to,
-                                        value: content,
-                                        title,
-                                        type,
-                                        collapse
-                                    });
+                                    case "-": {
+                                        collapse = "closed";
+                                        break;
+                                    }
+                                    case "x": {
+                                        break;
+                                    }
+                                    default: {
+                                        collapse = self.data.autoCollapse
+                                            ? self.data.defaultCollapseType
+                                            : null;
+                                    }
                                 }
-                            });
-                        }
+                                const end = split.findIndex(
+                                    (v) => !/^>/.test(v)
+                                );
+                                const content = split
+                                    .slice(1, end > -1 ? end : undefined)
+                                    .join("\n");
+
+                                const to =
+                                    from + line.length + content.length + 1;
+
+                                targetElements.push({
+                                    from,
+                                    to,
+                                    value: content,
+                                    title,
+                                    type,
+                                    collapse
+                                });
+                            }
+                        });
                     }
 
                     this.manager.updateDecos(targetElements);
@@ -1431,17 +1426,3 @@ ${editor.getDoc().getSelection()}\n--- admonition\n`
         return admonition;
     }
 }
-
-const rangesInclude = (
-    ranges: readonly SelectionRange[],
-    from: number,
-    to: number
-) => {
-    for (const range of ranges) {
-        const { from: rFrom, to: rTo } = range;
-        if (rFrom >= from && rFrom <= to) return true;
-        if (rTo >= from && rTo <= to) return true;
-        if (rFrom < from && rTo > to) return true;
-    }
-    return false;
-};

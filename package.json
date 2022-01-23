@@ -1,19 +1,22 @@
 {
     "name": "obsidian-admonition",
-    "version": "6.9.4",
+    "version": "6.9.6",
     "description": "Admonition block-styled content for Obsidian.md",
     "main": "main.js",
     "scripts": {
         "rollup:dev": "rollup --config rollup.config-dev.js -w",
         "rollup:publish": "rollup --config rollup.publish.js -w",
         "rollup:build": "rollup --config rollup.config.js",
-        "dev": "set NODE_OPTIONS=--openssl-legacy-provider && webpack --config webpack.dev.js -w",
+        "webpack:dev": "set NODE_OPTIONS=--openssl-legacy-provider && webpack --config webpack.dev.js -w",
         "publish": "webpack --config webpack.publish.js",
-        "build": "npm run publish && webpack",
+        "webpack:build": "npm run publish && webpack",
+        "dev": "node ./esbuild.config.mjs",
+        "build": "node ./esbuild.config.mjs production",
         "release": "standard-version"
     },
     "standard-version": {
-        "t": ""
+        "t": "",
+        "releaseCommitMessageFormat": "Obsidian Admonitions Release: v{{currentTag}}"
     },
     "keywords": [],
     "author": "Jeremy Valentine",
@@ -36,10 +39,10 @@
         "copy-webpack-plugin": "^9.0.1",
         "css-loader": "^6.2.0",
         "dotenv": "^10.0.0",
-        "esbuild": "^0.14.11",
+        "esbuild": "^0.13.15",
         "mini-css-extract-plugin": "^2.1.0",
         "object.fromentries": "^2.0.4",
-        "obsidian": "^0.13.11",
+        "obsidian": "^0.13.21",
         "raw-loader": "^4.0.2",
         "rollup": "^2.32.1",
         "rollup-plugin-css-only": "^3.1.0",
