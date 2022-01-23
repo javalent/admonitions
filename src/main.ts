@@ -351,7 +351,7 @@ export default class ObsidianAdmonition extends Plugin {
             if (!/^> \[!.+\]/.test(firstLine)) return;
 
             const [, type, title, col] =
-                firstLine.match(/^> \[!(\w+)(?:: (.+))?\](x|\+|\-)?/) ?? [];
+                firstLine.match(/^> \[!(\w+)(?::[ ]?(.+))?\](x|\+|\-)?/) ?? [];
 
             if (!type || !this.admonitions[type]) return;
 

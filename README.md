@@ -515,9 +515,14 @@ If you experience any bugs using this setting, please create an issue and I will
 
 ## Microsoft Document Syntax
 
-As of v6.8.0, an additional non-code block syntax can be used that is similar to the [Microsoft Document Syntax](https://docs.microsoft.com/en-us/contribute/markdown-reference) to render admonitions.
+As of v6.8.0, an additional non-code block syntax can be used that is inspired by the [Microsoft Document Syntax](https://docs.microsoft.com/en-us/contribute/markdown-reference) to render admonitions.
 
-> Please note: The type must be the same case as defined in settings.
+> **:warning: Please note:** 
+> 
+> Unlike the Microsoft Document Syntax, the type is **case sensitive.**
+> 
+> It must match an admonition type defined in settings **exactly**, and the default admonition types are defined in lower case.
+
 
 ```md
 > [!quote]
