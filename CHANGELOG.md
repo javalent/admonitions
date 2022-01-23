@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [6.9.7](https://github.com/valentine195/obsidian-admonition/compare/6.9.6...6.9.7) (2022-01-23)
+
+
+### Bug Fixes
+
+* fixes issue with an extra space in msdoc syntax not rendering ([0c08854](https://github.com/valentine195/obsidian-admonition/commit/0c0885461f7c410192d70bcf24253b878b129bdf))
+
 ### [6.9.6](https://github.com/valentine195/obsidian-admonition/compare/6.9.5...6.9.6) (2022-01-18)
 
 
