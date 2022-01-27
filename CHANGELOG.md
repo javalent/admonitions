@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [6.9.8](https://github.com/valentine195/obsidian-admonition/compare/6.9.7...6.9.8) (2022-01-27)
+
+
+### Bug Fixes
+
+* 🐛 MS Doc syntax is no longer case sensitive ([b2de6be](https://github.com/valentine195/obsidian-admonition/commit/b2de6be03c5885a2b6fd1c1935276a38a8d1d712))
+
 ### [6.9.7](https://github.com/valentine195/obsidian-admonition/compare/6.9.6...6.9.7) (2022-01-23)
 
 
