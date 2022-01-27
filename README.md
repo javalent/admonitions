@@ -517,12 +517,11 @@ If you experience any bugs using this setting, please create an issue and I will
 
 As of v6.8.0, an additional non-code block syntax can be used that is inspired by the [Microsoft Document Syntax](https://docs.microsoft.com/en-us/contribute/markdown-reference) to render admonitions.
 
-> **:warning: Please note:** 
-> 
-> Unlike the Microsoft Document Syntax, the type is **case sensitive.**
-> 
-> It must match an admonition type defined in settings **exactly**, and the default admonition types are defined in lower case.
-
+> **:warning: Please note:**
+>
+> Unlike the Microsoft Document Syntax, the type is not required to be upper case.
+>
+> The plugin will use an exact-match first, then try to find a case-insensitive match.
 
 ```md
 > [!quote]
