@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [6.9.9](https://github.com/valentine195/obsidian-admonition/compare/6.9.8...6.9.9) (2022-01-28)
+
+
+### Bug Fixes
+
+* 🐛 ordered lists in live preview now render correctly ([72d03b6](https://github.com/valentine195/obsidian-admonition/commit/72d03b6d312f45ad1b097b9a67071ba3304de85e))
+
 ### [6.9.8](https://github.com/valentine195/obsidian-admonition/compare/6.9.7...6.9.8) (2022-01-27)
 
 
