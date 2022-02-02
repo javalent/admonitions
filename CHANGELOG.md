@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [6.9.10](https://github.com/valentine195/obsidian-admonition/compare/6.9.9...6.9.10) (2022-02-02)
+
+
+### Bug Fixes
+
+* deferred onload to layout ready to improve plugin load times ([a9accc9](https://github.com/valentine195/obsidian-admonition/commit/a9accc9b44cdbc0531f7335b5c9d8c6d216c9422))
+
 ### [6.9.9](https://github.com/valentine195/obsidian-admonition/compare/6.9.8...6.9.9) (2022-01-28)
 
 
