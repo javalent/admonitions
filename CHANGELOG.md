@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [6.10.1](https://github.com/valentine195/obsidian-admonition/compare/6.10.0...6.10.1) (2022-02-02)
+
+
+### Bug Fixes
+
+* admonitions render again when restarting app ([5945f02](https://github.com/valentine195/obsidian-admonition/commit/5945f022e8138847c1e8c167e6f2007152dbbc73))
+
 ## [6.10.0](https://github.com/valentine195/obsidian-admonition/compare/6.9.10...6.10.0) (2022-02-02)
 
 
