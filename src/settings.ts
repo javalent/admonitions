@@ -47,6 +47,44 @@ export default class AdmonitionSetting extends PluginSettingTab {
         this.containerEl.addClass("admonition-settings");
         this.containerEl.createEl("h2", { text: t("Admonition Settings") });
 
+        const admonitionEl = this.containerEl.createDiv(
+            "admonitions-nested-settings"
+        );
+        new Setting(admonitionEl)
+            .setName(t("Add New"))
+            .setDesc(t("Add a new Admonition type."))
+            .addButton((button: ButtonComponent): ButtonComponent => {
+                let b = button
+                    .setTooltip(t("Add Additional"))
+                    .setButtonText("+")
+                    .onClick(async () => {
+                        let modal = new SettingsModal(this.plugin);
+
+                        modal.onClose = async () => {
+                            if (modal.saved) {
+                                this.plugin.addAdmonition({
+                                    type: modal.type,
+                                    color: modal.color,
+                                    icon: modal.icon,
+                                    command: false,
+                                    title: modal.title,
+                                    injectColor: modal.injectColor,
+                                    noTitle: modal.noTitle,
+                                    copy: modal.copy
+                                });
+                                this.display();
+                            }
+                        };
+
+                        modal.open();
+                    });
+
+                return b;
+            });
+
+        this.additionalEl = admonitionEl.createDiv("additional");
+        await this.buildTypes();
+
         this.buildAdmonitions(
             this.containerEl.createEl("details", {
                 cls: "admonitions-nested-settings",
@@ -88,6 +126,16 @@ export default class AdmonitionSetting extends PluginSettingTab {
         new Setting(summary).setHeading().setName("Admonitions");
         summary.createDiv("collapser").createDiv("handle");
 
+        new Setting(containerEl)
+            .setName("Add Drop Shadow")
+            .setDesc("A drop shadow will be added to admonitions.")
+            .addToggle((t) => {
+                t.setValue(this.plugin.data.dropShadow).onChange(async (v) => {
+                    this.plugin.data.dropShadow = v;
+                    this.display();
+                    await this.plugin.saveSettings();
+                });
+            });
         new Setting(containerEl)
             .setName(t("Collapsible by Default"))
             .setDesc(
@@ -185,41 +233,6 @@ export default class AdmonitionSetting extends PluginSettingTab {
                         await this.buildTypes();
                     })
             );
-
-        new Setting(containerEl)
-            .setName(t("Add New"))
-            .setDesc(t("Add a new Admonition type."))
-            .addButton((button: ButtonComponent): ButtonComponent => {
-                let b = button
-                    .setTooltip(t("Add Additional"))
-                    .setButtonText("+")
-                    .onClick(async () => {
-                        let modal = new SettingsModal(this.plugin);
-
-                        modal.onClose = async () => {
-                            if (modal.saved) {
-                                this.plugin.addAdmonition({
-                                    type: modal.type,
-                                    color: modal.color,
-                                    icon: modal.icon,
-                                    command: false,
-                                    title: modal.title,
-                                    injectColor: modal.injectColor,
-                                    noTitle: modal.noTitle,
-                                    copy: modal.copy
-                                });
-                                this.display();
-                            }
-                        };
-
-                        modal.open();
-                    });
-
-                return b;
-            });
-
-        this.additionalEl = containerEl.createDiv("additional");
-        await this.buildTypes();
     }
 
     buildAdvanced(containerEl: HTMLDetailsElement) {

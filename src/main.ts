@@ -125,7 +125,8 @@ const DEFAULT_APP_SETTINGS: ISettingsData = {
     injectColor: true,
     parseTitles: true,
     allowMSSyntax: true,
-    livePreviewMS: true
+    livePreviewMS: true,
+    dropShadow: true
 };
 
 export default class ObsidianAdmonition extends Plugin {
@@ -1318,6 +1319,9 @@ ${editor.getDoc().getSelection()}\n--- admonition\n`
         if (collapse) {
             titleEl.createDiv("collapser").createDiv("handle");
         }
+        if (!this.data.dropShadow) {
+            admonition.addClass("no-drop");
+        }
         return admonition;
     }
     getAdmonitionContentElement(
@@ -1446,6 +1450,9 @@ ${editor.getDoc().getSelection()}\n--- admonition\n`
 
         if (collapse) {
             titleEl.createDiv("collapser").createDiv("handle");
+        }
+        if (!this.data.dropShadow) {
+            admonition.addClass("no-drop");
         }
         return admonition;
     }

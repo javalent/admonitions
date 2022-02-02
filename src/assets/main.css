@@ -317,6 +317,28 @@ input.is-invalid {
     border-bottom: 1px solid var(--background-modifier-border);
 }
 
+/** No drop shadow */
+.admonition.no-drop {
+    box-shadow: none;
+}
+.admonition.no-drop > .admonition-title.no-title + .admonition-content-holder {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.admonition.no-drop .admonition .admonition-content-holder {
+    border-right: 1px solid rgba(var(--admonition-color), 0.2);
+    border-bottom: 1px solid rgba(var(--admonition-color), 0.2);
+}
+.admonition.no-drop
+    .admonition
+    .admonition-title.no-title
+    + .admonition-content-holder {
+    border-top: 1px solid rgba(var(--admonition-color), 0.2);
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
 /** Live Preview */
 .is-live-preview .admonition {
     margin-top: var(--admonition-margin-top-lp);

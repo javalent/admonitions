@@ -34,6 +34,7 @@ export interface ISettingsData {
     parseTitles: boolean;
     allowMSSyntax: boolean;
     livePreviewMS: boolean;
+    dropShadow: boolean;
 }
 
 export type AdmonitionIconDefinition = {
