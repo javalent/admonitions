@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [6.10.0](https://github.com/valentine195/obsidian-admonition/compare/6.9.10...6.10.0) (2022-02-02)
+
+
+### Features
+
+* adds Drop Shadow setting to remove drop shadow ([d6d598e](https://github.com/valentine195/obsidian-admonition/commit/d6d598eee14a894c0ef06b6291a51f21f0c67967))
+
 ### [6.9.10](https://github.com/valentine195/obsidian-admonition/compare/6.9.9...6.9.10) (2022-02-02)
 
 
