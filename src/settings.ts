@@ -43,192 +43,50 @@ export default class AdmonitionSetting extends PluginSettingTab {
         this.plugin = plugin;
     }
     async display(): Promise<void> {
-        let { containerEl } = this;
+        this.containerEl.empty();
+        this.containerEl.addClass("admonition-settings");
+        this.containerEl.createEl("h2", { text: t("Admonition Settings") });
 
+        this.buildAdmonitions(
+            this.containerEl.createEl("details", {
+                cls: "admonitions-nested-settings",
+                attr: {
+                    open: "open"
+                }
+            })
+        );
+        this.buildOtherSyntaxes(
+            this.containerEl.createEl("details", {
+                cls: "admonitions-nested-settings",
+                attr: {
+                    open: "open"
+                }
+            })
+        );
+        this.buildAdvanced(
+            this.containerEl.createEl("details", {
+                cls: "admonitions-nested-settings",
+                attr: {
+                    open: "open"
+                }
+            })
+        );
+
+        const div = this.containerEl.createDiv("coffee");
+        div.createEl("a", {
+            href: "https://www.buymeacoffee.com/valentine195"
+        }).createEl("img", {
+            attr: {
+                src: "https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=☕&slug=valentine195&button_colour=e3e7ef&font_colour=262626&font_family=Inter&outline_colour=262626&coffee_colour=ff0000"
+            }
+        });
+    }
+
+    async buildAdmonitions(containerEl: HTMLDetailsElement) {
         containerEl.empty();
-        containerEl.addClass("admonition-settings");
-        containerEl.createEl("h2", { text: t("Admonition Settings") });
-
-        new Setting(containerEl)
-            .setName(
-                createFragment((e) => {
-                    e.appendChild(WARNING_ICON.cloneNode(true));
-                    e.createSpan({ text: t(" Markdown Syntax Highlighting") });
-                })
-            )
-            .setDesc(
-                t(
-                    "Use Obsidian's markdown syntax highlighter in admonition code blocks. This setting is experimental and could cause errors."
-                )
-            )
-            .addToggle((t) => {
-                t.setValue(this.plugin.data.syntaxHighlight);
-                t.onChange(async (v) => {
-                    this.plugin.data.syntaxHighlight = v;
-                    if (v) {
-                        this.plugin.turnOnSyntaxHighlighting();
-                    } else {
-                        this.plugin.turnOffSyntaxHighlighting();
-                    }
-                    await this.plugin.saveSettings();
-                });
-            });
-
-        new Setting(containerEl)
-            .setName(
-                createFragment((e) => {
-                    e.appendChild(WARNING_ICON.cloneNode(true));
-                    e.createSpan({ text: t(" Sync Links to Metadata Cache") });
-                })
-            )
-            .setDesc(
-                t(
-                    "Try to sync internal links to the metadata cache to display in graph view. This setting could have unintended consequences. Use at your own risk."
-                )
-            )
-            .addToggle((t) => {
-                t.setValue(this.plugin.data.syncLinks).onChange(async (v) => {
-                    this.plugin.data.syncLinks = v;
-                    this.display();
-                    await this.plugin.saveSettings();
-                });
-            });
-
-        new Setting(containerEl)
-            .setName(
-                createFragment((e) => {
-                    e.appendChild(WARNING_ICON.cloneNode(true));
-                    e.createSpan({
-                        text: t(" Enable Non-codeblock Admonitions")
-                    });
-                })
-            )
-            .setDesc(
-                createFragment((e) => {
-                    e.createSpan({
-                        text: t("Allows admonitions to be created using ")
-                    });
-                    e.createEl("code", { text: "!!! ad-<type>" });
-                    e.createSpan({
-                        text: t(" or ")
-                    });
-                    e.createEl("code", { text: "??? ad-<type>" });
-                    e.createSpan({
-                        text: t(", instead of using a code block.")
-                    });
-                })
-            )
-            .addToggle((t) => {
-                t.setValue(this.plugin.data.enableMarkdownProcessor).onChange(
-                    async (v) => {
-                        this.plugin.data.enableMarkdownProcessor = v;
-                        if (v) {
-                            this.plugin.enableMarkdownProcessor();
-                        } else {
-                            this.plugin.disableMarkdownProcessor();
-                        }
-                        this.display();
-                        await this.plugin.saveSettings();
-                    }
-                );
-            });
-
-        new Setting(containerEl)
-            .setName("Allow Microsoft Document Syntax")
-            .setDesc(
-                createFragment((e) => {
-                    e.createSpan({
-                        text: "The plugin will render blockquotes created using the "
-                    });
-                    e.createEl("a", {
-                        href: "https://docs.microsoft.com/en-us/contribute/markdown-reference",
-                        text: "Microsoft Document Syntax."
-                    });
-                })
-            )
-            .addToggle((t) => {
-                t.setValue(this.plugin.data.allowMSSyntax).onChange((v) => {
-                    this.plugin.data.allowMSSyntax = v;
-                    this.display();
-                    this.plugin.saveSettings();
-                });
-            });
-        if (this.plugin.data.allowMSSyntax) {
-            new Setting(containerEl)
-                .setName("Render Microsoft Document Syntax in Live Preview")
-                .setDesc(
-                    createFragment((e) => {
-                        e.createSpan({
-                            text: "The plugin will render blockquotes created using the "
-                        });
-                        e.createEl("a", {
-                            href: "https://docs.microsoft.com/en-us/contribute/markdown-reference",
-                            text: "Microsoft Document Syntax"
-                        });
-                        e.createSpan({
-                            text: " in live preview mode."
-                        });
-                    })
-                )
-                .addToggle((t) => {
-                    t.setValue(this.plugin.data.livePreviewMS).onChange((v) => {
-                        this.plugin.data.livePreviewMS = v;
-                        this.plugin.saveSettings();
-                    });
-                });
-        }
-
-        new Setting(containerEl)
-            .setName("Generate JS for Publish")
-            .setDesc(
-                createFragment((f) => {
-                    f.createSpan({
-                        text: "Generate a javascript file to place in your "
-                    });
-                    f.createEl("code", { text: "publish.js" });
-                    f.createSpan({ text: "file." });
-                    f.createEl("br");
-                    f.createEl("strong", {
-                        text: "Please note that this can only be done on self-hosted publish sites."
-                    });
-                })
-            )
-            .addButton((b) => {
-                b.setButtonText("Generate");
-                b.onClick((evt) => {
-                    const admonition_icons: {
-                        [admonition_type: string]: {
-                            icon: string;
-                            color: string;
-                        };
-                    } = {};
-
-                    for (let key in this.plugin.admonitions) {
-                        const value = this.plugin.admonitions[key];
-
-                        admonition_icons[key] = {
-                            icon: getIconNode(value.icon).outerHTML,
-                            color: value.color
-                        };
-                    }
-
-                    const js = CONTENT.replace(
-                        "const ADMONITION_ICON_MAP = {}",
-                        "const ADMONITION_ICON_MAP = " +
-                            JSON.stringify(admonition_icons)
-                    );
-                    let csvFile = new Blob([js], {
-                        type: "text/javascript"
-                    });
-                    let downloadLink = document.createElement("a");
-                    downloadLink.download = "publish.admonition.js";
-                    downloadLink.href = window.URL.createObjectURL(csvFile);
-                    downloadLink.style.display = "none";
-                    document.body.appendChild(downloadLink);
-                    downloadLink.click();
-                    document.body.removeChild(downloadLink);
-                });
-            });
+        const summary = containerEl.createEl("summary");
+        new Setting(summary).setHeading().setName("Admonitions");
+        summary.createDiv("collapser").createDiv("handle");
 
         new Setting(containerEl)
             .setName(t("Collapsible by Default"))
@@ -328,10 +186,7 @@ export default class AdmonitionSetting extends PluginSettingTab {
                     })
             );
 
-        const additionalContainer = containerEl.createDiv(
-            "admonition-setting-additional-container"
-        );
-        new Setting(additionalContainer)
+        new Setting(containerEl)
             .setName(t("Add New"))
             .setDesc(t("Add a new Admonition type."))
             .addButton((button: ButtonComponent): ButtonComponent => {
@@ -363,18 +218,209 @@ export default class AdmonitionSetting extends PluginSettingTab {
                 return b;
             });
 
-        this.additionalEl = additionalContainer.createDiv("additional");
+        this.additionalEl = containerEl.createDiv("additional");
         await this.buildTypes();
-
-        const div = containerEl.createDiv("coffee");
-        div.createEl("a", {
-            href: "https://www.buymeacoffee.com/valentine195"
-        }).createEl("img", {
-            attr: {
-                src: "https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=☕&slug=valentine195&button_colour=e3e7ef&font_colour=262626&font_family=Inter&outline_colour=262626&coffee_colour=ff0000"
-            }
-        });
     }
+
+    buildAdvanced(containerEl: HTMLDetailsElement) {
+        containerEl.empty();
+        const summary = containerEl.createEl("summary");
+        new Setting(summary).setHeading().setName("Advanced Settings");
+        summary.createDiv("collapser").createDiv("handle");
+
+        new Setting(containerEl)
+            .setName(
+                createFragment((e) => {
+                    e.appendChild(WARNING_ICON.cloneNode(true));
+                    e.createSpan({
+                        text: t(" Markdown Syntax Highlighting")
+                    });
+                })
+            )
+            .setDesc(
+                t(
+                    "Use Obsidian's markdown syntax highlighter in admonition code blocks. This setting is experimental and could cause errors."
+                )
+            )
+            .addToggle((t) => {
+                t.setValue(this.plugin.data.syntaxHighlight);
+                t.onChange(async (v) => {
+                    this.plugin.data.syntaxHighlight = v;
+                    if (v) {
+                        this.plugin.turnOnSyntaxHighlighting();
+                    } else {
+                        this.plugin.turnOffSyntaxHighlighting();
+                    }
+                    await this.plugin.saveSettings();
+                });
+            });
+
+        new Setting(containerEl)
+            .setName(
+                createFragment((e) => {
+                    e.appendChild(WARNING_ICON.cloneNode(true));
+                    e.createSpan({
+                        text: t(" Sync Links to Metadata Cache")
+                    });
+                })
+            )
+            .setDesc(
+                t(
+                    "Try to sync internal links to the metadata cache to display in graph view. This setting could have unintended consequences. Use at your own risk."
+                )
+            )
+            .addToggle((t) => {
+                t.setValue(this.plugin.data.syncLinks).onChange(async (v) => {
+                    this.plugin.data.syncLinks = v;
+                    this.display();
+                    await this.plugin.saveSettings();
+                });
+            });
+
+        new Setting(containerEl)
+            .setName("Generate JS for Publish")
+            .setDesc(
+                createFragment((f) => {
+                    f.createSpan({
+                        text: "Generate a javascript file to place in your "
+                    });
+                    f.createEl("code", { text: "publish.js" });
+                    f.createSpan({ text: "file." });
+                    f.createEl("br");
+                    f.createEl("strong", {
+                        text: "Please note that this can only be done on self-hosted publish sites."
+                    });
+                })
+            )
+            .addButton((b) => {
+                b.setButtonText("Generate");
+                b.onClick((evt) => {
+                    const admonition_icons: {
+                        [admonition_type: string]: {
+                            icon: string;
+                            color: string;
+                        };
+                    } = {};
+
+                    for (let key in this.plugin.admonitions) {
+                        const value = this.plugin.admonitions[key];
+
+                        admonition_icons[key] = {
+                            icon: getIconNode(value.icon).outerHTML,
+                            color: value.color
+                        };
+                    }
+
+                    const js = CONTENT.replace(
+                        "const ADMONITION_ICON_MAP = {}",
+                        "const ADMONITION_ICON_MAP = " +
+                            JSON.stringify(admonition_icons)
+                    );
+                    let csvFile = new Blob([js], {
+                        type: "text/javascript"
+                    });
+                    let downloadLink = document.createElement("a");
+                    downloadLink.download = "publish.admonition.js";
+                    downloadLink.href = window.URL.createObjectURL(csvFile);
+                    downloadLink.style.display = "none";
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                    document.body.removeChild(downloadLink);
+                });
+            });
+    }
+
+    buildOtherSyntaxes(containerEl: HTMLDetailsElement) {
+        containerEl.empty();
+        const summary = containerEl.createEl("summary");
+        new Setting(summary).setHeading().setName("Additional Syntaxes");
+        summary.createDiv("collapser").createDiv("handle");
+
+        new Setting(containerEl)
+            .setName(
+                createFragment((e) => {
+                    e.appendChild(WARNING_ICON.cloneNode(true));
+                    e.createSpan({
+                        text: t(" Enable Non-codeblock Admonitions")
+                    });
+                })
+            )
+            .setDesc(
+                createFragment((e) => {
+                    e.createSpan({
+                        text: t("Allows admonitions to be created using ")
+                    });
+                    e.createEl("code", { text: "!!! ad-<type>" });
+                    e.createSpan({
+                        text: t(" or ")
+                    });
+                    e.createEl("code", { text: "??? ad-<type>" });
+                    e.createSpan({
+                        text: t(", instead of using a code block.")
+                    });
+                })
+            )
+            .addToggle((t) => {
+                t.setValue(this.plugin.data.enableMarkdownProcessor).onChange(
+                    async (v) => {
+                        this.plugin.data.enableMarkdownProcessor = v;
+                        if (v) {
+                            this.plugin.enableMarkdownProcessor();
+                        } else {
+                            this.plugin.disableMarkdownProcessor();
+                        }
+                        this.display();
+                        await this.plugin.saveSettings();
+                    }
+                );
+            });
+
+        new Setting(containerEl)
+            .setName("Allow Microsoft Document Syntax")
+            .setDesc(
+                createFragment((e) => {
+                    e.createSpan({
+                        text: "The plugin will render blockquotes created using the "
+                    });
+                    e.createEl("a", {
+                        href: "https://docs.microsoft.com/en-us/contribute/markdown-reference",
+                        text: "Microsoft Document Syntax."
+                    });
+                })
+            )
+            .addToggle((t) => {
+                t.setValue(this.plugin.data.allowMSSyntax).onChange((v) => {
+                    this.plugin.data.allowMSSyntax = v;
+                    this.display();
+                    this.plugin.saveSettings();
+                });
+            });
+        if (this.plugin.data.allowMSSyntax) {
+            new Setting(containerEl)
+                .setName("Render Microsoft Document Syntax in Live Preview")
+                .setDesc(
+                    createFragment((e) => {
+                        e.createSpan({
+                            text: "The plugin will render blockquotes created using the "
+                        });
+                        e.createEl("a", {
+                            href: "https://docs.microsoft.com/en-us/contribute/markdown-reference",
+                            text: "Microsoft Document Syntax"
+                        });
+                        e.createSpan({
+                            text: " in live preview mode."
+                        });
+                    })
+                )
+                .addToggle((t) => {
+                    t.setValue(this.plugin.data.livePreviewMS).onChange((v) => {
+                        this.plugin.data.livePreviewMS = v;
+                        this.plugin.saveSettings();
+                    });
+                });
+        }
+    }
+
     async buildTypes() {
         this.additionalEl.empty();
         for (let a in this.plugin.data.userAdmonitions) {

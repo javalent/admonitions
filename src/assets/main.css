@@ -138,30 +138,15 @@ details.admonition[open] > summary > .collapser > .handle {
 }
 
 /** Settings */
-.admonition-setting-additional-container
-    > .setting-item:not(.setting-item-heading) {
-    border: 0px;
-}
-
-.admonition-setting-additional-container {
-    border-bottom: 1px solid var(--background-modifier-border);
-    border-top: 1px solid var(--background-modifier-border);
-    padding: 18px 0 0 0;
-}
-
-.admonition-setting-additional-container > .setting-item-heading:only-child {
-    padding-bottom: 18px;
-}
-
-.admonition-setting-additional-container > .additional {
+.admonition-settings .additional {
     margin: 6px 12px;
 }
-.admonition-setting-additional-container > .additional > .setting-item {
+.admonition-settings .additional > .setting-item {
     border-top: 0;
     padding-top: 9px;
 }
-.admonition-setting-additional-container
-    > .additional
+.admonition-settings
+    .additional
     > .setting-item
     > .setting-item-control
     > *:first-child {
@@ -276,6 +261,62 @@ input.is-invalid {
     border-color: var(--background-modifier-border-focus);
 }
 
+.admonition-settings details > summary {
+    outline: none;
+    display: block !important;
+    list-style: none !important;
+    list-style-type: none !important;
+    min-height: 1rem;
+    border-top-left-radius: 0.1rem;
+    border-top-right-radius: 0.1rem;
+    cursor: pointer;
+    position: relative;
+}
+
+.admonition-settings details > summary::-webkit-details-marker,
+.admonition-settings details > summary::marker {
+    display: none !important;
+}
+
+.admonition-settings details > summary > .collapser {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
+    content: "";
+}
+
+.admonition-settings details > summary > .collapser > .handle {
+    transform: rotate(0deg);
+    transition: transform 0.25s;
+    background-color: currentColor;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-image: var(--admonition-details-icon);
+    mask-image: var(--admonition-details-icon);
+    width: 20px;
+    height: 20px;
+}
+
+.admonition-settings details[open] > summary > .collapser > .handle {
+    transform: rotate(90deg);
+}
+
+.admonitions-nested-settings .setting-item {
+    border: 0px;
+    padding-bottom: 0;
+}
+.admonitions-nested-settings {
+    padding-bottom: 18px;
+}
+.admonitions-nested-settings[open] .setting-item-heading,
+.admonitions-nested-settings:not(details) .setting-item-heading {
+    border-top: 0px;
+    border-bottom: 1px solid var(--background-modifier-border);
+}
+
 /** Live Preview */
 .is-live-preview .admonition {
     margin-top: var(--admonition-margin-top-lp);
@@ -299,7 +340,6 @@ input.is-invalid {
 }
 
 .is-live-preview .admonition-content ul,
-.is-live-preview .admonition-content ol
- {
+.is-live-preview .admonition-content ol {
     white-space: normal;
 }
