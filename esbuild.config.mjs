@@ -51,10 +51,16 @@ esbuild
         ],
         format: "cjs",
         watch: !prod,
+        minify: prod,
         target: "es2020",
         logLevel: "info",
-        sourcemap: prod ? false : "inline",
+        sourcemap: !prod ? "inline" : false,
         treeShaking: true,
-        outdir: dir
+        outdir: dir,
+        metafile: true
+    })
+    .then(async (result) => {
+        let text = await esbuild.analyzeMetafile(result.metafile);
+        console.log(text);
     })
     .catch(() => process.exit(1));
