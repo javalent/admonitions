@@ -242,108 +242,115 @@ export default class ObsidianAdmonition extends Plugin {
     async onload(): Promise<void> {
         console.log("Obsidian Admonition loaded");
 
-        await this.loadSettings();
+        this.app.workspace.onLayoutReady(async () => {
+            await this.loadSettings();
 
-        this.addSettingTab(new AdmonitionSetting(this.app, this));
+            this.addSettingTab(new AdmonitionSetting(this.app, this));
 
-        addIcon(ADD_COMMAND_NAME.toString(), ADD_ADMONITION_COMMAND_ICON);
-        addIcon(REMOVE_COMMAND_NAME.toString(), REMOVE_ADMONITION_COMMAND_ICON);
-
-        if (this.data.enableMarkdownProcessor) {
-            this.enableMarkdownProcessor();
-        }
-
-        Object.keys(this.admonitions).forEach((type) => {
-            const processor = this.registerMarkdownCodeBlockProcessor(
-                `ad-${type}`,
-                (src, el, ctx) => this.postprocessor(type, src, el, ctx)
+            addIcon(ADD_COMMAND_NAME.toString(), ADD_ADMONITION_COMMAND_ICON);
+            addIcon(
+                REMOVE_COMMAND_NAME.toString(),
+                REMOVE_ADMONITION_COMMAND_ICON
             );
-            this.postprocessors.set(type, processor);
-            if (this.admonitions[type].command) {
-                this.registerCommandsFor(this.admonitions[type]);
+
+            if (this.data.enableMarkdownProcessor) {
+                this.enableMarkdownProcessor();
             }
-        });
-        if (this.data.syntaxHighlight) {
-            this.turnOnSyntaxHighlighting();
-        }
 
-        /** Add generic commands. */
-        this.addCommand({
-            id: "collapse-admonitions",
-            name: "Collapse Admonitions in Note",
-            checkCallback: (checking) => {
-                // checking if the command should appear in the Command Palette
-                if (checking) {
-                    // make sure the active view is a MarkdownView.
-                    return !!this.app.workspace.getActiveViewOfType(
-                        MarkdownView
-                    );
-                }
-                let view = this.app.workspace.getActiveViewOfType(MarkdownView);
-                if (!view || !(view instanceof MarkdownView)) return;
-
-                let admonitions = view.contentEl.querySelectorAll(
-                    "details[open].admonition-plugin"
+            Object.keys(this.admonitions).forEach((type) => {
+                const processor = this.registerMarkdownCodeBlockProcessor(
+                    `ad-${type}`,
+                    (src, el, ctx) => this.postprocessor(type, src, el, ctx)
                 );
-                for (let i = 0; i < admonitions.length; i++) {
-                    let admonition = admonitions[i];
-                    admonition.removeAttribute("open");
+                this.postprocessors.set(type, processor);
+                if (this.admonitions[type].command) {
+                    this.registerCommandsFor(this.admonitions[type]);
                 }
+            });
+            if (this.data.syntaxHighlight) {
+                this.turnOnSyntaxHighlighting();
             }
-        });
-        this.addCommand({
-            id: "open-admonitions",
-            name: "Open Admonitions in Note",
-            checkCallback: (checking) => {
-                // checking if the command should appear in the Command Palette
-                if (checking) {
-                    // make sure the active view is a MarkdownView.
-                    return !!this.app.workspace.getActiveViewOfType(
-                        MarkdownView
+
+            /** Add generic commands. */
+            this.addCommand({
+                id: "collapse-admonitions",
+                name: "Collapse Admonitions in Note",
+                checkCallback: (checking) => {
+                    // checking if the command should appear in the Command Palette
+                    if (checking) {
+                        // make sure the active view is a MarkdownView.
+                        return !!this.app.workspace.getActiveViewOfType(
+                            MarkdownView
+                        );
+                    }
+                    let view =
+                        this.app.workspace.getActiveViewOfType(MarkdownView);
+                    if (!view || !(view instanceof MarkdownView)) return;
+
+                    let admonitions = view.contentEl.querySelectorAll(
+                        "details[open].admonition-plugin"
                     );
+                    for (let i = 0; i < admonitions.length; i++) {
+                        let admonition = admonitions[i];
+                        admonition.removeAttribute("open");
+                    }
                 }
-                let view = this.app.workspace.getActiveViewOfType(MarkdownView);
-                if (!view || !(view instanceof MarkdownView)) return;
+            });
+            this.addCommand({
+                id: "open-admonitions",
+                name: "Open Admonitions in Note",
+                checkCallback: (checking) => {
+                    // checking if the command should appear in the Command Palette
+                    if (checking) {
+                        // make sure the active view is a MarkdownView.
+                        return !!this.app.workspace.getActiveViewOfType(
+                            MarkdownView
+                        );
+                    }
+                    let view =
+                        this.app.workspace.getActiveViewOfType(MarkdownView);
+                    if (!view || !(view instanceof MarkdownView)) return;
 
-                let admonitions = view.contentEl.querySelectorAll(
-                    "details:not([open]).admonition-plugin"
-                );
-                for (let i = 0; i < admonitions.length; i++) {
-                    let admonition = admonitions[i];
-                    admonition.setAttribute("open", "open");
-                }
-            }
-        });
-
-        this.addCommand({
-            id: "insert-admonition",
-            name: "Insert Admonition",
-            editorCallback: (editor, view) => {
-                let suggestor = new InsertAdmonitionModal(this, editor);
-                suggestor.open();
-            }
-        });
-
-        this.registerEvent(
-            this.app.metadataCache.on("resolve", (file) => {
-                if (!this.data.syncLinks) return;
-                if (this.app.workspace.getActiveFile() != file) return;
-
-                const view =
-                    this.app.workspace.getActiveViewOfType(MarkdownView);
-
-                if (!view || !(view instanceof MarkdownView)) return;
-
-                const admonitionLinks =
-                    view.contentEl.querySelectorAll<HTMLAnchorElement>(
-                        ".admonition:not(.admonition-plugin-async) a.internal-link"
+                    let admonitions = view.contentEl.querySelectorAll(
+                        "details:not([open]).admonition-plugin"
                     );
+                    for (let i = 0; i < admonitions.length; i++) {
+                        let admonition = admonitions[i];
+                        admonition.setAttribute("open", "open");
+                    }
+                }
+            });
 
-                this.addLinksToCache(admonitionLinks, file.path);
-            })
-        );
+            this.addCommand({
+                id: "insert-admonition",
+                name: "Insert Admonition",
+                editorCallback: (editor, view) => {
+                    let suggestor = new InsertAdmonitionModal(this, editor);
+                    suggestor.open();
+                }
+            });
 
-        this.enableMSSyntax();
+            this.registerEvent(
+                this.app.metadataCache.on("resolve", (file) => {
+                    if (!this.data.syncLinks) return;
+                    if (this.app.workspace.getActiveFile() != file) return;
+
+                    const view =
+                        this.app.workspace.getActiveViewOfType(MarkdownView);
+
+                    if (!view || !(view instanceof MarkdownView)) return;
+
+                    const admonitionLinks =
+                        view.contentEl.querySelectorAll<HTMLAnchorElement>(
+                            ".admonition:not(.admonition-plugin-async) a.internal-link"
+                        );
+
+                    this.addLinksToCache(admonitionLinks, file.path);
+                })
+            );
+
+            this.enableMSSyntax();
+        });
     }
     enableMSSyntax() {
         this.registerMarkdownPostProcessor((el, ctx) => {
