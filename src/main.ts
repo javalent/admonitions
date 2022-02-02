@@ -59,6 +59,10 @@ declare module "obsidian" {
             commands: { [id: string]: Command };
             editorCommands: { [id: string]: Command };
             findCommand(id: string): Command;
+            executeCommandById(id: string): void;
+            listCommands(): Command[];
+            executeCommandById(id: string): void;
+            findCommand(id: string): Command;
         };
     }
     interface MarkdownPreviewView {
@@ -352,10 +356,23 @@ export default class ObsidianAdmonition extends Plugin {
             const firstLine = text[section.lineStart];
             if (!/^> \[!.+\]/.test(firstLine)) return;
 
-            const [, type, title, col] =
+            let [, type, title, col] =
                 firstLine.match(/^> \[!(\w+)(?::[ ]?(.+))?\](x|\+|\-)?/) ?? [];
 
-            if (!type || !this.admonitions[type]) return;
+            if (
+                !type ||
+                (!this.admonitions[type] &&
+                    !Object.keys(this.admonitions)
+                        .map((k) => k.toLowerCase())
+                        .includes(type.toLowerCase()))
+            )
+                return;
+            if (!(type in this.admonitions)) {
+                type = Object.keys(this.admonitions).find(
+                    (k) => k.toLowerCase() == type.toLowerCase()
+                );
+            }
+            if (!type) return;
 
             let collapse;
             switch (col) {

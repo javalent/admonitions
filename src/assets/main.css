@@ -298,6 +298,8 @@ input.is-invalid {
     margin-bottom: 16px;
 }
 
-.is-live-preview .admonition-content ul {
+.is-live-preview .admonition-content ul,
+.is-live-preview .admonition-content ol
+ {
     white-space: normal;
 }
