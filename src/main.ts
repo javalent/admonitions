@@ -242,10 +242,18 @@ export default class ObsidianAdmonition extends Plugin {
     }
     async onload(): Promise<void> {
         console.log("Obsidian Admonition loaded");
-
+        await this.loadSettings();
+        Object.keys(this.admonitions).forEach((type) => {
+            const processor = this.registerMarkdownCodeBlockProcessor(
+                `ad-${type}`,
+                (src, el, ctx) => this.postprocessor(type, src, el, ctx)
+            );
+            this.postprocessors.set(type, processor);
+            if (this.admonitions[type].command) {
+                this.registerCommandsFor(this.admonitions[type]);
+            }
+        });
         this.app.workspace.onLayoutReady(async () => {
-            await this.loadSettings();
-
             this.addSettingTab(new AdmonitionSetting(this.app, this));
 
             addIcon(ADD_COMMAND_NAME.toString(), ADD_ADMONITION_COMMAND_ICON);
@@ -258,16 +266,6 @@ export default class ObsidianAdmonition extends Plugin {
                 this.enableMarkdownProcessor();
             }
 
-            Object.keys(this.admonitions).forEach((type) => {
-                const processor = this.registerMarkdownCodeBlockProcessor(
-                    `ad-${type}`,
-                    (src, el, ctx) => this.postprocessor(type, src, el, ctx)
-                );
-                this.postprocessors.set(type, processor);
-                if (this.admonitions[type].command) {
-                    this.registerCommandsFor(this.admonitions[type]);
-                }
-            });
             if (this.data.syntaxHighlight) {
                 this.turnOnSyntaxHighlighting();
             }
