@@ -539,6 +539,13 @@ A title can be added to the MSDoc-style admonition by appending it after the typ
 > This is an admonition!
 ```
 
+Like the code block syntax, providing an empty title will remove the title from the rendered admonition. 
+
+```md
+> [!quote:]
+> This admonition won't have a title!
+```
+
 ### Collapse
 
 Collapse can be set by appending the following characters after the brackets:
