@@ -5,7 +5,7 @@ export default {
     "Admonition Settings": "Admonition Settings",
     "Use Obsidian's markdown syntax highlighter in admonition code blocks. This setting is experimental and could cause errors.":
         "Use Obsidian's markdown syntax highlighter in admonition code blocks. This setting is experimental and could cause errors.",
-    " Markdown Syntax Highlighting": " Markdown Syntax Highlighting",
+    "Markdown Syntax Highlighting": "Markdown Syntax Highlighting",
     "Try to sync internal links to the metadata cache to display in graph view. This setting could have unintended consequences. Use at your own risk.":
         "Try to sync internal links to the metadata cache to display in graph view. This setting could have unintended consequences. Use at your own risk.",
     " Sync Links to Metadata Cache": " Sync Links to Metadata Cache",
