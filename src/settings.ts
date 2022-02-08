@@ -376,21 +376,17 @@ export default class AdmonitionSetting extends PluginSettingTab {
                     e.createSpan({
                         text: t(", instead of using a code block.")
                     });
+                    e.createEl("br");
+                    e.appendChild(WARNING_ICON.cloneNode(true));
+                    e.createEl("strong", {
+                        text: " Legacy support only. This setting will be removed in a future version. Use the MSDoc-syntax instead."
+                    });
                 })
             )
             .addToggle((t) => {
-                t.setValue(this.plugin.data.enableMarkdownProcessor).onChange(
-                    async (v) => {
-                        this.plugin.data.enableMarkdownProcessor = v;
-                        if (v) {
-                            this.plugin.enableMarkdownProcessor();
-                        } else {
-                            this.plugin.disableMarkdownProcessor();
-                        }
-                        this.display();
-                        await this.plugin.saveSettings();
-                    }
-                );
+                t.setValue(
+                    this.plugin.data.enableMarkdownProcessor
+                ).setDisabled(true);
             });
 
         new Setting(containerEl)
