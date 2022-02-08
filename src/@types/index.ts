@@ -12,14 +12,14 @@ export interface Admonition {
     copy: boolean;
 }
 
-export interface INestedAdmonition {
+export interface NestedAdmonition {
     type: string;
     start: number;
     end: number;
     src: string;
 }
 
-export interface ISettingsData {
+export interface AdmonitionSettings {
     userAdmonitions: Record<string, Admonition> /* {
         [admonitionType: string]: Admonition;
     } */;
@@ -35,6 +35,7 @@ export interface ISettingsData {
     allowMSSyntax: boolean;
     livePreviewMS: boolean;
     dropShadow: boolean;
+    hideEmpty: boolean;
 }
 
 export type AdmonitionIconDefinition = {
@@ -44,46 +45,6 @@ export type AdmonitionIconDefinition = {
 
 export type AdmonitionIconName = AdmonitionIconDefinition["name"];
 export type AdmonitionIconType = AdmonitionIconDefinition["type"];
-
-export declare class ObsidianAdmonitionPlugin extends Plugin_2 {
-    admonitions: { [admonitionType: string]: Admonition };
-    data: ISettingsData;
-    get admonitionArray(): Admonition[];
-    turnOnSyntaxHighlighting(types?: string[]): void;
-    turnOffSyntaxHighlighting(types?: string[]): void;
-    enableMarkdownProcessor(): void;
-    disableMarkdownProcessor(): void;
-    saveSettings(): Promise<void>;
-    loadSettings(): Promise<void>;
-    addAdmonition(admonition: Admonition): Promise<void>;
-    removeAdmonition(admonition: Admonition): Promise<void>;
-    onload(): Promise<void>;
-    onunload(): Promise<void>;
-    postprocessor(
-        type: string,
-        src: string,
-        el: HTMLElement,
-        ctx: MarkdownPostProcessorContext
-    ): void;
-    unregisterCommandsFor(admonition: Admonition): void;
-    registerCommandsFor(admonition: Admonition): void;
-    getAdmonitionElement(
-        type: string,
-        title: string,
-        icon: AdmonitionIconDefinition,
-        color?: string,
-        collapse?: string,
-        id?: string
-    ): HTMLElement;
-    getAdmonitionElementAsync(
-        type: string,
-        title: string,
-        icon: AdmonitionIconDefinition,
-        color?: string,
-        collapse?: string,
-        id?: string
-    ): Promise<HTMLElement>;
-}
 
 export type RPGIconName =
     | "acid"

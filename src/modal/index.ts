@@ -16,9 +16,9 @@ import { createPopper, Instance as PopperInstance } from "@popperjs/core";
 import { getIconModuleName, getIconNode, iconDefinitions } from "../util";
 import {
     Admonition,
-    AdmonitionIconDefinition,
-    ObsidianAdmonitionPlugin
+    AdmonitionIconDefinition
 } from "src/@types";
+import ObsidianAdmonition from "src/main";
 
 class Suggester<T> {
     owner: SuggestModal<T>;
@@ -401,10 +401,7 @@ export class InsertAdmonitionModal extends Modal {
         : "none";
     private element: HTMLElement;
     admonitionEl: HTMLDivElement;
-    constructor(
-        private plugin: ObsidianAdmonitionPlugin,
-        private editor: Editor
-    ) {
+    constructor(private plugin: ObsidianAdmonition, private editor: Editor) {
         super(plugin.app);
 
         this.containerEl.addClass("insert-admonition-modal");
