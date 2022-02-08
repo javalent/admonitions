@@ -26,7 +26,11 @@ import { tokenClassNodeProp } from "@codemirror/stream-parser";
 import { Range } from "@codemirror/rangeset";
 import { StateEffect, StateField } from "@codemirror/state";
 
-import { Admonition, ISettingsData, AdmonitionIconDefinition } from "./@types";
+import {
+    Admonition,
+    AdmonitionSettings,
+    AdmonitionIconDefinition
+} from "./@types";
 import { getID, getMatches, getParametersFromSource, MSDOCREGEX } from "./util";
 import {
     ADMONITION_MAP,
@@ -105,7 +109,7 @@ import { InsertAdmonitionModal } from "./modal";
 import "./assets/main.css";
 import { isLivePreview, rangesInclude } from "./util/livepreview";
 
-const DEFAULT_APP_SETTINGS: ISettingsData = {
+const DEFAULT_APP_SETTINGS: AdmonitionSettings = {
     userAdmonitions: {},
     syntaxHighlight: false,
     copyButton: false,
@@ -118,12 +122,13 @@ const DEFAULT_APP_SETTINGS: ISettingsData = {
     parseTitles: true,
     allowMSSyntax: true,
     livePreviewMS: true,
-    dropShadow: true
+    dropShadow: true,
+    hideEmpty: false
 };
 
 export default class ObsidianAdmonition extends Plugin {
     admonitions: { [admonitionType: string]: Admonition } = {};
-    data: ISettingsData;
+    data: AdmonitionSettings;
 
     postprocessors: Map<string, MarkdownPostProcessor> = new Map();
 
@@ -419,6 +424,12 @@ export default class ObsidianAdmonition extends Plugin {
                 null
             );
 
+            if (
+                (!content.length || contentEl.textContent.trim() == "") &&
+                this.data.hideEmpty
+            )
+                admonition.addClass("no-content");
+
             el.firstElementChild.replaceWith(admonition);
         });
 
@@ -490,6 +501,11 @@ export default class ObsidianAdmonition extends Plugin {
                 );
 
                 MarkdownRenderer.renderMarkdown(content, contentEl, "", null);
+                if (
+                    (!content.length || contentEl.textContent.trim() == "") &&
+                    self.data.hideEmpty
+                )
+                    admonitionElement.addClass("no-content");
                 return parent;
             }
         }
@@ -1078,7 +1094,7 @@ ${editor.getDoc().getSelection()}\n--- admonition\n`
             }
 
             if (content && content.length) {
-                const admonitionContent = this.getAdmonitionContentElement(
+                const contentEl = this.getAdmonitionContentElement(
                     type,
                     admonitionElement,
                     content
@@ -1096,7 +1112,7 @@ ${editor.getDoc().getSelection()}\n--- admonition\n`
                     setImmediate(() => {
                         MarkdownRenderer.renderMarkdown(
                             content,
-                            admonitionContent,
+                            contentEl,
                             sourcePath,
                             markdownRenderChild
                         );
@@ -1110,16 +1126,21 @@ ${editor.getDoc().getSelection()}\n--- admonition\n`
                 } else {
                     MarkdownRenderer.renderMarkdown(
                         content,
-                        admonitionContent,
+                        contentEl,
                         sourcePath,
                         markdownRenderChild
                     );
                 }
 
-                const taskLists =
-                    admonitionContent.querySelectorAll<HTMLInputElement>(
-                        ".task-list-item-checkbox"
-                    );
+                if (
+                    (!content.length || contentEl.textContent.trim() == "") &&
+                    this.data.hideEmpty
+                )
+                    admonitionElement.addClass("no-content");
+
+                const taskLists = contentEl.querySelectorAll<HTMLInputElement>(
+                    ".task-list-item-checkbox"
+                );
                 if (taskLists?.length) {
                     const split = src.split("\n");
                     let slicer = 0;
@@ -1135,7 +1156,7 @@ ${editor.getDoc().getSelection()}\n--- admonition\n`
                 }
 
                 const links =
-                    admonitionContent.querySelectorAll<HTMLAnchorElement>(
+                    contentEl.querySelectorAll<HTMLAnchorElement>(
                         "a.internal-link"
                     );
 

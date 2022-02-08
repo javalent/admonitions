@@ -22,6 +22,13 @@
     box-shadow: 0 0.2rem 0.5rem var(--background-modifier-box-shadow);
 }
 
+*:not(.is-live-preview) .admonition.no-content {
+    display: none;
+}
+.is-live-preview .admonition.no-content {
+    opacity: 0.1;
+}
+
 .admonition-title {
     position: relative;
     padding: 0.6rem 0.25em;

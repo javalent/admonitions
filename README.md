@@ -571,56 +571,95 @@ Instructions:
 
 Please note that I can give no guarantees of stability on your publish site. Other JavaScript you include may conflict with this file. If you run into an issue using it, please create an issue on this repository and I will try to help you.
 
-## Settings
+# Settings
 
-### Syntax Highlighting
+## Custom Admonition Types
 
-Turns on an experimental mode that uses Obsidian's markdown syntax highlighter inside admonition code blocks.
+[Custom admonition](#custom-admonitions) types can be created and managed in this section of the settings.
 
-### Sync Links to Metadata Cache
+## Admonition Settings
 
-This will attempt to sync internal links within admonitions to the metadata cache used by Obsidian. This will allow graph view to display these links.
+Settings specific to admonitions are managed in this section.
 
-This setting is experimental and could have unintended consequences. If you begin to experience odd behavior, try turning it off and reloading Obsidian.
+### Add Drop Shadow
 
-### Enable Non-codeblock Admonitions
+A drop shadow will be added to admonitions by default.
 
-Allow use of non-codeblock admonitions, described [here](#non-code-block-admonitions).
-
-### Generate JS for Publish
-
-This button will export a JavaScript file to be used on a **self-hosted** Obsidian Publish site. The generated JavaScript will only be valid for currently defined Admonition types. Any additional types created after generating the file will require a new file to be generated.
+If this setting is off, rendered admonitions will receive the `.no-drop` class.
 
 ### Collapsible By Default
 
-Admonitions will be automatically rendered as collapsible (open) by default.
+All admonitions will be collapsible by default, unless `collapse: none` is set in the admonition parameters.
 
-If set, use `collapse: none` in an admonition block to override.
+### Default Collapse Type 
 
-### Default Collapse Type
+> :warning: This setting is only available when Collapsible By Default is true.
 
-**This setting is only available if Collapsible By Default is ON**
+Set the default collapse type used when setting an admonition collapsible by default.
 
-Admonitions will be automatically rendered as opened or closed when collapsible by default.
+### Add Copy Button
 
-### Copy Button
+A "Copy Content" button will be added to the top-right corner of the admonition content.
 
-Adds a "copy content" button to every admonition block.
+### Parse Titles as Markdown
 
-### Register and Unregister Commands
+Turn this setting off to prevent admonition titles from being rendered as markdown.
 
-Commands may be registered for each custom admonition type to insert them into an open note by clicking the `Register Commands` button.
+### Set Admonition Colors
 
-Clicking this button will add two commands for that admonition type:
+Controls whether or not a rendered admonition will receive a color.
 
-1. Insert <type>
-2. Insert <type> with title
+Turn this off to totally control color via CSS.
 
-These commands can have hotkeys assigned to them under Settings > Hotkeys.
+### Hide Empty Admonitions
 
-Registered commands may be removed by clicking on `Unregister Commands`.
+Admonitions with no content are hidden by default.
 
-## Todo
+> :warning: Please note that this only works for Admonitions that have *no text content whatsoever*.
+
+## Additional Syntaxes
+
+### Enable Non-codeblock Admonitions
+
+> :heavy_exclamation_mark: This syntax will be removed in a future version!
+> 
+> It is recommended to use the [Microsoft Document Syntax](#microsoft-document-syntax) instead.
+
+Enabled use of `!!! ad-<type>` style admonitions. No longer supported, will be removed in a future version.
+
+### Allow Microsoft Document Syntax
+
+Enables use of the [Microsoft Document Syntax](#microsoft-document-syntax) for blockquote admonitions.
+
+### Render Microsoft Document Syntax in Live Preview
+
+Enables use of the [Microsoft Document Syntax](#microsoft-document-syntax) in live preview.
+
+This feature is still under development and you may experience rendering bugs.
+
+## Advanced Settings
+
+### Markdown Syntax Highlighting
+
+Enable syntax highlighting when editing admonition code blocks.
+
+### Sync Links to Metadata Cache
+
+The plugin will attempt to syncronize links to the metadata cache to be displayed in graph view.
+
+This setting is experimental. Links will only be synced when rendered in an admonition and they will not persist if you close and re-open Obsidian.
+
+Please see [this issue](https://github.com/valentine195/obsidian-admonition/issues/144) for more information.
+
+If you require links to be fully synced, it is recommended to use the [Microsoft Document Syntax](#microsoft-document-syntax).
+
+### Generate JS for Publish
+
+Use this setting to enable Admonitions on custom-domain Obsidian Publish websites. 
+
+See [Publish](#publish) for more information.
+
+# Todo
 
 No additional features are planned at this time. If there is a feature missing that you would like to see, please open an issue.
 

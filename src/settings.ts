@@ -11,8 +11,7 @@ import {
     Admonition,
     AdmonitionIconDefinition,
     AdmonitionIconName,
-    AdmonitionIconType,
-    ObsidianAdmonitionPlugin
+    AdmonitionIconType
 } from "./@types";
 
 import { getIconNode, getIconType, WARNING_ICON } from "./util";
@@ -24,6 +23,7 @@ import { IconSuggestionModal } from "./modal";
 //@ts-expect-error
 import CONTENT from "../publish/publish.admonition.txt";
 import { t } from "src/lang/helpers";
+import ObsidianAdmonition from "./main";
 
 /** Taken from https://stackoverflow.com/questions/34849001/check-if-css-selector-is-valid/42149818 */
 const isSelectorValid = ((dummyElement) => (selector: string) => {
@@ -36,11 +36,9 @@ const isSelectorValid = ((dummyElement) => (selector: string) => {
 })(document.createDocumentFragment());
 
 export default class AdmonitionSetting extends PluginSettingTab {
-    plugin: ObsidianAdmonitionPlugin;
     additionalEl: HTMLDivElement;
-    constructor(app: App, plugin: ObsidianAdmonitionPlugin) {
+    constructor(app: App, public plugin: ObsidianAdmonition) {
         super(app, plugin);
-        this.plugin = plugin;
     }
     async display(): Promise<void> {
         this.containerEl.empty();
@@ -233,6 +231,20 @@ export default class AdmonitionSetting extends PluginSettingTab {
                         await this.buildTypes();
                     })
             );
+        new Setting(containerEl)
+            .setName("Hide Empty Admonitions")
+            .setDesc(
+                "Any admonition that does not have content inside it will be hidden."
+            )
+            .addToggle((t) =>
+                t.setValue(this.plugin.data.hideEmpty).onChange(async (v) => {
+                    this.plugin.data.hideEmpty = v;
+
+                    await this.plugin.saveSettings();
+
+                    await this.buildTypes();
+                })
+            );
     }
 
     buildAdvanced(containerEl: HTMLDetailsElement) {
@@ -242,14 +254,7 @@ export default class AdmonitionSetting extends PluginSettingTab {
         summary.createDiv("collapser").createDiv("handle");
 
         new Setting(containerEl)
-            .setName(
-                createFragment((e) => {
-                    e.appendChild(WARNING_ICON.cloneNode(true));
-                    e.createSpan({
-                        text: t(" Markdown Syntax Highlighting")
-                    });
-                })
-            )
+            .setName(t("Markdown Syntax Highlighting"))
             .setDesc(
                 t(
                     "Use Obsidian's markdown syntax highlighter in admonition code blocks. This setting is experimental and could cause errors."
@@ -301,7 +306,7 @@ export default class AdmonitionSetting extends PluginSettingTab {
                     f.createSpan({ text: "file." });
                     f.createEl("br");
                     f.createEl("strong", {
-                        text: "Please note that this can only be done on self-hosted publish sites."
+                        text: "Please note that this can only be done on custom domain publish sites."
                     });
                 })
             )
@@ -528,10 +533,7 @@ class SettingsModal extends Modal {
     noTitle: boolean = false;
     admonitionPreview: HTMLElement;
     copy: boolean;
-    constructor(
-        public plugin: ObsidianAdmonitionPlugin,
-        admonition?: Admonition
-    ) {
+    constructor(public plugin: ObsidianAdmonition, admonition?: Admonition) {
         super(plugin.app);
         if (admonition) {
             this.color = admonition.color;
