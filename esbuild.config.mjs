@@ -56,11 +56,6 @@ esbuild
         logLevel: "info",
         sourcemap: !prod ? "inline" : false,
         treeShaking: true,
-        outdir: dir,
-        metafile: true
-    })
-    .then(async (result) => {
-        let text = await esbuild.analyzeMetafile(result.metafile);
-        console.log(text);
+        outdir: dir
     })
     .catch(() => process.exit(1));
