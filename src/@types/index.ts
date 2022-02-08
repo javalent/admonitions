@@ -29,6 +29,7 @@ export interface AdmonitionSettings {
     defaultCollapseType: "open" | "closed";
     syncLinks: boolean;
     version: string;
+    warnedAboutNC: boolean;
     enableMarkdownProcessor: boolean;
     injectColor: boolean;
     parseTitles: boolean;

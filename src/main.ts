@@ -114,6 +114,7 @@ const DEFAULT_APP_SETTINGS: AdmonitionSettings = {
     syntaxHighlight: false,
     copyButton: false,
     version: "",
+    warnedAboutNC: false,
     autoCollapse: false,
     defaultCollapseType: "open",
     syncLinks: true,
@@ -149,13 +150,8 @@ export default class ObsidianAdmonition extends Plugin {
     }
 
     async loadSettings() {
-        let data = Object.assign(
-            {},
-            DEFAULT_APP_SETTINGS,
-            await this.loadData()
-        );
-
-        this.data = data;
+        const loaded: AdmonitionSettings = await this.loadData();
+        this.data = Object.assign({}, DEFAULT_APP_SETTINGS, loaded);
 
         if (
             this.data.userAdmonitions &&
@@ -178,6 +174,16 @@ export default class ObsidianAdmonition extends Plugin {
                     }
                 };
             }
+        }
+
+        if (loaded != null && !this.data.warnedAboutNC) {
+            if (Number(this.data.version.split(".")[0]) < 7) {
+                new Notice(
+                    "Admonitions: Use of the !!!-style Admonitions will be removed in a future version.\n\nPlease update them to the MSDoc-style syntax.",
+                    0
+                );
+            }
+            this.data.warnedAboutNC = true;
         }
 
         this.admonitions = {

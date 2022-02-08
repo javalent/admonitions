@@ -441,6 +441,10 @@ Mermaid graphs are supported by Admonitions, but with some caveats:
 
 ## Non-code block Admonitions
 
+> :heavy_exclamation_mark: This syntax will be removed in a future version!
+>
+> It is no longer possible to enable this syntax. Legacy support will continue until version **7.0.0**.
+
 Please note: An additional non-code block syntax can be seen in the [Microsoft Document Syntax](#microsoft-document-syntax) section.
 
 As of version 6.0.0, there is a new setting: Enable Non-codeblock Admonitions.
@@ -622,7 +626,9 @@ Admonitions with no content are hidden by default.
 ### Enable Non-codeblock Admonitions
 
 > :heavy_exclamation_mark: This syntax will be removed in a future version!
-> 
+>
+> It is no longer possible to enable this setting. Legacy support will continue until version **7.0.0**.
+>  
 > It is recommended to use the [Microsoft Document Syntax](#microsoft-document-syntax) instead.
 
 Enabled use of `!!! ad-<type>` style admonitions. No longer supported, will be removed in a future version.
