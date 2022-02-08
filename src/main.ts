@@ -1,8 +1,5 @@
 import {
     addIcon,
-    editorLivePreviewField,
-    requireApiVersion,
-    editorViewField,
     MarkdownPostProcessor,
     MarkdownPostProcessorContext,
     MarkdownPreviewRenderer,
@@ -29,13 +26,8 @@ import { tokenClassNodeProp } from "@codemirror/stream-parser";
 import { Range } from "@codemirror/rangeset";
 import { StateEffect, StateField } from "@codemirror/state";
 
-import {
-    Admonition,
-    ObsidianAdmonitionPlugin,
-    ISettingsData,
-    AdmonitionIconDefinition
-} from "./@types";
-import { getID, getMatches, getParametersFromSource } from "./util";
+import { Admonition, ISettingsData, AdmonitionIconDefinition } from "./@types";
+import { getID, getMatches, getParametersFromSource, MSDOCREGEX } from "./util";
 import {
     ADMONITION_MAP,
     ADD_ADMONITION_COMMAND_ICON,
@@ -362,8 +354,7 @@ export default class ObsidianAdmonition extends Plugin {
             const firstLine = text[section.lineStart];
             if (!/^> \[!.+\]/.test(firstLine)) return;
 
-            let [, type, title, col] =
-                firstLine.match(/^> \[!(\w+)(?::[ ]?(.+))?\](x|\+|\-)?/) ?? [];
+            let [, type, title, col] = firstLine.match(MSDOCREGEX) ?? [];
 
             if (
                 !type ||
@@ -510,24 +501,27 @@ export default class ObsidianAdmonition extends Plugin {
             constructor(editor: EditorView) {
                 this.editor = editor;
             }
-
+            hash(token: TokenSpec) {
+                return `from${token.from}to${token.to}`;
+            }
             async compute(tokens: TokenSpec[]) {
                 const admonition: Range<Decoration>[] = [];
                 for (let token of tokens) {
-                    let deco = this.cache[token.value];
+                    let deco = this.cache[this.hash(token)];
                     if (!deco) {
-                        deco = this.cache[token.value] = Decoration.replace({
-                            inclusive: true,
-                            widget: new AdmonitionWidget(
-                                token.type,
-                                token.title,
-                                token.collapse,
-                                token.value
-                            ),
-                            block: true,
-                            from: token.from,
-                            to: token.to
-                        });
+                        deco = this.cache[this.hash(token)] =
+                            Decoration.replace({
+                                inclusive: true,
+                                widget: new AdmonitionWidget(
+                                    token.type,
+                                    token.title,
+                                    token.collapse,
+                                    token.value
+                                ),
+                                block: true,
+                                from: token.from,
+                                to: token.to
+                            });
                     }
                     admonition.push(deco.range(token.from, token.to));
                 }
@@ -564,7 +558,6 @@ export default class ObsidianAdmonition extends Plugin {
                 update(update: ViewUpdate) {
                     if (update.heightChanged) return;
                     if (!self.data.livePreviewMS) return;
-
                     if (!isLivePreview(update.view.state)) {
                         if (this.source == false) {
                             this.source = true;
@@ -612,9 +605,8 @@ export default class ObsidianAdmonition extends Plugin {
                                 if (!/^> \[!.+\]/.test(line)) return;
 
                                 const [, type, title, col] =
-                                    line.match(
-                                        /^> \[!(\w+)(?:: (.+))?\](x|\+|\-)?/
-                                    ) ?? [];
+                                    line.match(MSDOCREGEX) ?? [];
+
                                 if (!type || !self.admonitions[type]) return;
                                 let collapse;
                                 switch (col) {
@@ -644,13 +636,12 @@ export default class ObsidianAdmonition extends Plugin {
 
                                 const to =
                                     from + line.length + content.length + 1;
-
                                 targetElements.push({
                                     from,
                                     to,
-                                    value: content,
-                                    title,
-                                    type,
+                                    value: content?.trim(),
+                                    title: title?.trim(),
+                                    type: type?.trim(),
                                     collapse
                                 });
                             }
