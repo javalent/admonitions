@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [6.11.0](https://github.com/valentine195/obsidian-admonition/compare/6.10.1...6.11.0) (2022-02-08)
+
+
+### Features
+
+* adds Hide Empty Admonitions setting (close [#171](https://github.com/valentine195/obsidian-admonition/issues/171)) ([bf379bf](https://github.com/valentine195/obsidian-admonition/commit/bf379bf5de32236dc0ca4bfa7b03a3768f3be090))
+
+
+### Bug Fixes
+
+* Disabled `!!!`-style syntax in settings. Legacy support will continue until version 7.0.0. ([14b662d](https://github.com/valentine195/obsidian-admonition/commit/14b662d8eb0a5bbc632d23e4d51ef8d639501cc2))
+* Fixes several issues with Live Preview MSDoc syntax rendering (closes [#170](https://github.com/valentine195/obsidian-admonition/issues/170)) ([50562db](https://github.com/valentine195/obsidian-admonition/commit/50562db72329af76ed07d448af936a7347efac20))
+* switch to Obsidian's Live Preview State Facet ([a9e43f9](https://github.com/valentine195/obsidian-admonition/commit/a9e43f93d8a0dfbddbeaf9a23d1f3df6e7513062))
+* warned about future removal of `!!!`-style syntax ([cc183a8](https://github.com/valentine195/obsidian-admonition/commit/cc183a8cbae2c78bdc09d7b9a8d853534abed9a1))
+
 ### [6.10.1](https://github.com/valentine195/obsidian-admonition/compare/6.10.0...6.10.1) (2022-02-02)
 
 
