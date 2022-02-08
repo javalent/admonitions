@@ -24,7 +24,7 @@ export const isLivePreview = (state: EditorState) => {
     const md = state.field(editorViewField);
     const { state: viewState } = md.leaf.getViewState() ?? {};
 
-    if (requireApiVersion && requireApiVersion("0.13.21") && false) {
+    if (requireApiVersion && requireApiVersion("0.13.23")) {
         return state.field(editorLivePreviewField);
     } else {
         const md = state.field(editorViewField);
