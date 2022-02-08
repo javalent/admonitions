@@ -1,12 +1,7 @@
-import { MarkdownRenderer, Notice } from "obsidian";
-
-/* import { nanoid } from "nanoid"; */
-
-import { getIconNode } from "./icons";
+import { Notice } from "obsidian";
 import {
     Admonition,
-    AdmonitionIconDefinition,
-    INestedAdmonition
+    NestedAdmonition
 } from "../@types";
 
 export function getID() {
@@ -21,7 +16,7 @@ export function getMatches(
     src: string,
     from: number,
     toMatch: string
-): INestedAdmonition {
+): NestedAdmonition {
     const split = src.split("\n").slice(from);
     const first = split.indexOf(split.find((l) => l == toMatch));
 
