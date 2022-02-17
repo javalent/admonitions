@@ -354,6 +354,57 @@ export default class ObsidianAdmonition extends Plugin {
             this.enableMSSyntax();
         });
     }
+    getMSParametersFromLine(line: string) {
+        let [, type, title, col] = line.match(MSDOCREGEX) ?? [];
+
+        if (
+            !type ||
+            (!this.admonitions[type] &&
+                !Object.keys(this.admonitions)
+                    .map((k) => k.toLowerCase())
+                    .includes(type.toLowerCase()))
+        )
+            return;
+
+        if (!(type in this.admonitions)) {
+            type = Object.keys(this.admonitions).find(
+                (k) => k.toLowerCase() == type.toLowerCase()
+            );
+        }
+        if (!type) return;
+
+        if (title == undefined && !line.match(/^> \[!(\w+):[ ]?/)) {
+            title =
+                this.admonitions[type].title ??
+                `${type[0].toUpperCase()}${type.slice(1).toLowerCase()}`;
+        }
+
+        let collapse;
+        switch (col) {
+            case "+": {
+                collapse = "open";
+                break;
+            }
+            case "-": {
+                collapse = "closed";
+                break;
+            }
+            case "x": {
+                break;
+            }
+            default: {
+                collapse = this.data.autoCollapse
+                    ? this.data.defaultCollapseType
+                    : null;
+            }
+        }
+        if ((collapse == "closed" || collapse == "open") && !title) {
+            title =
+                this.admonitions[type].title ??
+                `${type[0].toUpperCase()}${type.slice(1).toLowerCase()}`;
+        }
+        return { type, title, collapse };
+    }
     enableMSSyntax() {
         this.registerMarkdownPostProcessor((el, ctx) => {
             if (!this.data.allowMSSyntax) return;
@@ -365,48 +416,15 @@ export default class ObsidianAdmonition extends Plugin {
             const firstLine = text[section.lineStart];
             if (!/^> \[!.+\]/.test(firstLine)) return;
 
-            let [, type, title, col] = firstLine.match(MSDOCREGEX) ?? [];
+            const params = this.getMSParametersFromLine(firstLine);
 
-            if (
-                !type ||
-                (!this.admonitions[type] &&
-                    !Object.keys(this.admonitions)
-                        .map((k) => k.toLowerCase())
-                        .includes(type.toLowerCase()))
-            )
-                return;
-            if (!(type in this.admonitions)) {
-                type = Object.keys(this.admonitions).find(
-                    (k) => k.toLowerCase() == type.toLowerCase()
-                );
-            }
-            if (!type) return;
+            if (!params?.type) return;
 
-            let collapse;
-            switch (col) {
-                case "+": {
-                    collapse = "open";
-                    break;
-                }
-                case "-": {
-                    collapse = "closed";
-                    break;
-                }
-                case "x": {
-                    break;
-                }
-                default: {
-                    collapse = this.data.autoCollapse
-                        ? this.data.defaultCollapseType
-                        : null;
-                }
-            }
+            const { type, title, collapse } = params;
 
             const admonition = this.getAdmonitionElement(
                 type,
-                title ??
-                    this.admonitions[type].title ??
-                    `${type[0].toUpperCase()}${type.slice(1).toLowerCase()}`,
+                title,
                 this.admonitions[type].icon,
                 this.admonitions[type].color,
                 collapse
@@ -469,10 +487,7 @@ export default class ObsidianAdmonition extends Plugin {
             toDOM(view: EditorView): HTMLElement {
                 const admonitionElement = self.getAdmonitionElement(
                     this.type,
-                    this.title ??
-                        self.admonitions[this.type].title ??
-                        this.type[0].toUpperCase() +
-                            this.type.slice(1).toLowerCase(),
+                    this.title,
                     self.admonitions[this.type].icon,
                     self.admonitions[this.type].color,
                     this.collapse
@@ -626,32 +641,17 @@ export default class ObsidianAdmonition extends Plugin {
                                 const line = split[0];
                                 if (!/^> \[!.+\]/.test(line)) return;
 
-                                const [, type, title, col] =
-                                    line.match(MSDOCREGEX) ?? [];
+                                const params =
+                                    self.getMSParametersFromLine(line);
 
-                                if (!type || !self.admonitions[type]) return;
-                                let collapse;
-                                switch (col) {
-                                    case "+": {
-                                        collapse = "open";
-                                        break;
-                                    }
-                                    case "-": {
-                                        collapse = "closed";
-                                        break;
-                                    }
-                                    case "x": {
-                                        break;
-                                    }
-                                    default: {
-                                        collapse = self.data.autoCollapse
-                                            ? self.data.defaultCollapseType
-                                            : null;
-                                    }
-                                }
+                                if (!params?.type) return;
+
+                                const { type, title, collapse } = params;
+
                                 const end = split.findIndex(
                                     (v) => !/^>/.test(v)
                                 );
+
                                 const content = split
                                     .slice(1, end > -1 ? end : undefined)
                                     .join("\n");
