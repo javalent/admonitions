@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [6.11.1](https://github.com/valentine195/obsidian-admonition/compare/6.11.0...6.11.1) (2022-02-17)
+
+
+### Bug Fixes
+
+* fixes bug where you couldn't have an empty title for the MSDoc syntax (close [#183](https://github.com/valentine195/obsidian-admonition/issues/183)) ([ca3de23](https://github.com/valentine195/obsidian-admonition/commit/ca3de23c3ba3e8e7130299ae2144f4b65522ba95))
+
 ## [6.11.0](https://github.com/valentine195/obsidian-admonition/compare/6.10.1...6.11.0) (2022-02-08)
 
 
