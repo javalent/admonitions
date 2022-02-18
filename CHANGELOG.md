@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [6.12.0](https://github.com/valentine195/obsidian-admonition/compare/6.11.1...6.12.0) (2022-02-18)
+
+
+### Features
+
+* adds support for indented code blocks using MSDoc syntax (close [#176](https://github.com/valentine195/obsidian-admonition/issues/176)) ([9c9e6ac](https://github.com/valentine195/obsidian-admonition/commit/9c9e6ac6e1340a16eb498b1df321cd5fd2b3b9a6))
+
+
+### Bug Fixes
+
+* admonitions with custom titles now include them when using the inserted with title command (close [#145](https://github.com/valentine195/obsidian-admonition/issues/145)) ([7034477](https://github.com/valentine195/obsidian-admonition/commit/7034477ffbcd377a58f2c2308ceec6a7e3f0f314))
+* fixed rpg awesome icons not showing on mobile (close [#122](https://github.com/valentine195/obsidian-admonition/issues/122)) ([903f18a](https://github.com/valentine195/obsidian-admonition/commit/903f18acca5b5fd49c5680b9d5d2bf2505aeb6d3))
+* reduced margin on content inside admonitions without titles (close [#185](https://github.com/valentine195/obsidian-admonition/issues/185)) ([643ca8e](https://github.com/valentine195/obsidian-admonition/commit/643ca8e866f468358b0ca40e4064e68b30d588c9))
+
 ### [6.11.1](https://github.com/valentine195/obsidian-admonition/compare/6.11.0...6.11.1) (2022-02-17)
 
 
