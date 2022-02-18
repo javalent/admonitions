@@ -931,7 +931,7 @@ ${editor.getDoc().getSelection()}
                 if (checking) return admonition.command;
                 if (admonition.command) {
                     try {
-                        const title = admonition.title ?? ""
+                        const title = admonition.title ?? "";
                         editor.getDoc().replaceSelection(
                             `\`\`\`ad-${admonition.type}
 title: ${title}
@@ -1269,7 +1269,9 @@ ${editor.getDoc().getSelection()}\n--- admonition\n`
                 attrs.open = "open";
             }
             admonition = createEl("details", {
-                cls: `admonition admonition-${type} admonition-plugin`,
+                cls: `admonition admonition-${type} admonition-plugin ${
+                    !title?.trim().length ? "no-title" : ""
+                }`,
                 attr: attrs
             });
             titleEl = admonition.createEl("summary", {
@@ -1279,7 +1281,9 @@ ${editor.getDoc().getSelection()}\n--- admonition\n`
             });
         } else {
             admonition = createDiv({
-                cls: `admonition admonition-${type} admonition-plugin`,
+                cls: `admonition admonition-${type} admonition-plugin ${
+                    !title?.trim().length ? "no-title" : ""
+                }`,
                 attr: attrs
             });
             titleEl = admonition.createDiv({
@@ -1391,7 +1395,9 @@ ${editor.getDoc().getSelection()}\n--- admonition\n`
                 attrs.open = "open";
             }
             admonition = createEl("details", {
-                cls: `admonition admonition-${type} admonition-plugin admonition-plugin-async`,
+                cls: `admonition admonition-${type} admonition-plugin admonition-plugin-async ${
+                    !title?.trim().length ? "no-title" : ""
+                }`,
                 attr: attrs
             });
             titleEl = admonition.createEl("summary", {
@@ -1401,7 +1407,9 @@ ${editor.getDoc().getSelection()}\n--- admonition\n`
             });
         } else {
             admonition = createDiv({
-                cls: `admonition admonition-${type} admonition-plugin`,
+                cls: `admonition admonition-${type} admonition-plugin ${
+                    !title?.trim().length ? "no-title" : ""
+                }`,
                 attr: attrs
             });
             titleEl = admonition.createDiv({

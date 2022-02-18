@@ -61,9 +61,10 @@
     display: none;
 }
 
-.admonition > .admonition-title.no-title + .admonition-content-holder {
-    margin-top: 1rem;
-    margin-bottom: 1rem;
+.admonition-plugin.no-title .admonition-content-holder,
+.admonition-plugin.no-title .admonition-content-holder > .admonition-content {
+    margin-top: 0;
+    margin-bottom: 0;
 }
 
 .admonition-content-holder {
