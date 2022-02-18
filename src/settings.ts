@@ -411,6 +411,35 @@ export default class AdmonitionSetting extends PluginSettingTab {
             });
         if (this.plugin.data.allowMSSyntax) {
             new Setting(containerEl)
+                .setName(
+                    "Use Microsoft Document Syntax for Indented Codeblocks"
+                )
+                .setDesc(
+                    createFragment((e) => {
+                        e.createSpan({
+                            text: "The plugin will render code blocks created by indentation using the "
+                        });
+                        e.createEl("a", {
+                            href: "https://docs.microsoft.com/en-us/contribute/markdown-reference",
+                            text: "Microsoft Document Syntax."
+                        });
+                        e.createEl("br");
+
+                        const strong = e.createEl("strong");
+
+                        strong.appendChild(WARNING_ICON.cloneNode(true));
+                        strong.createSpan({text: "This syntax will not work in Live Preview."})
+                    })
+                )
+                .addToggle((t) => {
+                    t.setValue(this.plugin.data.msSyntaxIndented).onChange(
+                        (v) => {
+                            this.plugin.data.msSyntaxIndented = v;
+                            this.plugin.saveSettings();
+                        }
+                    );
+                });
+            new Setting(containerEl)
                 .setName("Render Microsoft Document Syntax in Live Preview")
                 .setDesc(
                     createFragment((e) => {

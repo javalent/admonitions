@@ -122,6 +122,7 @@ const DEFAULT_APP_SETTINGS: AdmonitionSettings = {
     injectColor: true,
     parseTitles: true,
     allowMSSyntax: true,
+    msSyntaxIndented: true,
     livePreviewMS: true,
     dropShadow: true,
     hideEmpty: false
@@ -408,13 +409,21 @@ export default class ObsidianAdmonition extends Plugin {
     enableMSSyntax() {
         this.registerMarkdownPostProcessor((el, ctx) => {
             if (!this.data.allowMSSyntax) return;
-            if (el?.firstChild?.nodeName !== "BLOCKQUOTE") return;
+            if (
+                el?.firstChild?.nodeName !== "BLOCKQUOTE" &&
+                !(
+                    el?.firstElementChild instanceof HTMLPreElement &&
+                    this.data.msSyntaxIndented
+                )
+            )
+                return;
 
             const section = ctx.getSectionInfo(el);
             if (!section) return;
             const text = section.text.split("\n");
             const firstLine = text[section.lineStart];
-            if (!/^> \[!.+\]/.test(firstLine)) return;
+            if (!MSDOCREGEX.test(firstLine)) return;
+            /* if (!/^(?:>[ ]|\t|\s{4})\[!.+\]/.test(firstLine)) return; */
 
             const params = this.getMSParametersFromLine(firstLine);
 
@@ -433,7 +442,7 @@ export default class ObsidianAdmonition extends Plugin {
             const content = text
                 .slice(section.lineStart + 1, section.lineEnd + 1)
                 .join("\n")
-                .replace(/> /g, "");
+                .replace(/^(>[ ]|\t|\s{4})/gm, "");
 
             const contentEl = this.getAdmonitionContentElement(
                 type,
@@ -639,7 +648,7 @@ export default class ObsidianAdmonition extends Plugin {
                                     view.state.doc.sliceString(from);
                                 const split = original.split("\n");
                                 const line = split[0];
-                                if (!/^> \[!.+\]/.test(line)) return;
+                                if (!MSDOCREGEX.test(line)) return;
 
                                 const params =
                                     self.getMSParametersFromLine(line);

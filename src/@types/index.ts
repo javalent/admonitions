@@ -34,6 +34,7 @@ export interface AdmonitionSettings {
     injectColor: boolean;
     parseTitles: boolean;
     allowMSSyntax: boolean;
+    msSyntaxIndented: boolean;
     livePreviewMS: boolean;
     dropShadow: boolean;
     hideEmpty: boolean;

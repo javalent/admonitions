@@ -534,6 +534,15 @@ As of v6.8.0, an additional non-code block syntax can be used that is inspired b
 
 ![](https://raw.githubusercontent.com/valentine195/obsidian-admonition/master/images/msdocs.png)
 
+
+This syntax can also be used on indented code blocks:
+
+```md
+    [!quote]
+    This is an admonition!
+```
+
+
 ### Title
 
 A title can be added to the MSDoc-style admonition by appending it after the type.
@@ -636,6 +645,10 @@ Enabled use of `!!! ad-<type>` style admonitions. No longer supported, will be r
 ### Allow Microsoft Document Syntax
 
 Enables use of the [Microsoft Document Syntax](#microsoft-document-syntax) for blockquote admonitions.
+
+### Use Microsoft Document Syntax for Indented Code Blocks
+
+Enables use of the [Microsoft Document Syntax](#microsoft-document-syntax) for indented code blocks.
 
 ### Render Microsoft Document Syntax in Live Preview
 
