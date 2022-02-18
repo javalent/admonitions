@@ -931,9 +931,10 @@ ${editor.getDoc().getSelection()}
                 if (checking) return admonition.command;
                 if (admonition.command) {
                     try {
+                        const title = admonition.title ?? ""
                         editor.getDoc().replaceSelection(
                             `\`\`\`ad-${admonition.type}
-title: 
+title: ${title}
 
 ${editor.getDoc().getSelection()}
 
