@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [6.12.1](https://github.com/valentine195/obsidian-admonition/compare/6.12.0...6.12.1) (2022-02-22)
+
+
+### Bug Fixes
+
+* fixed mathjax rendering (close [#189](https://github.com/valentine195/obsidian-admonition/issues/189)) ([79acf7f](https://github.com/valentine195/obsidian-admonition/commit/79acf7f3bb426bfc6076a1d17ecaf59aad3af556))
+
 ## [6.12.0](https://github.com/valentine195/obsidian-admonition/compare/6.11.1...6.12.0) (2022-02-18)
 
 

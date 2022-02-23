@@ -373,3 +373,7 @@ input.is-invalid {
 .is-live-preview .admonition-content ol {
     white-space: normal;
 }
+
+.is-live-preview .admonition-content .math-block > mjx-container {
+    padding: 0;
+}
