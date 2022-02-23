@@ -765,9 +765,7 @@ class SettingsModal extends Modal {
                 text.inputEl.onblur = validate;
             })
             .addButton((b) => {
-                b.setButtonText(t("Upload Image")).setTooltip(
-                    t("Upload Image")
-                );
+                b.setButtonText(t("Upload Image")).setIcon('image-file');
                 b.buttonEl.addClass("admonition-file-upload");
                 b.buttonEl.appendChild(input);
                 b.onClick(() => input.click());
