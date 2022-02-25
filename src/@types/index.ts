@@ -30,7 +30,6 @@ export interface AdmonitionSettings {
     syncLinks: boolean;
     version: string;
     warnedAboutNC: boolean;
-    enableMarkdownProcessor: boolean;
     injectColor: boolean;
     parseTitles: boolean;
     allowMSSyntax: boolean;

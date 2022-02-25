@@ -118,7 +118,6 @@ const DEFAULT_APP_SETTINGS: AdmonitionSettings = {
     autoCollapse: false,
     defaultCollapseType: "open",
     syncLinks: true,
-    enableMarkdownProcessor: false,
     injectColor: true,
     parseTitles: true,
     allowMSSyntax: true,
@@ -265,10 +264,6 @@ export default class ObsidianAdmonition extends Plugin {
                 REMOVE_COMMAND_NAME.toString(),
                 REMOVE_ADMONITION_COMMAND_ICON
             );
-
-            if (this.data.enableMarkdownProcessor) {
-                this.enableMarkdownProcessor();
-            }
 
             if (this.data.syntaxHighlight) {
                 this.turnOnSyntaxHighlighting();
@@ -711,171 +706,6 @@ export default class ObsidianAdmonition extends Plugin {
 
         this.registerEditorExtension([plugin, field]);
     }
-    enableMarkdownProcessor() {
-        if (!this.data.enableMarkdownProcessor) return;
-        const TYPE_REGEX = new RegExp(
-            `(!{3,}|\\?{3,}\\+?) ad-(${this.types.join("|")})(\\s[\\s\\S]+)?`
-        );
-        const END_REGEX = new RegExp(`\\-{3,} admonition`);
-
-        let push = false,
-            id: string;
-        const childMap: Map<
-            MarkdownRenderChild,
-            { contentEl: HTMLElement; elements: Element[]; loaded: boolean }
-        > = new Map();
-        const elementMap: Map<Element, MarkdownRenderChild> = new Map();
-        const idMap: Map<string, MarkdownRenderChild> = new Map();
-
-        Object.values(this.admonitions)
-            .filter(({ command }) => command)
-            .forEach((admonition) => {
-                this.registerCommandsFor(admonition);
-            });
-
-        this.registerMarkdownPostProcessor(async (el, ctx) => {
-            if (!this.data.enableMarkdownProcessor) return;
-
-            if (END_REGEX.test(el.textContent) && push) {
-                push = false;
-                const lastElement = createDiv();
-                if (
-                    id &&
-                    idMap.has(id) &&
-                    childMap.has(idMap.get(id)) &&
-                    el.children[0].textContent.replace(END_REGEX, "").length
-                ) {
-                    lastElement.innerHTML = el.children[0].outerHTML.replace(
-                        new RegExp(`(<br>)?\\n?${END_REGEX.source}`),
-                        ""
-                    );
-                    const contentEl = childMap.get(idMap.get(id)).contentEl;
-                    if (contentEl)
-                        contentEl.appendChild(lastElement.children[0]);
-                }
-
-                el.children[0].detach();
-                return;
-            }
-
-            if (!TYPE_REGEX.test(el.textContent) && !push) return;
-            if (!push) {
-                if (
-                    !(
-                        Array.from(el.children).find((e) =>
-                            TYPE_REGEX.test(e.textContent)
-                        ) instanceof HTMLParagraphElement
-                    )
-                )
-                    return;
-                push = true;
-                let child = new MarkdownRenderChild(el);
-                id = getID();
-                idMap.set(id, child);
-
-                childMap.set(child, {
-                    contentEl: null,
-                    elements: [],
-                    loaded: false
-                });
-
-                child.onload = async () => {
-                    const source = el.textContent;
-
-                    let [
-                        ,
-                        col,
-                        type,
-                        title = type[0].toUpperCase() +
-                            type.slice(1).toLowerCase()
-                    ]: string[] = source.match(TYPE_REGEX) ?? [];
-
-                    if (!type) return;
-                    let collapse;
-                    if (/\?{3,}/.test(col)) {
-                        collapse = /\+/.test(col) ? "open" : "closed";
-                    }
-
-                    if (
-                        (title.trim() === "" || title === '""') &&
-                        collapse !== undefined &&
-                        collapse !== "none"
-                    ) {
-                        title =
-                            type[0].toUpperCase() + type.slice(1).toLowerCase();
-                        new Notice(
-                            "An admonition must have a title if it is collapsible."
-                        );
-                    }
-                    const admonition = this.admonitions[type];
-                    const admonitionElement =
-                        await this.getAdmonitionElementAsync(
-                            type,
-                            title.trim(),
-                            admonition.icon,
-                            admonition.injectColor ?? this.data.injectColor
-                                ? admonition.color
-                                : null,
-                            collapse
-                        );
-
-                    const contentHolder = admonitionElement.createDiv(
-                        "admonition-content-holder"
-                    );
-
-                    const contentEl =
-                        contentHolder.createDiv("admonition-content");
-
-                    child.containerEl.appendChild(admonitionElement);
-                    for (let element of childMap.get(child)?.elements) {
-                        contentEl.appendChild(element);
-                    }
-
-                    childMap.set(child, {
-                        ...childMap.get(child),
-                        contentEl: contentEl,
-                        loaded: true
-                    });
-                };
-
-                child.onunload = () => {
-                    idMap.delete(id);
-                    childMap.delete(child);
-                };
-
-                ctx.addChild(child);
-
-                el.children[0].detach();
-
-                return;
-            }
-
-            if (id && idMap.get(id)) {
-                const child = idMap.get(id);
-                childMap.set(child, {
-                    ...childMap.get(child),
-                    elements: [
-                        ...childMap.get(child).elements,
-                        ...Array.from(el.children)
-                    ]
-                });
-                elementMap.set(el, child);
-                if (childMap.get(child)?.loaded) {
-                    for (let element of childMap.get(child)?.elements) {
-                        childMap.get(child).contentEl.appendChild(element);
-                    }
-                }
-            }
-        });
-    }
-    disableMarkdownProcessor() {
-        /* new Notice("The plugin must be reloaded for this to take effect."); */
-        Object.values(this.admonitions)
-            .filter(({ command }) => command)
-            .forEach((admonition) => {
-                this.registerCommandsFor(admonition);
-            });
-    }
     unregisterCommandsFor(admonition: Admonition) {
         admonition.command = false;
 
@@ -950,33 +780,6 @@ ${editor.getDoc().getSelection()}
                 }
             }
         });
-        if (this.data.enableMarkdownProcessor) {
-            this.addCommand({
-                id: `insert-non-${admonition.type}`,
-                name: `Insert Non-codeblock ${admonition.type}`,
-                editorCheckCallback: (checking, editor, view) => {
-                    if (checking)
-                        return (
-                            admonition.command &&
-                            this.data.enableMarkdownProcessor
-                        );
-                    if (admonition.command) {
-                        try {
-                            editor.getDoc().replaceSelection(
-                                `!!! ad-${admonition.type}\n
-${editor.getDoc().getSelection()}\n--- admonition\n`
-                            );
-                            const cursor = editor.getCursor();
-                            editor.setCursor(cursor.line - 2);
-                        } catch (e) {
-                            new Notice(
-                                "There was an issue inserting the admonition."
-                            );
-                        }
-                    }
-                }
-            });
-        }
     }
     turnOnSyntaxHighlighting(types: string[] = Object.keys(this.admonitions)) {
         if (!this.data.syntaxHighlight) return;

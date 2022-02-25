@@ -355,41 +355,6 @@ export default class AdmonitionSetting extends PluginSettingTab {
         summary.createDiv("collapser").createDiv("handle");
 
         new Setting(containerEl)
-            .setName(
-                createFragment((e) => {
-                    e.appendChild(WARNING_ICON.cloneNode(true));
-                    e.createSpan({
-                        text: t(" Enable Non-codeblock Admonitions")
-                    });
-                })
-            )
-            .setDesc(
-                createFragment((e) => {
-                    e.createSpan({
-                        text: t("Allows admonitions to be created using ")
-                    });
-                    e.createEl("code", { text: "!!! ad-<type>" });
-                    e.createSpan({
-                        text: t(" or ")
-                    });
-                    e.createEl("code", { text: "??? ad-<type>" });
-                    e.createSpan({
-                        text: t(", instead of using a code block.")
-                    });
-                    e.createEl("br");
-                    e.appendChild(WARNING_ICON.cloneNode(true));
-                    e.createEl("strong", {
-                        text: " Legacy support only. This setting will be removed in a future version. Use the MSDoc-syntax instead."
-                    });
-                })
-            )
-            .addToggle((t) => {
-                t.setValue(
-                    this.plugin.data.enableMarkdownProcessor
-                ).setDisabled(true);
-            });
-
-        new Setting(containerEl)
             .setName("Allow Microsoft Document Syntax")
             .setDesc(
                 createFragment((e) => {
