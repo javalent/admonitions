@@ -1,5 +1,5 @@
-import { MarkdownPostProcessorContext, Plugin_2 } from "obsidian";
-import { IconName } from "src/util";
+import { IconName } from "@fortawesome/fontawesome-svg-core";
+import { DownloadableIconPack } from "src/icons/manager";
 
 export interface Admonition {
     type: string;
@@ -29,7 +29,6 @@ export interface AdmonitionSettings {
     defaultCollapseType: "open" | "closed";
     syncLinks: boolean;
     version: string;
-    warnedAboutNC: boolean;
     injectColor: boolean;
     parseTitles: boolean;
     allowMSSyntax: boolean;
@@ -37,11 +36,20 @@ export interface AdmonitionSettings {
     livePreviewMS: boolean;
     dropShadow: boolean;
     hideEmpty: boolean;
+    icons: Array<DownloadableIconPack>;
+    useFontAwesome: boolean;
+    rpgDownloadedOnce: boolean;
+    open: {
+        admonitions: boolean;
+        icons: boolean;
+        other: boolean;
+        advanced: boolean;
+    };
 }
 
 export type AdmonitionIconDefinition = {
-    type?: "font-awesome" | "rpg" | "image";
-    name?: IconName | RPGIconName | string;
+    type?: "font-awesome" | "image" | DownloadableIconPack;
+    name?: IconName | string;
 };
 
 export type AdmonitionIconName = AdmonitionIconDefinition["name"];

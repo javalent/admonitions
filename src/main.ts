@@ -5,7 +5,6 @@ import {
     MarkdownPreviewRenderer,
     MarkdownRenderChild,
     MarkdownRenderer,
-    MarkdownSectionInformation,
     MarkdownView,
     Notice,
     Plugin,
@@ -32,7 +31,14 @@ import {
     AdmonitionSettings,
     AdmonitionIconDefinition
 } from "./@types";
-import { getParametersFromSource, MSDOCREGEX } from "./util";
+import {
+    COPY_ICON,
+    COPY_ICON_NAME,
+    getParametersFromSource,
+    MSDOCREGEX,
+    WARNING_ICON,
+    WARNING_ICON_NAME
+} from "./util";
 import {
     ADMONITION_MAP,
     ADD_ADMONITION_COMMAND_ICON,
@@ -50,6 +56,7 @@ declare global {
 }
 
 //add commands to app interface
+
 declare module "obsidian" {
     interface App {
         commands: {
@@ -60,6 +67,9 @@ declare module "obsidian" {
             listCommands(): Command[];
             executeCommandById(id: string): void;
             findCommand(id: string): Command;
+        };
+        plugins: {
+            getPluginFolder(): string;
         };
     }
     interface MarkdownPreviewView {
@@ -72,22 +82,17 @@ declare module "obsidian" {
 }
 
 import AdmonitionSetting from "./settings";
-import {
-    IconName,
-    COPY_BUTTON_ICON,
-    iconDefinitions,
-    getIconNode
-} from "./util/icons";
+import { DownloadableIconPack, IconManager } from "./icons/manager";
 import { InsertAdmonitionModal } from "./modal";
 import "./assets/main.css";
-import { isLivePreview, rangesInclude } from "./util/livepreview";
+import { isLivePreview, rangesInclude } from "./util";
+import { IconName } from "@fortawesome/fontawesome-svg-core";
 
 const DEFAULT_APP_SETTINGS: AdmonitionSettings = {
     userAdmonitions: {},
     syntaxHighlight: false,
     copyButton: false,
     version: "",
-    warnedAboutNC: false,
     autoCollapse: false,
     defaultCollapseType: "open",
     syncLinks: true,
@@ -97,7 +102,16 @@ const DEFAULT_APP_SETTINGS: AdmonitionSettings = {
     msSyntaxIndented: true,
     livePreviewMS: true,
     dropShadow: true,
-    hideEmpty: false
+    hideEmpty: false,
+    open: {
+        admonitions: true,
+        icons: true,
+        other: true,
+        advanced: false
+    },
+    icons: [],
+    useFontAwesome: true,
+    rpgDownloadedOnce: false
 };
 
 export default class ObsidianAdmonition extends Plugin {
@@ -105,6 +119,8 @@ export default class ObsidianAdmonition extends Plugin {
     data: AdmonitionSettings;
 
     postprocessors: Map<string, MarkdownPostProcessor> = new Map();
+
+    iconManager = new IconManager(this);
 
     get types() {
         return Object.keys(this.admonitions);
@@ -120,25 +136,27 @@ export default class ObsidianAdmonition extends Plugin {
 
     async onload(): Promise<void> {
         console.log("Obsidian Admonition loaded");
+
         await this.loadSettings();
-        Object.keys(this.admonitions).forEach((type) => {
-            const processor = this.registerMarkdownCodeBlockProcessor(
-                `ad-${type}`,
-                (src, el, ctx) => this.postprocessor(type, src, el, ctx)
-            );
-            this.postprocessors.set(type, processor);
-            if (this.admonitions[type].command) {
-                this.registerCommandsFor(this.admonitions[type]);
-            }
-        });
+        await this.iconManager.load();
         this.app.workspace.onLayoutReady(async () => {
+            Object.keys(this.admonitions).forEach((type) => {
+                const processor = this.registerMarkdownCodeBlockProcessor(
+                    `ad-${type}`,
+                    (src, el, ctx) => this.postprocessor(type, src, el, ctx)
+                );
+                this.postprocessors.set(type, processor);
+                if (this.admonitions[type].command) {
+                    this.registerCommandsFor(this.admonitions[type]);
+                }
+            });
+
             this.addSettingTab(new AdmonitionSetting(this.app, this));
 
-            addIcon(ADD_COMMAND_NAME.toString(), ADD_ADMONITION_COMMAND_ICON);
-            addIcon(
-                REMOVE_COMMAND_NAME.toString(),
-                REMOVE_ADMONITION_COMMAND_ICON
-            );
+            addIcon(ADD_COMMAND_NAME, ADD_ADMONITION_COMMAND_ICON);
+            addIcon(REMOVE_COMMAND_NAME, REMOVE_ADMONITION_COMMAND_ICON);
+            addIcon(WARNING_ICON_NAME, WARNING_ICON);
+            addIcon(COPY_ICON_NAME, COPY_ICON);
 
             if (this.data.syntaxHighlight) {
                 this.turnOnSyntaxHighlighting();
@@ -225,6 +243,13 @@ export default class ObsidianAdmonition extends Plugin {
             this.enableMSSyntax();
         });
     }
+    async downloadIcon(pack: DownloadableIconPack) {
+        this.iconManager.downloadIcon(pack);
+    }
+
+    async removeIcon(pack: DownloadableIconPack) {
+        this.iconManager.removeIcon(pack);
+    }
 
     async postprocessor(
         type: string,
@@ -256,8 +281,9 @@ export default class ObsidianAdmonition extends Plugin {
             let admonitionElement = this.getAdmonitionElement(
                 type,
                 title,
-                iconDefinitions.find(({ name }) => icon === name) ??
-                    admonition.icon,
+                this.iconManager.iconDefinitions.find(
+                    ({ name }) => icon === name
+                ) ?? admonition.icon,
                 color ??
                     (admonition.injectColor ?? this.data.injectColor
                         ? admonition.color
@@ -410,7 +436,7 @@ export default class ObsidianAdmonition extends Plugin {
                     content,
                     ctx,
                     ctx.sourcePath,
-                    text.join('\n')
+                    text.join("\n")
                 );
 
                 el.replaceWith(admonition);
@@ -777,7 +803,9 @@ export default class ObsidianAdmonition extends Plugin {
                 "admonition-title-icon"
             );
             if (icon && icon.name && icon.type) {
-                iconEl.appendChild(getIconNode(icon));
+                iconEl.appendChild(
+                    this.iconManager.getIconNode(icon) ?? createDiv()
+                );
             }
 
             //add markdown children back
@@ -897,9 +925,8 @@ export default class ObsidianAdmonition extends Plugin {
         );
         const contentEl = contentHolder.createDiv("admonition-content");
         if (this.admonitions[type].copy ?? this.data.copyButton) {
-            let copy = contentHolder
-                .createDiv("admonition-content-copy")
-                .appendChild(COPY_BUTTON_ICON.cloneNode(true));
+            let copy = contentHolder.createDiv("admonition-content-copy");
+            setIcon(copy, COPY_ICON_NAME);
             copy.addEventListener("click", () => {
                 navigator.clipboard.writeText(content.trim()).then(async () => {
                     new Notice("Admonition content copied to clipboard.");
@@ -1037,6 +1064,7 @@ ${editor.getDoc().getSelection()}
 
     async saveSettings() {
         this.data.version = this.manifest.version;
+
         await this.saveData(this.data);
     }
     async loadSettings() {
@@ -1066,14 +1094,18 @@ ${editor.getDoc().getSelection()}
             }
         }
 
-        if (loaded != null && !this.data.warnedAboutNC) {
-            if (Number(this.data.version.split(".")[0]) < 7) {
-                new Notice(
-                    "Admonitions: Use of the !!!-style Admonitions will be removed in a future version.\n\nPlease update them to the MSDoc-style syntax.",
-                    0
-                );
-            }
-            this.data.warnedAboutNC = true;
+        if (
+            !this.data.rpgDownloadedOnce &&
+            this.data.userAdmonitions &&
+            Object.values(this.data.userAdmonitions).some((admonition) => {
+                if (admonition.icon.type == "rpg") return true;
+            }) &&
+            !this.data.icons.includes("rpg")
+        ) {
+            try {
+                await this.downloadIcon("rpg");
+                this.data.rpgDownloadedOnce = true;
+            } catch (e) {}
         }
 
         this.admonitions = {

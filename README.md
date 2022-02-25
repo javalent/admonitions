@@ -203,7 +203,7 @@ Please note that by default, the background color of the title is simply the col
 
 ### Images as Icons
 
-Images can be uploaded to use as an admonition icon instead of an icon from Font Awesome or RPG Awesome.
+Images can be uploaded to use as an admonition icon instead of an icon from a downloaded icon set.
 
 These images will be resized to 24px x 24px to be stored in the plugin's saved data.
 
@@ -507,14 +507,12 @@ As of v6.8.0, an additional non-code block syntax can be used that is inspired b
 
 ![](https://raw.githubusercontent.com/valentine195/obsidian-admonition/master/images/msdocs.png)
 
-
 This syntax can also be used on indented code blocks:
 
 ```md
     [!quote]
     This is an admonition!
 ```
-
 
 ### Title
 
@@ -525,7 +523,7 @@ A title can be added to the MSDoc-style admonition by appending it after the typ
 > This is an admonition!
 ```
 
-Like the code block syntax, providing an empty title will remove the title from the rendered admonition. 
+Like the code block syntax, providing an empty title will remove the title from the rendered admonition.
 
 ```md
 > [!quote:]
@@ -557,6 +555,18 @@ Instructions:
 
 Please note that I can give no guarantees of stability on your publish site. Other JavaScript you include may conflict with this file. If you run into an issue using it, please create an issue on this repository and I will try to help you.
 
+## Icon Packs
+
+Additional icon packs can be downloaded in settings.
+
+### Adding Icon Packs
+
+Want to add an existing icon pack? Make a pull request with the following:
+
+1. Add a new folder in the [icons](./icons) folder with the name of your icon set.
+2. Create an `icons.json` file that has the icons defined as an Object. Please see the [Octicons json](./icons/octicons/icons.json) for reference.
+3. Put your icon pack's information in the two variables in the [Icon Packs](./src/icons/packs.ts) file.
+
 # Settings
 
 ## Custom Admonition Types
@@ -577,7 +587,7 @@ If this setting is off, rendered admonitions will receive the `.no-drop` class.
 
 All admonitions will be collapsible by default, unless `collapse: none` is set in the admonition parameters.
 
-### Default Collapse Type 
+### Default Collapse Type
 
 > :warning: This setting is only available when Collapsible By Default is true.
 
@@ -601,16 +611,32 @@ Turn this off to totally control color via CSS.
 
 Admonitions with no content are hidden by default.
 
-> :warning: Please note that this only works for Admonitions that have *no text content whatsoever*.
+> :warning: Please note that this only works for Admonitions that have _no text content whatsoever_.
+
+## Icon Packs
+
+### Use Font Awesome Icons
+
+The plugin comes pre-bundled with the entire [Font Awesome Free](https://fontawesome.com/search?m=free&s=brands%2Cregular%2Csolid) icon set. Turn this setting off to not include them in the icon picker.
+
+Existing custom Admonitions that use Font Awesome icons will continue to work.
+
+### Additional Icon Packs
+
+Additional icon packs can be downloaded to supplement the included Font Awesome Free icon set.
+
+**Downloading an icon pack requires an internet connection.**
+
+Current additional icon packs available are the [Octicons](https://primer.style/octicons/) set and the [RPG Awesome](https://nagoshiashumari.github.io/Rpg-Awesome/) set.
+
+> :pencil: For backwards compability, if an Admonition was created prior to version **7.0.0** using an RPG Awesome icon, the pack will try to be downloaded.
 
 ## Additional Syntaxes
 
 ### Enable Non-codeblock Admonitions
 
-> :heavy_exclamation_mark: This syntax will be removed in a future version!
+> :heavy_exclamation_mark: This setting has been removed as of version **7.0.0**.
 >
-> It is no longer possible to enable this setting. Legacy support will continue until version **7.0.0**.
->  
 > It is recommended to use the [Microsoft Document Syntax](#microsoft-document-syntax) instead.
 
 Enabled use of `!!! ad-<type>` style admonitions. No longer supported, will be removed in a future version.
@@ -647,7 +673,7 @@ If you require links to be fully synced, it is recommended to use the [Microsoft
 
 ### Generate JS for Publish
 
-Use this setting to enable Admonitions on custom-domain Obsidian Publish websites. 
+Use this setting to enable Admonitions on custom-domain Obsidian Publish websites.
 
 See [Publish](#publish) for more information.
 

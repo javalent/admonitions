@@ -13,7 +13,6 @@ import {
 } from "obsidian";
 import { createPopper, Instance as PopperInstance } from "@popperjs/core";
 
-import { getIconModuleName, getIconNode, iconDefinitions } from "../util";
 import { Admonition, AdmonitionIconDefinition } from "src/@types";
 import ObsidianAdmonition from "src/main";
 
@@ -241,9 +240,13 @@ export class IconSuggestionModal extends SuggestionModal<AdmonitionIconDefinitio
     icons: AdmonitionIconDefinition[];
     icon: AdmonitionIconDefinition;
     text: TextComponent;
-    constructor(app: App, input: TextComponent) {
-        super(app, input.inputEl, iconDefinitions);
-        this.icons = iconDefinitions;
+    constructor(public plugin: ObsidianAdmonition, input: TextComponent) {
+        super(
+            plugin.app,
+            input.inputEl,
+            plugin.iconManager.iconDefinitions
+        );
+        this.icons = plugin.iconManager.iconDefinitions;
         this.text = input;
 
         this.createPrompts();
@@ -278,9 +281,9 @@ export class IconSuggestionModal extends SuggestionModal<AdmonitionIconDefinitio
     ) {
         let { item, match: matches } = result || {};
         let content = el.createDiv({
-            cls: "suggestion-content admonition-icon"
+            cls: "suggestion-content icon"
         });
-        let text = content.createDiv("suggestion-text admonition-text");
+        
         if (!item) {
             content.setText(this.emptyStateText);
             content.parentElement.addClass("is-selected");
@@ -294,22 +297,22 @@ export class IconSuggestionModal extends SuggestionModal<AdmonitionIconDefinitio
             let match = matches.matches.find((m) => m[0] === i);
             if (match) {
                 let element = matchElements[matches.matches.indexOf(match)];
-                text.appendChild(element);
+                content.appendChild(element);
                 element.appendText(item.name.substring(match[0], match[1]));
 
                 i += match[1] - match[0] - 1;
                 continue;
             }
 
-            text.appendText(item.name[i]);
+            content.appendText(item.name[i]);
         }
 
         const iconDiv = createDiv("suggestion-flair admonition-suggester-icon");
-        iconDiv.appendChild(getIconNode(item));
-        content.appendChild(iconDiv);
+        iconDiv.appendChild(this.plugin.iconManager.getIconNode(item));
+        content.prepend(iconDiv);
         content.createDiv({
             cls: "suggestion-note",
-            text: getIconModuleName(item)
+            text: this.plugin.iconManager.getIconModuleName(item)
         });
     }
     getItems() {
@@ -320,8 +323,12 @@ class AdmonitionSuggestionModal extends SuggestionModal<Admonition> {
     admonitions: Admonition[];
     admonition: Admonition;
     text: TextComponent;
-    constructor(app: App, input: TextComponent, items: Admonition[]) {
-        super(app, input.inputEl, items);
+    constructor(
+        public plugin: ObsidianAdmonition,
+        input: TextComponent,
+        items: Admonition[]
+    ) {
+        super(plugin.app, input.inputEl, items);
         this.admonitions = [...items];
         this.text = input;
 
@@ -381,7 +388,7 @@ class AdmonitionSuggestionModal extends SuggestionModal<Admonition> {
 
         const iconDiv = createDiv("suggestion-flair admonition-suggester-icon");
         iconDiv
-            .appendChild(getIconNode(item.icon))
+            .appendChild(this.plugin.iconManager.getIconNode(item.icon))
             .setAttribute("color", `rgb(${item.color})`);
 
         content.prepend(iconDiv);
@@ -416,7 +423,7 @@ export class InsertAdmonitionModal extends Modal {
         typeSetting.setName("Admonition Type").addText((t) => {
             t.setPlaceholder("Admonition Type").setValue(this.type);
             const modal = new AdmonitionSuggestionModal(
-                this.app,
+                this.plugin,
                 t,
                 this.plugin.admonitionArray
             );

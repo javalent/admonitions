@@ -311,6 +311,14 @@ input.is-invalid {
 .admonition-settings details[open] > summary > .collapser > .handle {
     transform: rotate(90deg);
 }
+.admonition-setting-warning {
+    display: flex;
+    gap: 0.25rem;
+    align-items: center;
+}
+.admonition-setting-warning.text-warning {
+    color: var(--text-error);
+}
 
 .admonitions-nested-settings .setting-item {
     border: 0px;

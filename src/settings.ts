@@ -5,7 +5,8 @@ import {
     ButtonComponent,
     Modal,
     TextComponent,
-    Notice
+    Notice,
+    setIcon
 } from "obsidian";
 import {
     Admonition,
@@ -14,16 +15,21 @@ import {
     AdmonitionIconType
 } from "./@types";
 
-import { getIconNode, getIconType, WARNING_ICON } from "./util";
-
-import { ADD_COMMAND_NAME, REMOVE_COMMAND_NAME } from "./util";
+import {
+    ADD_COMMAND_NAME,
+    REMOVE_COMMAND_NAME,
+    WARNING_ICON_NAME
+} from "./util";
 
 import { IconSuggestionModal } from "./modal";
 
 //@ts-expect-error
 import CONTENT from "../publish/publish.admonition.txt";
+
 import { t } from "src/lang/helpers";
 import ObsidianAdmonition from "./main";
+import { confirmWithModal } from "./modal/confirm";
+import { DownloadableIconPack, DownloadableIcons } from "./icons/packs";
 
 /** Taken from https://stackoverflow.com/questions/34849001/check-if-css-selector-is-valid/42149818 */
 const isSelectorValid = ((dummyElement) => (selector: string) => {
@@ -87,7 +93,15 @@ export default class AdmonitionSetting extends PluginSettingTab {
             this.containerEl.createEl("details", {
                 cls: "admonitions-nested-settings",
                 attr: {
-                    open: "open"
+                    ...(this.plugin.data.open.admonitions ? { open: true } : {})
+                }
+            })
+        );
+        this.buildIcons(
+            this.containerEl.createEl("details", {
+                cls: "admonitions-nested-settings",
+                attr: {
+                    ...(this.plugin.data.open.icons ? { open: true } : {})
                 }
             })
         );
@@ -95,7 +109,7 @@ export default class AdmonitionSetting extends PluginSettingTab {
             this.containerEl.createEl("details", {
                 cls: "admonitions-nested-settings",
                 attr: {
-                    open: "open"
+                    ...(this.plugin.data.open.other ? { open: true } : {})
                 }
             })
         );
@@ -103,7 +117,7 @@ export default class AdmonitionSetting extends PluginSettingTab {
             this.containerEl.createEl("details", {
                 cls: "admonitions-nested-settings",
                 attr: {
-                    open: "open"
+                    ...(this.plugin.data.open.advanced ? { open: true } : {})
                 }
             })
         );
@@ -120,6 +134,10 @@ export default class AdmonitionSetting extends PluginSettingTab {
 
     async buildAdmonitions(containerEl: HTMLDetailsElement) {
         containerEl.empty();
+        containerEl.ontoggle = () => {
+            this.plugin.data.open.admonitions = containerEl.open;
+            this.plugin.saveSettings();
+        };
         const summary = containerEl.createEl("summary");
         new Setting(summary).setHeading().setName("Admonitions");
         summary.createDiv("collapser").createDiv("handle");
@@ -247,8 +265,194 @@ export default class AdmonitionSetting extends PluginSettingTab {
             );
     }
 
+    buildIcons(containerEl: HTMLDetailsElement) {
+        containerEl.empty();
+        containerEl.ontoggle = () => {
+            this.plugin.data.open.icons = containerEl.open;
+            this.plugin.saveSettings();
+        };
+        const summary = containerEl.createEl("summary");
+        new Setting(summary).setHeading().setName("Icon Packs");
+        summary.createDiv("collapser").createDiv("handle");
+
+        new Setting(containerEl)
+            .setName("Use Font Awesome Icons")
+            .setDesc(
+                "Font Awesome Free icons will be available in the item picker. Existing Admonitions defined using Font Awesome icons will continue to work."
+            )
+            .addToggle((t) => {
+                t.setValue(this.plugin.data.useFontAwesome).onChange((v) => {
+                    this.plugin.data.useFontAwesome = v;
+                    this.plugin.iconManager.setIconDefinitions();
+                    this.plugin.saveSettings();
+                });
+            });
+
+        let selected: DownloadableIconPack;
+        const possibilities = Object.entries(DownloadableIcons).filter(
+            ([icon]) => !this.plugin.data.icons.includes(icon)
+        );
+        new Setting(containerEl)
+            .setName("Load Additional Icons")
+            .setDesc(
+                "Load an additional icon pack. This requires an internet connection."
+            )
+            .addDropdown((d) => {
+                if (!possibilities.length) {
+                    d.setDisabled(true);
+                    return;
+                }
+                for (const [icon, display] of possibilities) {
+                    d.addOption(icon, display);
+                }
+                d.onChange((v: DownloadableIconPack) => (selected = v));
+                selected = d.getValue() as DownloadableIconPack;
+            })
+            .addExtraButton((b) => {
+                b.setIcon("plus-with-circle")
+                    .setTooltip("Load")
+                    .onClick(async () => {
+                        if (!selected || !selected.length) return;
+
+                        await this.plugin.iconManager.downloadIcon(selected);
+                        this.buildIcons(containerEl);
+                    });
+                if (!possibilities.length) b.setDisabled(true);
+            });
+
+        const iconsEl = containerEl.createDiv("admonitions-nested-settings");
+        new Setting(iconsEl);
+        for (const icon of this.plugin.data.icons) {
+            new Setting(iconsEl)
+                .setName(DownloadableIcons[icon])
+                .addExtraButton((b) => {
+                    b.setIcon("reset")
+                        .setTooltip("Redownload")
+                        .onClick(async () => {
+                            await this.plugin.iconManager.removeIcon(icon);
+                            await this.plugin.iconManager.downloadIcon(icon);
+                            this.buildIcons(containerEl);
+                        });
+                })
+                .addExtraButton((b) => {
+                    b.setIcon("trash").onClick(async () => {
+                        if (
+                            Object.values(
+                                this.plugin.data.userAdmonitions
+                            ).find((admonition) => admonition.icon.type == icon)
+                        ) {
+                            if (
+                                !(await confirmWithModal(
+                                    this.plugin.app,
+                                    "You have Admonitions using icons from this pack. Are you sure you want to remove it?"
+                                ))
+                            )
+                                return;
+                        }
+
+                        await this.plugin.iconManager.removeIcon(icon);
+
+                        this.buildIcons(containerEl);
+                    });
+                });
+        }
+    }
+
+    buildOtherSyntaxes(containerEl: HTMLDetailsElement) {
+        containerEl.empty();
+        containerEl.ontoggle = () => {
+            this.plugin.data.open.other = containerEl.open;
+            this.plugin.saveSettings();
+        };
+        const summary = containerEl.createEl("summary");
+        new Setting(summary).setHeading().setName("Additional Syntaxes");
+        summary.createDiv("collapser").createDiv("handle");
+
+        new Setting(containerEl)
+            .setName("Allow Microsoft Document Syntax")
+            .setDesc(
+                createFragment((e) => {
+                    e.createSpan({
+                        text: "The plugin will render blockquotes created using the "
+                    });
+                    e.createEl("a", {
+                        href: "https://docs.microsoft.com/en-us/contribute/markdown-reference",
+                        text: "Microsoft Document Syntax."
+                    });
+                })
+            )
+            .addToggle((t) => {
+                t.setValue(this.plugin.data.allowMSSyntax).onChange((v) => {
+                    this.plugin.data.allowMSSyntax = v;
+                    this.display();
+                    this.plugin.saveSettings();
+                });
+            });
+        if (this.plugin.data.allowMSSyntax) {
+            new Setting(containerEl)
+                .setClass("admonition-setting-warning")
+                .setName(
+                    "Use Microsoft Document Syntax for Indented Codeblocks"
+                )
+                .setDesc(
+                    createFragment((e) => {
+                        e.createSpan({
+                            text: "The plugin will render code blocks created by indentation using the "
+                        });
+                        e.createEl("a", {
+                            href: "https://docs.microsoft.com/en-us/contribute/markdown-reference",
+                            text: "Microsoft Document Syntax."
+                        });
+                        e.createEl("br");
+
+                        const strong = e.createSpan(
+                            "admonition-setting-warning text-warning"
+                        );
+
+                        setIcon(strong.createSpan(), WARNING_ICON_NAME);
+                        strong.createSpan({
+                            text: "This syntax will not work in Live Preview."
+                        });
+                    })
+                )
+                .addToggle((t) => {
+                    t.setValue(this.plugin.data.msSyntaxIndented).onChange(
+                        (v) => {
+                            this.plugin.data.msSyntaxIndented = v;
+                            this.plugin.saveSettings();
+                        }
+                    );
+                });
+            new Setting(containerEl)
+                .setName("Render Microsoft Document Syntax in Live Preview")
+                .setDesc(
+                    createFragment((e) => {
+                        e.createSpan({
+                            text: "The plugin will render blockquotes created using the "
+                        });
+                        e.createEl("a", {
+                            href: "https://docs.microsoft.com/en-us/contribute/markdown-reference",
+                            text: "Microsoft Document Syntax"
+                        });
+                        e.createSpan({
+                            text: " in live preview mode."
+                        });
+                    })
+                )
+                .addToggle((t) => {
+                    t.setValue(this.plugin.data.livePreviewMS).onChange((v) => {
+                        this.plugin.data.livePreviewMS = v;
+                        this.plugin.saveSettings();
+                    });
+                });
+        }
+    }
     buildAdvanced(containerEl: HTMLDetailsElement) {
         containerEl.empty();
+        containerEl.ontoggle = () => {
+            this.plugin.data.open.advanced = containerEl.open;
+            this.plugin.saveSettings();
+        };
         const summary = containerEl.createEl("summary");
         new Setting(summary).setHeading().setName("Advanced Settings");
         summary.createDiv("collapser").createDiv("handle");
@@ -276,8 +480,9 @@ export default class AdmonitionSetting extends PluginSettingTab {
         new Setting(containerEl)
             .setName(
                 createFragment((e) => {
-                    e.appendChild(WARNING_ICON.cloneNode(true));
-                    e.createSpan({
+                    const name = e.createSpan("admonition-setting-warning");
+                    setIcon(name, WARNING_ICON_NAME);
+                    name.createSpan({
                         text: t(" Sync Links to Metadata Cache")
                     });
                 })
@@ -324,7 +529,9 @@ export default class AdmonitionSetting extends PluginSettingTab {
                         const value = this.plugin.admonitions[key];
 
                         admonition_icons[key] = {
-                            icon: getIconNode(value.icon).outerHTML,
+                            icon: this.plugin.iconManager.getIconNode(
+                                value.icon
+                            ).outerHTML,
                             color: value.color
                         };
                     }
@@ -346,87 +553,6 @@ export default class AdmonitionSetting extends PluginSettingTab {
                     document.body.removeChild(downloadLink);
                 });
             });
-    }
-
-    buildOtherSyntaxes(containerEl: HTMLDetailsElement) {
-        containerEl.empty();
-        const summary = containerEl.createEl("summary");
-        new Setting(summary).setHeading().setName("Additional Syntaxes");
-        summary.createDiv("collapser").createDiv("handle");
-
-        new Setting(containerEl)
-            .setName("Allow Microsoft Document Syntax")
-            .setDesc(
-                createFragment((e) => {
-                    e.createSpan({
-                        text: "The plugin will render blockquotes created using the "
-                    });
-                    e.createEl("a", {
-                        href: "https://docs.microsoft.com/en-us/contribute/markdown-reference",
-                        text: "Microsoft Document Syntax."
-                    });
-                })
-            )
-            .addToggle((t) => {
-                t.setValue(this.plugin.data.allowMSSyntax).onChange((v) => {
-                    this.plugin.data.allowMSSyntax = v;
-                    this.display();
-                    this.plugin.saveSettings();
-                });
-            });
-        if (this.plugin.data.allowMSSyntax) {
-            new Setting(containerEl)
-                .setName(
-                    "Use Microsoft Document Syntax for Indented Codeblocks"
-                )
-                .setDesc(
-                    createFragment((e) => {
-                        e.createSpan({
-                            text: "The plugin will render code blocks created by indentation using the "
-                        });
-                        e.createEl("a", {
-                            href: "https://docs.microsoft.com/en-us/contribute/markdown-reference",
-                            text: "Microsoft Document Syntax."
-                        });
-                        e.createEl("br");
-
-                        const strong = e.createEl("strong");
-
-                        strong.appendChild(WARNING_ICON.cloneNode(true));
-                        strong.createSpan({text: "This syntax will not work in Live Preview."})
-                    })
-                )
-                .addToggle((t) => {
-                    t.setValue(this.plugin.data.msSyntaxIndented).onChange(
-                        (v) => {
-                            this.plugin.data.msSyntaxIndented = v;
-                            this.plugin.saveSettings();
-                        }
-                    );
-                });
-            new Setting(containerEl)
-                .setName("Render Microsoft Document Syntax in Live Preview")
-                .setDesc(
-                    createFragment((e) => {
-                        e.createSpan({
-                            text: "The plugin will render blockquotes created using the "
-                        });
-                        e.createEl("a", {
-                            href: "https://docs.microsoft.com/en-us/contribute/markdown-reference",
-                            text: "Microsoft Document Syntax"
-                        });
-                        e.createSpan({
-                            text: " in live preview mode."
-                        });
-                    })
-                )
-                .addToggle((t) => {
-                    t.setValue(this.plugin.data.livePreviewMS).onChange((v) => {
-                        this.plugin.data.livePreviewMS = v;
-                        this.plugin.saveSettings();
-                    });
-                });
-        }
     }
 
     async buildTypes() {
@@ -666,33 +792,14 @@ class SettingsModal extends Modal {
         let iconText: TextComponent;
         new Setting(settingDiv)
             .setName(t("Admonition Icon"))
-            .setDesc(
-                createFragment((desc) => {
-                    desc.createEl("a", {
-                        text: "Font Awesome Icon",
-                        href: "https://fontawesome.com/icons?d=gallery&p=2&s=solid&m=free",
-                        attr: {
-                            tabindex: -1
-                        }
-                    });
-                    desc.createSpan({ text: " or " });
-                    desc.createEl("a", {
-                        text: "RPG Awesome Icon",
-                        href: "https://nagoshiashumari.github.io/Rpg-Awesome/",
-                        attr: {
-                            tabindex: -1
-                        }
-                    });
-                    desc.createSpan({ text: " to use next to the title." });
-                })
-            )
+            .setDesc("Icon to display next to the title.")
             .addText((text) => {
                 iconText = text;
                 if (this.icon.type !== "image") text.setValue(this.icon.name);
 
                 const validate = async () => {
                     const v = text.inputEl.value;
-                    let ic = getIconType(v);
+                    let ic = this.plugin.iconManager.getIconType(v);
                     if (!ic) {
                         SettingsModal.setValidationError(
                             text,
@@ -720,17 +827,19 @@ class SettingsModal extends Modal {
                         ".admonition-title-icon"
                     );
 
-                    iconEl.innerHTML = getIconNode(this.icon).outerHTML;
+                    iconEl.innerHTML = this.plugin.iconManager.getIconNode(
+                        this.icon
+                    ).outerHTML;
                 };
 
-                const modal = new IconSuggestionModal(this.app, text);
+                const modal = new IconSuggestionModal(this.plugin, text);
 
                 modal.onClose = validate;
 
                 text.inputEl.onblur = validate;
             })
             .addButton((b) => {
-                b.setButtonText(t("Upload Image")).setIcon('image-file');
+                b.setButtonText(t("Upload Image")).setIcon("image-file");
                 b.buttonEl.addClass("admonition-file-upload");
                 b.buttonEl.appendChild(input);
                 b.onClick(() => input.click());
@@ -821,7 +930,9 @@ class SettingsModal extends Modal {
                     }
 
                     if (
-                        !getIconType(iconText.inputEl.value) &&
+                        !this.plugin.iconManager.getIconType(
+                            iconText.inputEl.value
+                        ) &&
                         this.icon.type !== "image"
                     ) {
                         SettingsModal.setValidationError(
