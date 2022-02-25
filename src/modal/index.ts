@@ -14,10 +14,7 @@ import {
 import { createPopper, Instance as PopperInstance } from "@popperjs/core";
 
 import { getIconModuleName, getIconNode, iconDefinitions } from "../util";
-import {
-    Admonition,
-    AdmonitionIconDefinition
-} from "src/@types";
+import { Admonition, AdmonitionIconDefinition } from "src/@types";
 import ObsidianAdmonition from "src/main";
 
 class Suggester<T> {
@@ -146,6 +143,8 @@ export abstract class SuggestionModal<T> extends FuzzySuggestModal<T> {
         this.items = items;
 
         this.suggestEl = createDiv("suggestion-container");
+
+        this.suggestEl.style.width = `${inputEl.clientWidth}px`;
 
         this.contentEl = this.suggestEl.createDiv("suggestion");
 
