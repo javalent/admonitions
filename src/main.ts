@@ -1047,7 +1047,6 @@ ${editor.getDoc().getSelection()}\n--- admonition\n`
             } else if (collapse && collapse.trim() === "none") {
                 collapse = "";
             }
-            const id = getID();
 
             /* const iconNode = icon ? this.admonitions[type].icon; */
             const admonition = this.admonitions[type];
@@ -1060,8 +1059,7 @@ ${editor.getDoc().getSelection()}\n--- admonition\n`
                     (admonition.injectColor ?? this.data.injectColor
                         ? admonition.color
                         : null),
-                collapse,
-                id
+                collapse
             );
 
             let markdownRenderChild = new MarkdownRenderChild(
@@ -1227,8 +1225,7 @@ ${editor.getDoc().getSelection()}\n--- admonition\n`
         title: string,
         icon: AdmonitionIconDefinition,
         color?: string,
-        collapse?: string,
-        id?: string
+        collapse?: string
     ): HTMLElement {
         let admonition, titleEl;
         let attrs: { style?: string; open?: string } = color
@@ -1263,10 +1260,6 @@ ${editor.getDoc().getSelection()}\n--- admonition\n`
                     !title?.trim().length ? "no-title" : ""
                 }`
             });
-        }
-
-        if (id) {
-            admonition.id = id;
         }
 
         if (title && title.trim().length) {
