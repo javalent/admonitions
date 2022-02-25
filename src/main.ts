@@ -5,6 +5,7 @@ import {
     MarkdownPreviewRenderer,
     MarkdownRenderChild,
     MarkdownRenderer,
+    MarkdownSectionInformation,
     MarkdownView,
     Notice,
     Plugin,
@@ -31,7 +32,7 @@ import {
     AdmonitionSettings,
     AdmonitionIconDefinition
 } from "./@types";
-import { getID, getMatches, getParametersFromSource, MSDOCREGEX } from "./util";
+import { getParametersFromSource, MSDOCREGEX } from "./util";
 import {
     ADMONITION_MAP,
     ADD_ADMONITION_COMMAND_ICON,
@@ -117,57 +118,6 @@ export default class ObsidianAdmonition extends Plugin {
         });
     }
 
-    async addAdmonition(admonition: Admonition): Promise<void> {
-        this.data.userAdmonitions = {
-            ...this.data.userAdmonitions,
-            [admonition.type]: admonition
-        };
-        this.admonitions = {
-            ...ADMONITION_MAP,
-            ...this.data.userAdmonitions
-        };
-        if (this.data.syntaxHighlight) {
-            this.turnOnSyntaxHighlighting([admonition.type]);
-        }
-
-        await this.saveSettings();
-        const processor = this.registerMarkdownCodeBlockProcessor(
-            `ad-${admonition.type}`,
-            (src, el, ctx) => this.postprocessor(admonition.type, src, el, ctx)
-        );
-        this.postprocessors.set(admonition.type, processor);
-    }
-
-    async removeAdmonition(admonition: Admonition) {
-        if (this.data.userAdmonitions[admonition.type]) {
-            delete this.data.userAdmonitions[admonition.type];
-        }
-        this.admonitions = {
-            ...ADMONITION_MAP,
-            ...this.data.userAdmonitions
-        };
-
-        if (this.data.syntaxHighlight) {
-            this.turnOffSyntaxHighlighting([admonition.type]);
-        }
-
-        if (admonition.command) {
-            this.unregisterCommandsFor(admonition);
-        }
-
-        if (this.postprocessors.has(admonition.type)) {
-            MarkdownPreviewRenderer.unregisterPostProcessor(
-                this.postprocessors.get(admonition.type)
-            );
-            //@ts-expect-error
-            MarkdownPreviewRenderer.unregisterCodeBlockPostProcessor(
-                `ad-${admonition.type}`
-            );
-            this.postprocessors.delete(admonition.type);
-        }
-
-        await this.saveSettings();
-    }
     async onload(): Promise<void> {
         console.log("Obsidian Admonition loaded");
         await this.loadSettings();
@@ -275,6 +225,100 @@ export default class ObsidianAdmonition extends Plugin {
             this.enableMSSyntax();
         });
     }
+
+    async postprocessor(
+        type: string,
+        src: string,
+        el: HTMLElement,
+        ctx?: MarkdownPostProcessorContext
+    ) {
+        if (!this.admonitions[type]) {
+            return;
+        }
+        try {
+            const sourcePath =
+                typeof ctx == "string"
+                    ? ctx
+                    : ctx?.sourcePath ??
+                      this.app.workspace.getActiveFile()?.path ??
+                      "";
+            let { title, collapse, content, icon, color } =
+                getParametersFromSource(type, src, this.admonitions[type]);
+
+            if (this.data.autoCollapse && !collapse) {
+                collapse = this.data.defaultCollapseType ?? "open";
+            } else if (collapse && collapse.trim() === "none") {
+                collapse = "";
+            }
+
+            /* const iconNode = icon ? this.admonitions[type].icon; */
+            const admonition = this.admonitions[type];
+            let admonitionElement = this.getAdmonitionElement(
+                type,
+                title,
+                iconDefinitions.find(({ name }) => icon === name) ??
+                    admonition.icon,
+                color ??
+                    (admonition.injectColor ?? this.data.injectColor
+                        ? admonition.color
+                        : null),
+                collapse
+            );
+            const contentEl = this.renderAdmonitionContent(
+                admonitionElement,
+                type,
+                content,
+                ctx,
+                sourcePath
+            );
+            const taskLists = contentEl.querySelectorAll<HTMLInputElement>(
+                ".task-list-item-checkbox"
+            );
+            
+            if (taskLists?.length) {
+                const split = src.split("\n");
+                let slicer = 0;
+                taskLists.forEach((task) => {
+                    const line = split
+                        .slice(slicer)
+                        .findIndex((l) => /^\- \[.\]/.test(l));
+
+                    if (line == -1) return;
+                    task.dataset.line = `${line + slicer + 1}`;
+                    slicer = line + slicer + 1;
+                });
+            }
+            /**
+             * Replace the <pre> tag with the new admonition.
+             */
+            const parent = el.parentElement;
+            if (parent) {
+                parent.addClass(
+                    "admonition-parent",
+                    `admonition-${type}-parent`
+                );
+            }
+            el.replaceWith(admonitionElement);
+            return admonitionElement;
+        } catch (e) {
+            console.error(e);
+            const pre = createEl("pre");
+
+            pre.createEl("code", {
+                attr: {
+                    style: `color: var(--text-error) !important`
+                }
+            }).createSpan({
+                text:
+                    "There was an error rendering the admonition:" +
+                    "\n\n" +
+                    src
+            });
+
+            el.replaceWith(pre);
+        }
+    }
+
     getMSParametersFromLine(line: string) {
         let [, type, title, col] = line.match(MSDOCREGEX) ?? [];
 
@@ -326,66 +370,75 @@ export default class ObsidianAdmonition extends Plugin {
         }
         return { type, title, collapse };
     }
+
     enableMSSyntax() {
         this.registerMarkdownPostProcessor((el, ctx) => {
             if (!this.data.allowMSSyntax) return;
-            if (
-                el?.firstChild?.nodeName !== "BLOCKQUOTE" &&
-                !(
-                    el?.firstElementChild instanceof HTMLPreElement &&
-                    this.data.msSyntaxIndented
-                )
-            )
-                return;
+            if (!el.hasChildNodes()) return;
 
-            const section = ctx.getSectionInfo(el);
-            if (!section) return;
-            const text = section.text.split("\n");
-            const firstLine = text[section.lineStart];
-            if (!MSDOCREGEX.test(firstLine)) return;
-            /* if (!/^(?:>[ ]|\t|\s{4})\[!.+\]/.test(firstLine)) return; */
+            const blockquotes = el.querySelectorAll<
+                HTMLQuoteElement | HTMLPreElement
+            >("blockquote, pre");
 
-            const params = this.getMSParametersFromLine(firstLine);
+            for (const el of Array.from(blockquotes)) {
+                if (el instanceof HTMLPreElement && !this.data.msSyntaxIndented)
+                    continue;
 
-            if (!params?.type) return;
+                const section = ctx.getSectionInfo(el);
 
-            const { type, title, collapse } = params;
+                let text: string[];
 
-            const admonition = this.getAdmonitionElement(
-                type,
-                title,
-                this.admonitions[type].icon,
-                this.admonitions[type].color,
-                collapse
-            );
+                if (section) {
+                    text = section.text
+                        .split("\n")
+                        .slice(section.lineStart, section.lineEnd + 1);
+                } else {
+                    text = el.innerText
+                        .trim()
+                        .split("\n")
+                        .map((l) => `> ${l}`);
+                }
+                const firstLine = text.shift();
 
-            const content = text
-                .slice(section.lineStart + 1, section.lineEnd + 1)
-                .join("\n")
-                .replace(/^(>[ ]|\t|\s{4})/gm, "");
+                if (!MSDOCREGEX.test(firstLine)) continue;
 
-            const contentEl = this.getAdmonitionContentElement(
-                type,
-                admonition,
-                content
-            );
+                const params = this.getMSParametersFromLine(firstLine);
 
-            MarkdownRenderer.renderMarkdown(
-                content,
-                contentEl,
-                ctx.sourcePath,
-                null
-            );
+                if (!params?.type) continue;
 
-            if (
-                (!content.length || contentEl.textContent.trim() == "") &&
-                this.data.hideEmpty
-            )
-                admonition.addClass("no-content");
+                const { type, title, collapse } = params;
 
-            el.firstElementChild.replaceWith(admonition);
+                const admonition = this.getAdmonitionElement(
+                    type,
+                    title,
+                    this.admonitions[type].icon,
+                    this.admonitions[type].color,
+                    collapse
+                );
+
+                const content = text
+                    .join("\n")
+                    .replace(/^(>[ ]|\t|\s{4})/gm, "");
+
+                this.renderAdmonitionContent(
+                    admonition,
+                    type,
+                    content,
+                    ctx,
+                    ctx.sourcePath
+                );
+
+                console.log(
+                    "🚀 ~ file: main.ts ~ line 415 ~ admonition",
+                    el,
+                    admonition
+                );
+                el.replaceWith(admonition);
+            }
         });
+    }
 
+    registerMSDocLivePreview() {
         type TokenSpec = {
             from: number;
             to: number;
@@ -631,289 +684,7 @@ export default class ObsidianAdmonition extends Plugin {
 
         this.registerEditorExtension([plugin, field]);
     }
-    unregisterCommandsFor(admonition: Admonition) {
-        admonition.command = false;
 
-        if (
-            this.app.commands.findCommand(
-                `obsidian-admonition:insert-${admonition.type}`
-            )
-        ) {
-            delete this.app.commands.editorCommands[
-                `obsidian-admonition:insert-${admonition.type}`
-            ];
-            delete this.app.commands.editorCommands[
-                `obsidian-admonition:insert-${admonition.type}-with-title`
-            ];
-            delete this.app.commands.commands[
-                `obsidian-admonition:insert-${admonition.type}`
-            ];
-            delete this.app.commands.commands[
-                `obsidian-admonition:insert-${admonition.type}-with-title`
-            ];
-        }
-    }
-    registerCommandsFor(admonition: Admonition) {
-        admonition.command = true;
-        this.addCommand({
-            id: `insert-${admonition.type}`,
-            name: `Insert ${admonition.type}`,
-            editorCheckCallback: (checking, editor, view) => {
-                if (checking) return admonition.command;
-                if (admonition.command) {
-                    try {
-                        editor.getDoc().replaceSelection(
-                            `\`\`\`ad-${admonition.type}
-
-${editor.getDoc().getSelection()}
-
-\`\`\`\n`
-                        );
-                        const cursor = editor.getCursor();
-                        editor.setCursor(cursor.line - 2);
-                    } catch (e) {
-                        new Notice(
-                            "There was an issue inserting the admonition."
-                        );
-                    }
-                }
-            }
-        });
-        this.addCommand({
-            id: `insert-${admonition.type}-with-title`,
-            name: `Insert ${admonition.type} With Title`,
-            editorCheckCallback: (checking, editor, view) => {
-                if (checking) return admonition.command;
-                if (admonition.command) {
-                    try {
-                        const title = admonition.title ?? "";
-                        editor.getDoc().replaceSelection(
-                            `\`\`\`ad-${admonition.type}
-title: ${title}
-
-${editor.getDoc().getSelection()}
-
-\`\`\`\n`
-                        );
-                        const cursor = editor.getCursor();
-                        editor.setCursor(cursor.line - 3);
-                    } catch (e) {
-                        new Notice(
-                            "There was an issue inserting the admonition."
-                        );
-                    }
-                }
-            }
-        });
-    }
-    turnOnSyntaxHighlighting(types: string[] = Object.keys(this.admonitions)) {
-        if (!this.data.syntaxHighlight) return;
-        types.forEach((type) => {
-            if (this.data.syntaxHighlight) {
-                /** Process from @deathau's syntax highlight plugin */
-                const [, cmPatchedType] = `${type}`.match(
-                    /^([\w+#-]*)[^\n`]*$/
-                );
-                window.CodeMirror.defineMode(
-                    `ad-${cmPatchedType}`,
-                    (config, options) => {
-                        return window.CodeMirror.getMode({}, "hypermd");
-                    }
-                );
-            }
-        });
-
-        this.app.workspace.onLayoutReady(() =>
-            this.app.workspace.iterateCodeMirrors((cm) =>
-                cm.setOption("mode", cm.getOption("mode"))
-            )
-        );
-    }
-    turnOffSyntaxHighlighting(types: string[] = Object.keys(this.admonitions)) {
-        types.forEach((type) => {
-            if (window.CodeMirror.modes.hasOwnProperty(`ad-${type}`)) {
-                delete window.CodeMirror.modes[`ad-${type}`];
-            }
-        });
-        this.app.workspace.onLayoutReady(() =>
-            this.app.workspace.iterateCodeMirrors((cm) =>
-                cm.setOption("mode", cm.getOption("mode"))
-            )
-        );
-    }
-
-    layoutReady() {
-        // don't need the event handler anymore, get rid of it
-        this.refreshLeaves();
-    }
-
-    refreshLeaves() {
-        // re-set the editor mode to refresh the syntax highlighting
-        this.app.workspace.iterateCodeMirrors((cm) =>
-            cm.setOption("mode", cm.getOption("mode"))
-        );
-    }
-    async postprocessor(
-        type: string,
-        src: string,
-        el: HTMLElement,
-        ctx?: MarkdownPostProcessorContext
-    ) {
-        if (!this.admonitions[type]) {
-            return;
-        }
-        try {
-            const sourcePath =
-                typeof ctx == "string"
-                    ? ctx
-                    : ctx?.sourcePath ??
-                      this.app.workspace.getActiveFile()?.path ??
-                      "";
-            let { title, collapse, content, icon, color } =
-                getParametersFromSource(type, src, this.admonitions[type]);
-
-            if (this.data.autoCollapse && !collapse) {
-                collapse = this.data.defaultCollapseType ?? "open";
-            } else if (collapse && collapse.trim() === "none") {
-                collapse = "";
-            }
-
-            /* const iconNode = icon ? this.admonitions[type].icon; */
-            const admonition = this.admonitions[type];
-            let admonitionElement = this.getAdmonitionElement(
-                type,
-                title,
-                iconDefinitions.find(({ name }) => icon === name) ??
-                    admonition.icon,
-                color ??
-                    (admonition.injectColor ?? this.data.injectColor
-                        ? admonition.color
-                        : null),
-                collapse
-            );
-
-            let markdownRenderChild = new MarkdownRenderChild(
-                admonitionElement
-            );
-            markdownRenderChild.containerEl = admonitionElement;
-            if (ctx && !(typeof ctx == "string")) {
-                /**
-                 * Create a unloadable component.
-                 */
-                markdownRenderChild.onload = () => {
-                    /* this.contextMap.set(id, ctx); */
-                };
-                markdownRenderChild.onunload = () => {
-                    /* this.contextMap.delete(id); */
-                };
-                ctx.addChild(markdownRenderChild);
-            }
-
-            if (content && content.length) {
-                const contentEl = this.getAdmonitionContentElement(
-                    type,
-                    admonitionElement,
-                    content
-                );
-                /**
-                 * Render the content as markdown and append it to the admonition.
-                 */
-
-                if (/^`{3,}mermaid/m.test(content)) {
-                    const wasCollapsed =
-                        !admonitionElement.hasAttribute("open");
-                    if (admonitionElement instanceof HTMLDetailsElement) {
-                        admonitionElement.setAttribute("open", "open");
-                    }
-                    setImmediate(() => {
-                        MarkdownRenderer.renderMarkdown(
-                            content,
-                            contentEl,
-                            sourcePath,
-                            markdownRenderChild
-                        );
-                        if (
-                            admonitionElement instanceof HTMLDetailsElement &&
-                            wasCollapsed
-                        ) {
-                            admonitionElement.removeAttribute("open");
-                        }
-                    });
-                } else {
-                    MarkdownRenderer.renderMarkdown(
-                        content,
-                        contentEl,
-                        sourcePath,
-                        markdownRenderChild
-                    );
-                }
-
-                if (
-                    (!content.length || contentEl.textContent.trim() == "") &&
-                    this.data.hideEmpty
-                )
-                    admonitionElement.addClass("no-content");
-
-                const taskLists = contentEl.querySelectorAll<HTMLInputElement>(
-                    ".task-list-item-checkbox"
-                );
-                if (taskLists?.length) {
-                    const split = src.split("\n");
-                    let slicer = 0;
-                    taskLists.forEach((task) => {
-                        const line = split
-                            .slice(slicer)
-                            .findIndex((l) => /^\- \[.\]/.test(l));
-
-                        if (line == -1) return;
-                        task.dataset.line = `${line + slicer + 1}`;
-                        slicer = line + slicer + 1;
-                    });
-                }
-
-                const links =
-                    contentEl.querySelectorAll<HTMLAnchorElement>(
-                        "a.internal-link"
-                    );
-
-                this.addLinksToCache(links, sourcePath);
-            }
-
-            /**
-             * Replace the <pre> tag with the new admonition.
-             */
-            const parent = el.parentElement;
-            if (parent && !parent.hasClass("admonition-content")) {
-                parent.addClass(
-                    "admonition-parent",
-                    `admonition-${type}-parent`
-                );
-            }
-            el.replaceWith(admonitionElement);
-            return admonitionElement;
-        } catch (e) {
-            console.error(e);
-            const pre = createEl("pre");
-
-            pre.createEl("code", {
-                attr: {
-                    style: `color: var(--text-error) !important`
-                }
-            }).createSpan({
-                text:
-                    "There was an error rendering the admonition:" +
-                    "\n\n" +
-                    src
-            });
-
-            el.replaceWith(pre);
-        }
-    }
-    async onunload() {
-        console.log("Obsidian Admonition unloaded");
-
-        this.turnOffSyntaxHighlighting();
-    }
     addLinksToCache(
         links: NodeListOf<HTMLAnchorElement>,
         sourcePath: string
@@ -1049,6 +820,75 @@ ${editor.getDoc().getSelection()}
         }
         return admonition;
     }
+
+    renderAdmonitionContent(
+        admonitionElement: HTMLElement,
+        type: string,
+        content: string,
+        ctx: MarkdownPostProcessorContext,
+        sourcePath: string
+    ) {
+        let markdownRenderChild = new MarkdownRenderChild(admonitionElement);
+        markdownRenderChild.containerEl = admonitionElement;
+        if (ctx && !(typeof ctx == "string")) {
+            ctx.addChild(markdownRenderChild);
+        }
+
+        const contentEl = this.getAdmonitionContentElement(
+            type,
+            admonitionElement,
+            content
+        );
+        if (content && content.length) {
+            /**
+             * Render the content as markdown and append it to the admonition.
+             */
+
+            if (/^`{3,}mermaid/m.test(content)) {
+                const wasCollapsed = !admonitionElement.hasAttribute("open");
+                if (admonitionElement instanceof HTMLDetailsElement) {
+                    admonitionElement.setAttribute("open", "open");
+                }
+                setImmediate(() => {
+                    MarkdownRenderer.renderMarkdown(
+                        content,
+                        contentEl,
+                        sourcePath,
+                        markdownRenderChild
+                    );
+                    if (
+                        admonitionElement instanceof HTMLDetailsElement &&
+                        wasCollapsed
+                    ) {
+                        admonitionElement.removeAttribute("open");
+                    }
+                });
+            } else {
+                MarkdownRenderer.renderMarkdown(
+                    content,
+                    contentEl,
+                    sourcePath,
+                    markdownRenderChild
+                );
+            }
+
+            if (
+                (!content.length || contentEl.textContent.trim() == "") &&
+                this.data.hideEmpty
+            )
+                admonitionElement.addClass("no-content");
+
+            const links =
+                contentEl.querySelectorAll<HTMLAnchorElement>(
+                    "a.internal-link"
+                );
+
+            this.addLinksToCache(links, sourcePath);
+        }
+
+        return contentEl;
+    }
+
     getAdmonitionContentElement(
         type: string,
         admonitionElement: HTMLElement,
@@ -1070,120 +910,131 @@ ${editor.getDoc().getSelection()}
         }
         return contentEl;
     }
-    async getAdmonitionElementAsync(
-        type: string,
-        title: string,
-        icon: AdmonitionIconDefinition,
-        color?: string,
-        collapse?: string,
-        id?: string
-    ): Promise<HTMLElement> {
-        let admonition,
-            titleEl,
-            attrs: { style?: string; open?: string } = color
-                ? {
-                      style: `--admonition-color: ${color};`
-                  }
-                : {};
-        if (collapse) {
-            if (collapse === "open") {
-                attrs.open = "open";
-            }
-            admonition = createEl("details", {
-                cls: `admonition admonition-${type} admonition-plugin admonition-plugin-async ${
-                    !title?.trim().length ? "no-title" : ""
-                }`,
-                attr: attrs
-            });
-            titleEl = admonition.createEl("summary", {
-                cls: `admonition-title ${
-                    !title.trim().length ? "no-title" : ""
-                }`
-            });
-        } else {
-            admonition = createDiv({
-                cls: `admonition admonition-${type} admonition-plugin ${
-                    !title?.trim().length ? "no-title" : ""
-                }`,
-                attr: attrs
-            });
-            titleEl = admonition.createDiv({
-                cls: `admonition-title ${
-                    !title.trim().length ? "no-title" : ""
-                }`
-            });
+
+    async addAdmonition(admonition: Admonition): Promise<void> {
+        this.data.userAdmonitions = {
+            ...this.data.userAdmonitions,
+            [admonition.type]: admonition
+        };
+        this.admonitions = {
+            ...ADMONITION_MAP,
+            ...this.data.userAdmonitions
+        };
+        if (this.data.syntaxHighlight) {
+            this.turnOnSyntaxHighlighting([admonition.type]);
         }
 
-        if (id) {
-            admonition.id = id;
-        }
+        await this.saveSettings();
+        const processor = this.registerMarkdownCodeBlockProcessor(
+            `ad-${admonition.type}`,
+            (src, el, ctx) => this.postprocessor(admonition.type, src, el, ctx)
+        );
+        this.postprocessors.set(admonition.type, processor);
+    }
+    registerCommandsFor(admonition: Admonition) {
+        admonition.command = true;
+        this.addCommand({
+            id: `insert-${admonition.type}`,
+            name: `Insert ${admonition.type}`,
+            editorCheckCallback: (checking, editor, view) => {
+                if (checking) return admonition.command;
+                if (admonition.command) {
+                    try {
+                        editor.getDoc().replaceSelection(
+                            `\`\`\`ad-${admonition.type}
 
-        if (title && title.trim().length) {
-            //
-            // Title structure
-            // <div|summary>.admonition-title
-            //      <element>.admonition-title-content - Rendered Markdown top-level element (e.g. H1/2/3 etc, p)
-            //          div.admonition-title-icon
-            //              svg
-            //          div.admonition-title-markdown - Container of rendered markdown
-            //              ...rendered markdown children...
-            //
+${editor.getDoc().getSelection()}
 
-            //get markdown
-            if (this.data.parseTitles) {
-                const markdownHolder = createDiv();
-                await MarkdownRenderer.renderMarkdown(
-                    title,
-                    markdownHolder,
-                    "",
-                    null
-                );
-
-                //admonition-title-content is first child of rendered markdown
-
-                const admonitionTitleContent =
-                    markdownHolder.children[0].tagName === "P"
-                        ? createDiv()
-                        : markdownHolder.children[0];
-
-                //get children of markdown element, then remove them
-                const markdownElements = Array.from(
-                    markdownHolder.children[0]?.childNodes || []
-                );
-                admonitionTitleContent.innerHTML = "";
-                admonitionTitleContent.addClass("admonition-title-content");
-
-                //build icon element
-                const iconEl = admonitionTitleContent.createDiv(
-                    "admonition-title-icon"
-                );
-                if (icon && icon.name && icon.type) {
-                    iconEl.appendChild(getIconNode(icon));
+\`\`\`\n`
+                        );
+                        const cursor = editor.getCursor();
+                        editor.setCursor(cursor.line - 2);
+                    } catch (e) {
+                        new Notice(
+                            "There was an issue inserting the admonition."
+                        );
+                    }
                 }
-
-                //add markdown children back
-                const admonitionTitleMarkdown =
-                    admonitionTitleContent.createDiv(
-                        "admonition-title-markdown"
-                    );
-                for (let i = 0; i < markdownElements.length; i++) {
-                    admonitionTitleMarkdown.appendChild(markdownElements[i]);
-                }
-                titleEl.appendChild(admonitionTitleContent || createDiv());
-            } else {
-                titleEl.appendChild(createDiv({ text: title }));
             }
+        });
+        this.addCommand({
+            id: `insert-${admonition.type}-with-title`,
+            name: `Insert ${admonition.type} With Title`,
+            editorCheckCallback: (checking, editor, view) => {
+                if (checking) return admonition.command;
+                if (admonition.command) {
+                    try {
+                        const title = admonition.title ?? "";
+                        editor.getDoc().replaceSelection(
+                            `\`\`\`ad-${admonition.type}
+title: ${title}
+
+${editor.getDoc().getSelection()}
+
+\`\`\`\n`
+                        );
+                        const cursor = editor.getCursor();
+                        editor.setCursor(cursor.line - 3);
+                    } catch (e) {
+                        new Notice(
+                            "There was an issue inserting the admonition."
+                        );
+                    }
+                }
+            }
+        });
+    }
+    async removeAdmonition(admonition: Admonition) {
+        if (this.data.userAdmonitions[admonition.type]) {
+            delete this.data.userAdmonitions[admonition.type];
+        }
+        this.admonitions = {
+            ...ADMONITION_MAP,
+            ...this.data.userAdmonitions
+        };
+
+        if (this.data.syntaxHighlight) {
+            this.turnOffSyntaxHighlighting([admonition.type]);
         }
 
-        //add them to title element
+        if (admonition.command) {
+            this.unregisterCommandsFor(admonition);
+        }
 
-        if (collapse) {
-            titleEl.createDiv("collapser").createDiv("handle");
+        if (this.postprocessors.has(admonition.type)) {
+            MarkdownPreviewRenderer.unregisterPostProcessor(
+                this.postprocessors.get(admonition.type)
+            );
+            //@ts-expect-error
+            MarkdownPreviewRenderer.unregisterCodeBlockPostProcessor(
+                `ad-${admonition.type}`
+            );
+            this.postprocessors.delete(admonition.type);
         }
-        if (!this.data.dropShadow) {
-            admonition.addClass("no-drop");
+
+        await this.saveSettings();
+    }
+    unregisterCommandsFor(admonition: Admonition) {
+        admonition.command = false;
+
+        if (
+            this.app.commands.findCommand(
+                `obsidian-admonition:insert-${admonition.type}`
+            )
+        ) {
+            delete this.app.commands.editorCommands[
+                `obsidian-admonition:insert-${admonition.type}`
+            ];
+            delete this.app.commands.editorCommands[
+                `obsidian-admonition:insert-${admonition.type}-with-title`
+            ];
+            delete this.app.commands.commands[
+                `obsidian-admonition:insert-${admonition.type}`
+            ];
+            delete this.app.commands.commands[
+                `obsidian-admonition:insert-${admonition.type}-with-title`
+            ];
         }
-        return admonition;
     }
 
     async saveSettings() {
@@ -1232,5 +1083,47 @@ ${editor.getDoc().getSelection()}
             ...this.data.userAdmonitions
         };
         await this.saveSettings();
+    }
+
+    turnOnSyntaxHighlighting(types: string[] = Object.keys(this.admonitions)) {
+        if (!this.data.syntaxHighlight) return;
+        types.forEach((type) => {
+            if (this.data.syntaxHighlight) {
+                /** Process from @deathau's syntax highlight plugin */
+                const [, cmPatchedType] = `${type}`.match(
+                    /^([\w+#-]*)[^\n`]*$/
+                );
+                window.CodeMirror.defineMode(
+                    `ad-${cmPatchedType}`,
+                    (config, options) => {
+                        return window.CodeMirror.getMode({}, "hypermd");
+                    }
+                );
+            }
+        });
+
+        this.app.workspace.onLayoutReady(() =>
+            this.app.workspace.iterateCodeMirrors((cm) =>
+                cm.setOption("mode", cm.getOption("mode"))
+            )
+        );
+    }
+    turnOffSyntaxHighlighting(types: string[] = Object.keys(this.admonitions)) {
+        types.forEach((type) => {
+            if (window.CodeMirror.modes.hasOwnProperty(`ad-${type}`)) {
+                delete window.CodeMirror.modes[`ad-${type}`];
+            }
+        });
+        this.app.workspace.onLayoutReady(() =>
+            this.app.workspace.iterateCodeMirrors((cm) =>
+                cm.setOption("mode", cm.getOption("mode"))
+            )
+        );
+    }
+
+    async onunload() {
+        console.log("Obsidian Admonition unloaded");
+
+        this.turnOffSyntaxHighlighting();
     }
 }
