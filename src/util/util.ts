@@ -1,42 +1,5 @@
 import { Notice } from "obsidian";
-import {
-    Admonition,
-    NestedAdmonition
-} from "../@types";
-
-export function getID() {
-    return "ID_xyxyxyxyxyxy".replace(/[xy]/g, function (c) {
-        var r = (Math.random() * 16) | 0,
-            v = c == "x" ? r : (r & 0x3) | 0x8;
-        return v.toString(16);
-    });
-}
-
-export function getMatches(
-    src: string,
-    from: number,
-    toMatch: string
-): NestedAdmonition {
-    const split = src.split("\n").slice(from);
-    const first = split.indexOf(split.find((l) => l == toMatch));
-
-    let next = first + 1;
-    for (; next < split.length; next++) {
-        if (!/^(?: {2,4}|\t)+[\s\S]*?/.test(split[next])) break;
-    }
-
-    let innerSrc = split.slice(first + 1, next).join("\n");
-
-    const toRemove = innerSrc.split("\n")[0].match(/^(\s+)/);
-    innerSrc = innerSrc.replace(new RegExp(`^${toRemove[0] || ""}`, "gm"), "");
-
-    return {
-        start: first + from,
-        end: next + from - 1,
-        src: innerSrc,
-        type: toMatch.split("-").pop()
-    };
-}
+import { Admonition } from "../@types";
 
 function startsWithAny(str: string, needles: string[]) {
     for (let i = 0; i < needles.length; i++) {
