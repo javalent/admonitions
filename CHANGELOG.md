@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [7.0.1](https://github.com/valentine195/obsidian-admonition/compare/7.0.0...7.0.1) (2022-02-25)
+
+
+### Bug Fixes
+
+* Fixes MSDoc-syntax in Live Preview ([e4d1cdb](https://github.com/valentine195/obsidian-admonition/commit/e4d1cdb7dd0e15b5f1876d8d14dfeb850b85527b))
+
 ## [7.0.0](https://github.com/valentine195/obsidian-admonition/compare/6.12.1...7.0.0) (2022-02-25)
 
 
