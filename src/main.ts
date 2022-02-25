@@ -69,34 +69,6 @@ declare module "obsidian" {
         unregisterCodeBlockPostProcessor(lang: string): void;
     }
 }
-Object.fromEntries =
-    Object.fromEntries ||
-    /** Polyfill taken from https://github.com/tc39/proposal-object-from-entries/blob/master/polyfill.js */
-    function <T = any>(
-        entries: Iterable<readonly [PropertyKey, T]>
-    ): { [k: string]: T } {
-        const obj = {};
-
-        for (const pair of entries) {
-            if (Object(pair) !== pair) {
-                throw new TypeError(
-                    "iterable for fromEntries should yield objects"
-                );
-            }
-            // Consistency with Map: contract is that entry has "0" and "1" keys, not
-            // that it is an array or iterable.
-            const { "0": key, "1": val } = pair;
-
-            Object.defineProperty(obj, key, {
-                configurable: true,
-                enumerable: true,
-                writable: true,
-                value: val
-            });
-        }
-
-        return obj;
-    };
 
 import AdmonitionSetting from "./settings";
 import {
@@ -144,54 +116,7 @@ export default class ObsidianAdmonition extends Plugin {
             };
         });
     }
-    async saveSettings() {
-        this.data.version = this.manifest.version;
-        await this.saveData(this.data);
-    }
 
-    async loadSettings() {
-        const loaded: AdmonitionSettings = await this.loadData();
-        this.data = Object.assign({}, DEFAULT_APP_SETTINGS, loaded);
-
-        if (
-            this.data.userAdmonitions &&
-            (!this.data.version || Number(this.data.version.split(".")[0]) < 5)
-        ) {
-            for (let admonition in this.data.userAdmonitions) {
-                if (
-                    Object.prototype.hasOwnProperty.call(
-                        this.data.userAdmonitions[admonition],
-                        "type"
-                    )
-                )
-                    continue;
-                this.data.userAdmonitions[admonition] = {
-                    ...this.data.userAdmonitions[admonition],
-                    icon: {
-                        type: "font-awesome",
-                        name: this.data.userAdmonitions[admonition]
-                            .icon as unknown as IconName
-                    }
-                };
-            }
-        }
-
-        if (loaded != null && !this.data.warnedAboutNC) {
-            if (Number(this.data.version.split(".")[0]) < 7) {
-                new Notice(
-                    "Admonitions: Use of the !!!-style Admonitions will be removed in a future version.\n\nPlease update them to the MSDoc-style syntax.",
-                    0
-                );
-            }
-            this.data.warnedAboutNC = true;
-        }
-
-        this.admonitions = {
-            ...ADMONITION_MAP,
-            ...this.data.userAdmonitions
-        };
-        await this.saveSettings();
-    }
     async addAdmonition(admonition: Admonition): Promise<void> {
         this.data.userAdmonitions = {
             ...this.data.userAdmonitions,
@@ -798,25 +723,27 @@ ${editor.getDoc().getSelection()}
             }
         });
 
-        this.app.workspace.layoutReady
-            ? this.layoutReady()
-            : this.app.workspace.onLayoutReady(this.layoutReady.bind(this));
+        this.app.workspace.onLayoutReady(() =>
+            this.app.workspace.iterateCodeMirrors((cm) =>
+                cm.setOption("mode", cm.getOption("mode"))
+            )
+        );
     }
-
     turnOffSyntaxHighlighting(types: string[] = Object.keys(this.admonitions)) {
         types.forEach((type) => {
             if (window.CodeMirror.modes.hasOwnProperty(`ad-${type}`)) {
                 delete window.CodeMirror.modes[`ad-${type}`];
             }
         });
-        this.app.workspace.layoutReady
-            ? this.layoutReady()
-            : this.app.workspace.onLayoutReady(this.layoutReady.bind(this));
+        this.app.workspace.onLayoutReady(() =>
+            this.app.workspace.iterateCodeMirrors((cm) =>
+                cm.setOption("mode", cm.getOption("mode"))
+            )
+        );
     }
 
     layoutReady() {
         // don't need the event handler anymore, get rid of it
-        this.app.workspace.off("layout-ready", this.layoutReady.bind(this));
         this.refreshLeaves();
     }
 
@@ -1257,5 +1184,53 @@ ${editor.getDoc().getSelection()}
             admonition.addClass("no-drop");
         }
         return admonition;
+    }
+
+    async saveSettings() {
+        this.data.version = this.manifest.version;
+        await this.saveData(this.data);
+    }
+    async loadSettings() {
+        const loaded: AdmonitionSettings = await this.loadData();
+        this.data = Object.assign({}, DEFAULT_APP_SETTINGS, loaded);
+
+        if (
+            this.data.userAdmonitions &&
+            (!this.data.version || Number(this.data.version.split(".")[0]) < 5)
+        ) {
+            for (let admonition in this.data.userAdmonitions) {
+                if (
+                    Object.prototype.hasOwnProperty.call(
+                        this.data.userAdmonitions[admonition],
+                        "type"
+                    )
+                )
+                    continue;
+                this.data.userAdmonitions[admonition] = {
+                    ...this.data.userAdmonitions[admonition],
+                    icon: {
+                        type: "font-awesome",
+                        name: this.data.userAdmonitions[admonition]
+                            .icon as unknown as IconName
+                    }
+                };
+            }
+        }
+
+        if (loaded != null && !this.data.warnedAboutNC) {
+            if (Number(this.data.version.split(".")[0]) < 7) {
+                new Notice(
+                    "Admonitions: Use of the !!!-style Admonitions will be removed in a future version.\n\nPlease update them to the MSDoc-style syntax.",
+                    0
+                );
+            }
+            this.data.warnedAboutNC = true;
+        }
+
+        this.admonitions = {
+            ...ADMONITION_MAP,
+            ...this.data.userAdmonitions
+        };
+        await this.saveSettings();
     }
 }
