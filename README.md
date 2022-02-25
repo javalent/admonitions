@@ -141,33 +141,6 @@ This is in the original admonition.
 `````
 ``````
 
-Admonitions may also be nested inside each other using the [Python Markdown](https://python-markdown.github.io/extensions/admonition/) syntax.
-
-> :warning: **Please note that this syntax _cannot_ be used for the original admonition. It must be a codeblock (```).**
-
-Example:
-
-````
-```ad-note
-title: Nested Admonitions
-collapse: open
-
-Hello!
-
-!!! ad-note
-	title: This admonition is nested.
-	This is a nested admonition!
-	!!! ad-warning
-		title: This admonition is closed.
-		collapse: close
-
-
-This is in the original admonition.
-```
-````
-
-![](https://raw.githubusercontent.com/valentine195/obsidian-admonition/master/images/nested.png)
-
 ## Rendering Code Blocks inside Admonitions
 
 Code blocks may be nested inside admonitions using a method similar to [Nesting Admonitions](#Nesting-Admonitions) above.

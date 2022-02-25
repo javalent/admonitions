@@ -1042,34 +1042,6 @@ ${editor.getDoc().getSelection()}\n--- admonition\n`
             let { title, collapse, content, icon, color } =
                 getParametersFromSource(type, src, this.admonitions[type]);
 
-            let match = new RegExp(`^!!! ad-(${this.types.join("|")})$`, "gm");
-
-            let nestedAdmonitions = content.match(match) || [];
-
-            if (nestedAdmonitions.length) {
-                let matches = [getMatches(content, 0, nestedAdmonitions[0])];
-                for (let i = 1; i < nestedAdmonitions.length; i++) {
-                    matches.push(
-                        getMatches(
-                            content,
-                            matches[i - 1].end,
-                            nestedAdmonitions[i]
-                        )
-                    );
-                }
-
-                let split = content.split("\n");
-
-                for (let m of matches.reverse()) {
-                    split.splice(
-                        m.start,
-                        m.end - m.start + 1,
-                        `\`\`\`ad-${m.type}\n${m.src}\n\`\`\``
-                    );
-                }
-                content = split.join("\n");
-            }
-
             if (this.data.autoCollapse && !collapse) {
                 collapse = this.data.defaultCollapseType ?? "open";
             } else if (collapse && collapse.trim() === "none") {
