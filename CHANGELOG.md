@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [7.0.0](https://github.com/valentine195/obsidian-admonition/compare/6.12.1...7.0.0) (2022-02-25)
+
+
+### ⚠ BREAKING CHANGES
+
+* Removes support for Python-style non-codeblock Admonitions.
+* Removes generated `id` from Admonition elements.
+* Python Markdown nesting syntax is no longer supported. Use nesting code blocks instead.
+
+### Features
+
+* Added Icon Packs (close [#181](https://github.com/valentine195/obsidian-admonition/issues/181)) ([e973cec](https://github.com/valentine195/obsidian-admonition/commit/e973cec353a656112f9310c64afb7780ba8590c3))
+* Python Markdown nesting syntax is no longer supported. Use nesting code blocks instead. ([3e65292](https://github.com/valentine195/obsidian-admonition/commit/3e6529217ec54f2145d4eec5bb1ba1f687fef228))
+* Removes generated `id` from Admonition elements. ([2f87101](https://github.com/valentine195/obsidian-admonition/commit/2f87101ed6ceaf7b7b4ebf5c07063efe476019dc))
+* Removes support for Python-style non-codeblock Admonitions. ([b6ad0c4](https://github.com/valentine195/obsidian-admonition/commit/b6ad0c4ac146b9a946982b218aae599cf92ff7d4))
+
+
+### Bug Fixes
+
+* Admonition modal image button switched to icon ([02882e7](https://github.com/valentine195/obsidian-admonition/commit/02882e7adcb3a280508cf32d13a5f19db74bc729))
+* Admonition suggestor is now the full width of the input element ([#190](https://github.com/valentine195/obsidian-admonition/issues/190)) ([a3b3c54](https://github.com/valentine195/obsidian-admonition/commit/a3b3c54703d4b8128ae1a16687c11dca40144908))
+* Fixed checkboxes not working when in blockquotes or nested, including in the MS-Doc syntax (close [#150](https://github.com/valentine195/obsidian-admonition/issues/150)) ([202b826](https://github.com/valentine195/obsidian-admonition/commit/202b826b4d82e33c0524cde0da6f21f5d33ea0bf))
+* Fixes pandoc and PDF export of blockquotes (close [#192](https://github.com/valentine195/obsidian-admonition/issues/192)) ([ba75de8](https://github.com/valentine195/obsidian-admonition/commit/ba75de802b10e12ed347d9dd05239e1c3905ca09))
+* Removed old polyfill, fixed app layout ready call ([2ab15f1](https://github.com/valentine195/obsidian-admonition/commit/2ab15f101d193061cc13523465decbbf25527efa))
+
 ### [6.12.1](https://github.com/valentine195/obsidian-admonition/compare/6.12.0...6.12.1) (2022-02-22)
 
 
