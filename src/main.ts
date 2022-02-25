@@ -241,6 +241,7 @@ export default class ObsidianAdmonition extends Plugin {
             );
 
             this.enableMSSyntax();
+            this.registerMSDocLivePreview();
         });
     }
     async downloadIcon(pack: DownloadableIconPack) {
