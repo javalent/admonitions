@@ -269,25 +269,9 @@ export default class ObsidianAdmonition extends Plugin {
                 type,
                 content,
                 ctx,
-                sourcePath
+                sourcePath,
+                src
             );
-            const taskLists = contentEl.querySelectorAll<HTMLInputElement>(
-                ".task-list-item-checkbox"
-            );
-            
-            if (taskLists?.length) {
-                const split = src.split("\n");
-                let slicer = 0;
-                taskLists.forEach((task) => {
-                    const line = split
-                        .slice(slicer)
-                        .findIndex((l) => /^\- \[.\]/.test(l));
-
-                    if (line == -1) return;
-                    task.dataset.line = `${line + slicer + 1}`;
-                    slicer = line + slicer + 1;
-                });
-            }
             /**
              * Replace the <pre> tag with the new admonition.
              */
@@ -420,19 +404,15 @@ export default class ObsidianAdmonition extends Plugin {
                     .join("\n")
                     .replace(/^(>[ ]|\t|\s{4})/gm, "");
 
-                this.renderAdmonitionContent(
+                const contentEl = this.renderAdmonitionContent(
                     admonition,
                     type,
                     content,
                     ctx,
-                    ctx.sourcePath
+                    ctx.sourcePath,
+                    text.join('\n')
                 );
 
-                console.log(
-                    "🚀 ~ file: main.ts ~ line 415 ~ admonition",
-                    el,
-                    admonition
-                );
                 el.replaceWith(admonition);
             }
         });
@@ -826,7 +806,8 @@ export default class ObsidianAdmonition extends Plugin {
         type: string,
         content: string,
         ctx: MarkdownPostProcessorContext,
-        sourcePath: string
+        sourcePath: string,
+        src: string
     ) {
         let markdownRenderChild = new MarkdownRenderChild(admonitionElement);
         markdownRenderChild.containerEl = admonitionElement;
@@ -877,6 +858,23 @@ export default class ObsidianAdmonition extends Plugin {
                 this.data.hideEmpty
             )
                 admonitionElement.addClass("no-content");
+
+            const taskLists = contentEl.querySelectorAll<HTMLInputElement>(
+                ".task-list-item-checkbox"
+            );
+            if (taskLists?.length) {
+                const split = src.split("\n");
+                let slicer = 0;
+                taskLists.forEach((task) => {
+                    const line = split
+                        .slice(slicer)
+                        .findIndex((l) => /^[ \t>]*\- \[.\]/.test(l));
+
+                    if (line == -1) return;
+                    task.dataset.line = `${line + slicer + 1}`;
+                    slicer = line + slicer + 1;
+                });
+            }
 
             const links =
                 contentEl.querySelectorAll<HTMLAnchorElement>(
