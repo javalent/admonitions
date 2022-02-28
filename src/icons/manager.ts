@@ -54,6 +54,7 @@ export class IconManager {
                 );
             }
         }
+        this.setIconDefinitions();
     }
     iconDefinitions: AdmonitionIconDefinition[] = [];
     setIconDefinitions() {
