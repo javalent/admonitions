@@ -13,7 +13,7 @@ export const WARNING_ICON = `<svg fill="currentColor" xmlns="http://www.w3.org/2
 export const WARNING_ICON_NAME = "admonition-warning";
 
 export const MSDOCREGEX =
-    /^(?:> |\t|[ ]{4})\[!(\w+)(?::[ ]?(.+)?)?\](x|\+|\-)?/;
+    /^(?:> |\t|[ ]{4})\[!([^ :]+)(?::[ ]?(.+)?)?\](x|\+|\-)?/;
 
 export const ADMONITION_MAP: Record<string, Admonition> = {
     note: {
