@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [7.0.3](https://github.com/valentine195/obsidian-admonition/compare/7.0.2...7.0.3) (2022-02-28)
+
+
+### Bug Fixes
+
+* fixes issue with icon suggester not loading icons ([4a463d3](https://github.com/valentine195/obsidian-admonition/commit/4a463d340a1625daba7bae7739e331c5522d33c0))
+
 ### [7.0.1](https://github.com/valentine195/obsidian-admonition/compare/7.0.0...7.0.1) (2022-02-25)
 
 
