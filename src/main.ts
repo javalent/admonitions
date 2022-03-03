@@ -291,7 +291,7 @@ export default class ObsidianAdmonition extends Plugin {
                         : null),
                 collapse
             );
-            const contentEl = this.renderAdmonitionContent(
+            this.renderAdmonitionContent(
                 admonitionElement,
                 type,
                 content,
@@ -431,7 +431,7 @@ export default class ObsidianAdmonition extends Plugin {
                     .join("\n")
                     .replace(/^(>[ ]|\t|\s{4})/gm, "");
 
-                const contentEl = this.renderAdmonitionContent(
+                this.renderAdmonitionContent(
                     admonition,
                     type,
                     content,
@@ -844,16 +844,15 @@ export default class ObsidianAdmonition extends Plugin {
             ctx.addChild(markdownRenderChild);
         }
 
-        const contentEl = this.getAdmonitionContentElement(
-            type,
-            admonitionElement,
-            content
-        );
-        if (content && content.length) {
+        if (content && content?.trim().length) {
             /**
              * Render the content as markdown and append it to the admonition.
              */
-
+            const contentEl = this.getAdmonitionContentElement(
+                type,
+                admonitionElement,
+                content
+            );
             if (/^`{3,}mermaid/m.test(content)) {
                 const wasCollapsed = !admonitionElement.hasAttribute("open");
                 if (admonitionElement instanceof HTMLDetailsElement) {
@@ -912,8 +911,6 @@ export default class ObsidianAdmonition extends Plugin {
 
             this.addLinksToCache(links, sourcePath);
         }
-
-        return contentEl;
     }
 
     getAdmonitionContentElement(
