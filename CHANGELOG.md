@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [7.0.4](https://github.com/valentine195/obsidian-admonition/compare/7.0.3...7.0.4) (2022-03-03)
+
+
+### Bug Fixes
+
+* Content element will no longer be added if no content is provided (close [#201](https://github.com/valentine195/obsidian-admonition/issues/201)) ([94d7a4b](https://github.com/valentine195/obsidian-admonition/commit/94d7a4b956c9c7c7a23480242e27e00c19ac97e0))
+
 ### [7.0.3](https://github.com/valentine195/obsidian-admonition/compare/7.0.2...7.0.3) (2022-02-28)
 
 
