@@ -2,6 +2,7 @@ import esbuild from "esbuild";
 import process from "process";
 import builtins from "builtin-modules";
 import { config } from "dotenv";
+import { sassPlugin } from "esbuild-sass-plugin";
 
 config();
 
@@ -56,6 +57,8 @@ esbuild
         logLevel: "info",
         sourcemap: !prod ? "inline" : false,
         treeShaking: true,
-        outdir: dir
+        outdir: dir,
+
+        plugins: [sassPlugin()]
     })
     .catch(() => process.exit(1));
