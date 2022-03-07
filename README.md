@@ -1,5 +1,12 @@
 # Obsidian Admonition
 
+> :pencil: Obsidian 0.14 adds support for Callout boxes!
+> 
+> Going forward, the Admonitions plugin will be focused around enhancing this new core feature.
+> 
+> Your existing Admonitions will continue to work (and always will)! But it is recommend to use the core syntax going forward.
+
+
 Adds admonition block-styled content to Obsidian.md, styled after [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/reference/admonitions/)
 
 **Please note, as of 2.0.0, all admonitions must be prefixed with `ad-`**
@@ -685,101 +692,6 @@ No additional features are planned at this time. If there is a feature missing t
 -   [x] Custom admonitions
 -   [x] Settings tab to customize icon and color of all admonitions
 -   [x] Ability to render markdown inside an admonition
-
-# Version History
-
-## 6.0.0
-
--   Added ability to define admonitions without using a code block
--   Added `.admonition-plugin` class to top level element
--   Add command to "Insert Admonition" with a modal chooser
--   Add command to "Replace Admonitions with HTML"
-
-## 5.0.0
-
--   Added [RPG Awesome Icons](http://nagoshiashumari.github.io/Rpg-Awesome/) as an option for admonition icons.
-
-## 4.4.1
-
--   Removed `content` parameter
--   Fixed some issues related to resolving parameters
-
-## 4.4.0
-
--   Added ability to register and unregister commands to insert admonitions into a note
-    -   Admonitions that have been created in settings can have commands registered by clicking the new "Register Commands" button
-    -   Registering commands adds two commands: `Insert <type>` and `Insert <type> With Title`
-    -   Registered commands can be removed by clicking "Unregister Commands"
-
-## 4.3.0
-
--   Added Sync Links to Metadata Cache setting
-
-## 4.2.0
-
--   Added Collapsible by Default and Default Collapse Type settings
-
-## 4.1.5
-
--   Improved Admonition Icon selection experience
-
-## 4.1.4
-
--   Trimmed whitespace from content when copying to clipboard.
-
-## 4.1.0
-
--   Added "Copy Button" setting
-    -   Turning this on adds a "copy content" button to each admonition, which copies the admonition content to the clipboard
-
-## 4.0.0
-
--   Nested admonitions are now possible
-
-## 3.3.0
-
--   Added commands to open and collapse all admonitions in active note
--   Admonition icons now respect the font size of the admonition title
--   Collapse handle now centers inside the title element
--   CSS changes
-
-## 3.2.0
-
--   Added a setting to turn on default Obsidian syntax highlighting to admonition code block types
--   Admonitions now render titles as Markdown
-
-## 3.1.0
-
--   Fixed issue where checkboxes in admonitions were not toggleable
-
-## 3.0.0
-
--   Added ability to create custom admonitions via Settings
-    -   Color, icon, and admonition-type are customizable
-    -   Default admonitions can be overridden by creating a custom admonition of the same type
-    -   Delete the custom admonition to restore default
-
-## 2.0.0
-
--   To maintain compatibility with other plugins, admonition types must now be prefixed with `ad-` (as in, `ad-note`).
-
-## 1.0.0
-
--   Community plugin release
--   Bug fixes
-
-## 0.2.0
-
--   Uses Obsidian's native markdown renderer to render admonition content
--   Removed requirement to use the `content:` tag if `title:` or `collapse:` is set
-
-## 0.0.5
-
--   Added `collapse:` parameter to create collapsible admonitions
-
-## 0.0.1
-
--   Release
 
 # Installation
 

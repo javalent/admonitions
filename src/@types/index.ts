@@ -20,9 +20,7 @@ export interface NestedAdmonition {
 }
 
 export interface AdmonitionSettings {
-    userAdmonitions: Record<string, Admonition> /* {
-        [admonitionType: string]: Admonition;
-    } */;
+    userAdmonitions: Record<string, Admonition>;
     syntaxHighlight: boolean;
     copyButton: boolean;
     autoCollapse: boolean;
@@ -31,9 +29,6 @@ export interface AdmonitionSettings {
     version: string;
     injectColor: boolean;
     parseTitles: boolean;
-    allowMSSyntax: boolean;
-    msSyntaxIndented: boolean;
-    livePreviewMS: boolean;
     dropShadow: boolean;
     hideEmpty: boolean;
     icons: Array<DownloadableIconPack>;

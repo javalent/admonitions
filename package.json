@@ -1,15 +1,9 @@
 {
     "name": "obsidian-admonition",
     "version": "7.0.4",
-    "description": "Admonition block-styled content for Obsidian.md",
+    "description": "Enhanced callouts for Obsidian.md",
     "main": "main.js",
     "scripts": {
-        "rollup:dev": "rollup --config rollup.config-dev.js -w",
-        "rollup:publish": "rollup --config rollup.publish.js -w",
-        "rollup:build": "rollup --config rollup.config.js",
-        "webpack:dev": "set NODE_OPTIONS=--openssl-legacy-provider && webpack --config webpack.dev.js -w",
-        "publish": "webpack --config webpack.publish.js",
-        "webpack:build": "npm run publish && webpack",
         "dev": "node ./esbuild.config.mjs",
         "build": "node ./esbuild.config.mjs production",
         "release": "standard-version"
