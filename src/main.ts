@@ -12,20 +12,6 @@ import {
     TFile
 } from "obsidian";
 
-import { syntaxTree } from "@codemirror/language";
-import {
-    ViewPlugin,
-    DecorationSet,
-    EditorView,
-    ViewUpdate,
-    Decoration,
-    WidgetType
-} from "@codemirror/view";
-
-import { tokenClassNodeProp } from "@codemirror/stream-parser";
-import { Range } from "@codemirror/rangeset";
-import { StateEffect, StateField } from "@codemirror/state";
-
 import {
     Admonition,
     AdmonitionSettings,
@@ -85,7 +71,6 @@ import AdmonitionSetting from "./settings";
 import { DownloadableIconPack, IconManager } from "./icons/manager";
 import { InsertAdmonitionModal } from "./modal";
 import "./assets/main.css";
-import { isLivePreview, rangesInclude } from "./util";
 import { IconName } from "@fortawesome/fontawesome-svg-core";
 
 const DEFAULT_APP_SETTINGS: AdmonitionSettings = {
@@ -95,7 +80,6 @@ const DEFAULT_APP_SETTINGS: AdmonitionSettings = {
     version: "",
     autoCollapse: false,
     defaultCollapseType: "open",
-    syncLinks: true,
     injectColor: true,
     parseTitles: true,
     dropShadow: true,
@@ -217,25 +201,6 @@ export default class ObsidianAdmonition extends Plugin {
                     suggestor.open();
                 }
             });
-
-            this.registerEvent(
-                this.app.metadataCache.on("resolve", (file) => {
-                    if (!this.data.syncLinks) return;
-                    if (this.app.workspace.getActiveFile() != file) return;
-
-                    const view =
-                        this.app.workspace.getActiveViewOfType(MarkdownView);
-
-                    if (!view || !(view instanceof MarkdownView)) return;
-
-                    const admonitionLinks =
-                        view.contentEl.querySelectorAll<HTMLAnchorElement>(
-                            ".admonition:not(.admonition-plugin-async) a.internal-link"
-                        );
-
-                    this.addLinksToCache(admonitionLinks, file.path);
-                })
-            );
         });
     }
     async downloadIcon(pack: DownloadableIconPack) {
@@ -376,42 +341,6 @@ export default class ObsidianAdmonition extends Plugin {
         return { type, title, collapse };
     }
 
-    addLinksToCache(
-        links: NodeListOf<HTMLAnchorElement>,
-        sourcePath: string
-    ): void {
-        if (!this.data.syncLinks) return;
-        /* //@ts-expect-error
-        this.app.metadataCache.resolveLinks(sourcePath); */
-        for (let i = 0; i < links.length; i++) {
-            const a = links[i];
-            if (a.dataset.href) {
-                let file = this.app.metadataCache.getFirstLinkpathDest(
-                    a.dataset.href,
-                    ""
-                );
-                let cache, path;
-                if (file && file instanceof TFile) {
-                    cache = this.app.metadataCache.resolvedLinks;
-                    path = file.path;
-                } else {
-                    cache = this.app.metadataCache.unresolvedLinks;
-                    path = a.dataset.href;
-                }
-                if (!cache[sourcePath]) {
-                    cache[sourcePath] = {
-                        [path]: 0
-                    };
-                }
-                let resolved = cache[sourcePath];
-                if (!resolved[path]) {
-                    resolved[path] = 0;
-                }
-                resolved[path] += 1;
-                cache[sourcePath] = resolved;
-            }
-        }
-    }
     getAdmonitionElement(
         type: string,
         title: string,
@@ -587,13 +516,6 @@ export default class ObsidianAdmonition extends Plugin {
                     slicer = line + slicer + 1;
                 });
             }
-
-            const links =
-                contentEl.querySelectorAll<HTMLAnchorElement>(
-                    "a.internal-link"
-                );
-
-            this.addLinksToCache(links, sourcePath);
         }
     }
 
@@ -618,6 +540,25 @@ export default class ObsidianAdmonition extends Plugin {
         return contentEl;
     }
 
+    registerAdmonition(admonition: Admonition) {
+        /** Turn on CodeMirror syntax highlighting for this "language" */
+        if (this.data.syntaxHighlight) {
+            this.turnOnSyntaxHighlighting([admonition.type]);
+        }
+
+        /** Register an admonition code-block post processor for legacy support. */
+        this.postprocessors.set(
+            admonition.type,
+            this.registerMarkdownCodeBlockProcessor(
+                `ad-${admonition.type}`,
+                (src, el, ctx) =>
+                    this.postprocessor(admonition.type, src, el, ctx)
+            )
+        );
+
+        /** Create the admonition type in CSS */
+    }
+
     async addAdmonition(admonition: Admonition): Promise<void> {
         this.data.userAdmonitions = {
             ...this.data.userAdmonitions,
@@ -627,16 +568,10 @@ export default class ObsidianAdmonition extends Plugin {
             ...ADMONITION_MAP,
             ...this.data.userAdmonitions
         };
-        if (this.data.syntaxHighlight) {
-            this.turnOnSyntaxHighlighting([admonition.type]);
-        }
+
+        this.registerAdmonition(admonition);
 
         await this.saveSettings();
-        const processor = this.registerMarkdownCodeBlockProcessor(
-            `ad-${admonition.type}`,
-            (src, el, ctx) => this.postprocessor(admonition.type, src, el, ctx)
-        );
-        this.postprocessors.set(admonition.type, processor);
     }
     registerCommandsFor(admonition: Admonition) {
         admonition.command = true;

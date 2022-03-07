@@ -25,7 +25,6 @@ export interface AdmonitionSettings {
     copyButton: boolean;
     autoCollapse: boolean;
     defaultCollapseType: "open" | "closed";
-    syncLinks: boolean;
     version: string;
     injectColor: boolean;
     parseTitles: boolean;
