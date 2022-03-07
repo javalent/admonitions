@@ -8,8 +8,8 @@ import {
     MarkdownView,
     Notice,
     Plugin,
-    setIcon,
-    TFile
+    requireApiVersion,
+    setIcon
 } from "obsidian";
 
 import {
@@ -34,6 +34,21 @@ import {
 } from "./util";
 
 import type codemirror from "codemirror";
+
+import { syntaxTree } from "@codemirror/language";
+import {
+    ViewPlugin,
+    DecorationSet,
+    EditorView,
+    ViewUpdate,
+    Decoration,
+    WidgetType
+} from "@codemirror/view";
+
+import { tokenClassNodeProp } from "@codemirror/stream-parser";
+import { Range } from "@codemirror/rangeset";
+import { StateEffect, StateField } from "@codemirror/state";
+import { isLivePreview, rangesInclude } from "./util";
 
 declare global {
     interface Window {
@@ -72,6 +87,7 @@ import { DownloadableIconPack, IconManager } from "./icons/manager";
 import { InsertAdmonitionModal } from "./modal";
 import "./assets/main.css";
 import { IconName } from "@fortawesome/fontawesome-svg-core";
+import StyleManager from "./styles/manager";
 
 const DEFAULT_APP_SETTINGS: AdmonitionSettings = {
     userAdmonitions: {},
@@ -82,6 +98,9 @@ const DEFAULT_APP_SETTINGS: AdmonitionSettings = {
     defaultCollapseType: "open",
     injectColor: true,
     parseTitles: true,
+    allowMSSyntax: true,
+    msSyntaxIndented: true,
+    livePreviewMS: true,
     dropShadow: true,
     hideEmpty: false,
     open: {
@@ -102,6 +121,10 @@ export default class ObsidianAdmonition extends Plugin {
     postprocessors: Map<string, MarkdownPostProcessor> = new Map();
 
     iconManager = new IconManager(this);
+    styleManager: StyleManager;
+    get obsidian14() {
+        return requireApiVersion && requireApiVersion("0.14.00");
+    }
 
     get types() {
         return Object.keys(this.admonitions);
@@ -121,6 +144,10 @@ export default class ObsidianAdmonition extends Plugin {
         await this.loadSettings();
         await this.iconManager.load();
         this.app.workspace.onLayoutReady(async () => {
+            if (this.obsidian14) {
+                this.addChild((this.styleManager = new StyleManager(this)));
+            }
+
             Object.keys(this.admonitions).forEach((type) => {
                 const processor = this.registerMarkdownCodeBlockProcessor(
                     `ad-${type}`,
@@ -201,6 +228,11 @@ export default class ObsidianAdmonition extends Plugin {
                     suggestor.open();
                 }
             });
+
+            if (!this.obsidian14) {
+                this.enableMSSyntax();
+                this.registerMSDocLivePreview();
+            }
         });
     }
     async downloadIcon(pack: DownloadableIconPack) {
@@ -339,6 +371,315 @@ export default class ObsidianAdmonition extends Plugin {
                 `${type[0].toUpperCase()}${type.slice(1).toLowerCase()}`;
         }
         return { type, title, collapse };
+    }
+    enableMSSyntax() {
+        this.registerMarkdownPostProcessor((el, ctx) => {
+            if (!this.data.allowMSSyntax) return;
+            if (!el.hasChildNodes()) return;
+
+            const blockquotes = el.querySelectorAll<
+                HTMLQuoteElement | HTMLPreElement
+            >("blockquote, pre");
+
+            for (const el of Array.from(blockquotes)) {
+                if (el instanceof HTMLPreElement && !this.data.msSyntaxIndented)
+                    continue;
+
+                const section = ctx.getSectionInfo(el);
+
+                let text: string[];
+
+                if (section) {
+                    text = section.text
+                        .split("\n")
+                        .slice(section.lineStart, section.lineEnd + 1);
+                } else {
+                    text = el.innerText
+                        .trim()
+                        .split("\n")
+                        .map((l) => `> ${l}`);
+                }
+                const firstLine = text.shift();
+
+                if (!MSDOCREGEX.test(firstLine)) continue;
+
+                const params = this.getMSParametersFromLine(firstLine);
+
+                if (!params?.type) continue;
+
+                const { type, title, collapse } = params;
+
+                const admonition = this.getAdmonitionElement(
+                    type,
+                    title,
+                    this.admonitions[type].icon,
+                    this.admonitions[type].color,
+                    collapse
+                );
+
+                const content = text
+                    .join("\n")
+                    .replace(/^(>[ ]|\t|\s{4})/gm, "");
+
+                this.renderAdmonitionContent(
+                    admonition,
+                    type,
+                    content,
+                    ctx,
+                    ctx.sourcePath,
+                    text.join("\n")
+                );
+
+                el.replaceWith(admonition);
+            }
+        });
+    }
+
+    registerMSDocLivePreview() {
+        type TokenSpec = {
+            from: number;
+            to: number;
+            value: string;
+            title: string;
+            type: string;
+            collapse: string;
+        };
+
+        const admonition = StateEffect.define<DecorationSet>();
+        class AdmonitionWidget extends WidgetType {
+            constructor(
+                public type: string,
+                public title: string,
+                public collapse: string,
+                public content: string
+            ) {
+                super();
+            }
+            eq(widget: AdmonitionWidget) {
+                return (
+                    this.type == widget.type &&
+                    this.title == widget.title &&
+                    this.collapse == widget.collapse &&
+                    this.content == widget.content
+                );
+            }
+            toDOM(view: EditorView): HTMLElement {
+                const admonitionElement = self.getAdmonitionElement(
+                    this.type,
+                    this.title,
+                    self.admonitions[this.type].icon,
+                    self.admonitions[this.type].color,
+                    this.collapse
+                );
+
+                const parent = createDiv(
+                    `cm-embed-block admonition-parent admonition-${this.type}-parent`
+                );
+                parent.appendChild(admonitionElement);
+                const edit = parent.createDiv({
+                    cls: "edit-block-button",
+                    attr: { "aria-label": "Edit this block" }
+                });
+
+                setIcon(edit, "code-glyph");
+
+                edit.onclick = () => {
+                    const position = view.posAtDOM(admonitionElement);
+                    view.dispatch({
+                        selection: {
+                            head: position,
+                            anchor: position
+                        }
+                    });
+                };
+
+                const content = this.content.replace(/^> /gm, "");
+                const contentEl = self.getAdmonitionContentElement(
+                    this.type,
+                    admonitionElement,
+                    content
+                );
+
+                MarkdownRenderer.renderMarkdown(content, contentEl, "", null);
+                if (
+                    (!content.length || contentEl.textContent.trim() == "") &&
+                    self.data.hideEmpty
+                )
+                    admonitionElement.addClass("no-content");
+                return parent;
+            }
+        }
+
+        class StatefulDecorationSet {
+            editor: EditorView;
+            cache: { [cls: string]: Decoration } = Object.create(null);
+
+            constructor(editor: EditorView) {
+                this.editor = editor;
+            }
+            hash(token: TokenSpec) {
+                return `from${token.from}to${token.to}`;
+            }
+            async compute(tokens: TokenSpec[]) {
+                const admonition: Range<Decoration>[] = [];
+                for (let token of tokens) {
+                    let deco = this.cache[this.hash(token)];
+                    if (!deco) {
+                        deco = this.cache[this.hash(token)] =
+                            Decoration.replace({
+                                inclusive: true,
+                                widget: new AdmonitionWidget(
+                                    token.type,
+                                    token.title,
+                                    token.collapse,
+                                    token.value
+                                ),
+                                block: true,
+                                from: token.from,
+                                to: token.to
+                            });
+                    }
+                    admonition.push(deco.range(token.from, token.to));
+                }
+                return Decoration.set(admonition, true);
+            }
+
+            async updateDecos(tokens: TokenSpec[]): Promise<void> {
+                const admonitions = await this.compute(tokens);
+
+                // if our compute function returned nothing and the state field still has decorations, clear them out
+                if (admonitions || this.editor.state.field(field).size) {
+                    this.editor.dispatch({
+                        effects: [admonition.of(admonitions ?? Decoration.none)]
+                    });
+                }
+            }
+            clearDecos() {
+                this.editor.dispatch({
+                    effects: [admonition.of(Decoration.none)]
+                });
+            }
+        }
+
+        const self = this;
+        const plugin = ViewPlugin.fromClass(
+            class {
+                manager: StatefulDecorationSet;
+                source = false;
+                constructor(view: EditorView) {
+                    this.manager = new StatefulDecorationSet(view);
+                    this.build(view);
+                }
+
+                update(update: ViewUpdate) {
+                    if (update.heightChanged) return;
+                    if (!self.data.livePreviewMS) return;
+                    if (!isLivePreview(update.view.state)) {
+                        if (this.source == false) {
+                            this.source = true;
+                            this.manager.updateDecos([]);
+                        }
+                        return;
+                    }
+
+                    if (
+                        update.docChanged ||
+                        update.viewportChanged ||
+                        update.selectionSet ||
+                        this.source == true
+                    ) {
+                        this.source = false;
+                        this.build(update.view);
+                    }
+                }
+
+                destroy() {}
+
+                build(view: EditorView) {
+                    if (!self.data.allowMSSyntax) return;
+                    if (!self.data.livePreviewMS) return;
+                    const targetElements: TokenSpec[] = [];
+
+                    if (!isLivePreview(view.state)) return;
+
+                    for (let { from, to } of view.visibleRanges) {
+                        const tree = syntaxTree(view.state);
+                        tree.iterate({
+                            from,
+                            to,
+                            enter: (types, from, _) => {
+                                const tokenProps =
+                                    types.prop(tokenClassNodeProp);
+
+                                const props = new Set(tokenProps?.split(" "));
+                                if (!props.has("quote")) return;
+
+                                const original =
+                                    view.state.doc.sliceString(from);
+                                const split = original.split("\n");
+                                const line = split[0];
+                                if (!MSDOCREGEX.test(line)) return;
+
+                                const params =
+                                    self.getMSParametersFromLine(line);
+
+                                if (!params?.type) return;
+
+                                const { type, title, collapse } = params;
+
+                                const end = split.findIndex(
+                                    (v) => !/^>/.test(v)
+                                );
+
+                                const content = split
+                                    .slice(1, end > -1 ? end : undefined)
+                                    .join("\n");
+
+                                const to =
+                                    from + line.length + content.length + 1;
+                                targetElements.push({
+                                    from,
+                                    to,
+                                    value: content?.trim(),
+                                    title: title?.trim(),
+                                    type: type?.trim(),
+                                    collapse
+                                });
+                            }
+                        });
+                    }
+
+                    this.manager.updateDecos(targetElements);
+                }
+            }
+        );
+
+        ////////////////
+        // Utility Code
+        ////////////////
+        const field = StateField.define<DecorationSet>({
+            create(): DecorationSet {
+                return Decoration.none;
+            },
+            update(deco, tr): DecorationSet {
+                return tr.effects.reduce((deco, effect) => {
+                    if (effect.is(admonition))
+                        return effect.value.update({
+                            filter: (_, __, decoration) => {
+                                return !rangesInclude(
+                                    tr.newSelection.ranges,
+                                    decoration.spec.from,
+                                    decoration.spec.to
+                                );
+                            }
+                        });
+                    return deco;
+                }, deco.map(tr.changes));
+            },
+            provide: (field) => EditorView.decorations.from(field)
+        });
+
+        this.registerEditorExtension([plugin, field]);
     }
 
     getAdmonitionElement(
@@ -540,7 +881,16 @@ export default class ObsidianAdmonition extends Plugin {
         return contentEl;
     }
 
-    registerAdmonition(admonition: Admonition) {
+    async addAdmonition(admonition: Admonition): Promise<void> {
+        this.data.userAdmonitions = {
+            ...this.data.userAdmonitions,
+            [admonition.type]: admonition
+        };
+        this.admonitions = {
+            ...ADMONITION_MAP,
+            ...this.data.userAdmonitions
+        };
+
         /** Turn on CodeMirror syntax highlighting for this "language" */
         if (this.data.syntaxHighlight) {
             this.turnOnSyntaxHighlighting([admonition.type]);
@@ -556,20 +906,10 @@ export default class ObsidianAdmonition extends Plugin {
             )
         );
 
-        /** Create the admonition type in CSS */
-    }
-
-    async addAdmonition(admonition: Admonition): Promise<void> {
-        this.data.userAdmonitions = {
-            ...this.data.userAdmonitions,
-            [admonition.type]: admonition
-        };
-        this.admonitions = {
-            ...ADMONITION_MAP,
-            ...this.data.userAdmonitions
-        };
-
-        this.registerAdmonition(admonition);
+        if (this.obsidian14) {
+            /** Create the admonition type in CSS */
+            this.styleManager.addAdmonition(admonition);
+        }
 
         await this.saveSettings();
     }
@@ -652,6 +992,11 @@ ${editor.getDoc().getSelection()}
                 `ad-${admonition.type}`
             );
             this.postprocessors.delete(admonition.type);
+        }
+
+        if (this.obsidian14) {
+            /** Remove the admonition type in CSS */
+            this.styleManager.removeAdmonition(admonition);
         }
 
         await this.saveSettings();

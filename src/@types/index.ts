@@ -28,6 +28,9 @@ export interface AdmonitionSettings {
     version: string;
     injectColor: boolean;
     parseTitles: boolean;
+    allowMSSyntax: boolean;
+    msSyntaxIndented: boolean;
+    livePreviewMS: boolean;
     dropShadow: boolean;
     hideEmpty: boolean;
     icons: Array<DownloadableIconPack>;
