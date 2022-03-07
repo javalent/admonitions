@@ -87,7 +87,7 @@ import { DownloadableIconPack, IconManager } from "./icons/manager";
 import { InsertAdmonitionModal } from "./modal";
 import "./assets/main.css";
 import { IconName } from "@fortawesome/fontawesome-svg-core";
-import StyleManager from "./styles/manager";
+import CalloutManager from "./callout/manager";
 
 const DEFAULT_APP_SETTINGS: AdmonitionSettings = {
     userAdmonitions: {},
@@ -121,7 +121,7 @@ export default class ObsidianAdmonition extends Plugin {
     postprocessors: Map<string, MarkdownPostProcessor> = new Map();
 
     iconManager = new IconManager(this);
-    styleManager: StyleManager;
+    styleManager: CalloutManager;
     get obsidian14() {
         return requireApiVersion && requireApiVersion("0.14.00");
     }
@@ -145,7 +145,7 @@ export default class ObsidianAdmonition extends Plugin {
         await this.iconManager.load();
         this.app.workspace.onLayoutReady(async () => {
             if (this.obsidian14) {
-                this.addChild((this.styleManager = new StyleManager(this)));
+                this.addChild((this.styleManager = new CalloutManager(this)));
             }
 
             Object.keys(this.admonitions).forEach((type) => {
