@@ -1,6 +1,6 @@
 # Obsidian Admonition
 
-> :pencil: Obsidian 0.14 adds support for Callout boxes!
+> :pencil: Obsidian 0.14 adds support for [Callout boxes](https://help.obsidian.md/Use+callouts)!
 > 
 > Going forward, the Admonitions plugin will be focused around enhancing this new core feature.
 > 

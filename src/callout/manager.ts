@@ -6,6 +6,7 @@ import {
 } from "obsidian";
 import { Admonition } from "src/@types";
 import ObsidianAdmonition from "src/main";
+import AdmonitionSuggest from "./suggest";
 
 type Heights = Partial<{
     height: string;
@@ -14,8 +15,6 @@ type Heights = Partial<{
     "margin-top": string;
     "margin-bottom": string;
 }>;
-
-import "../assets/callout.scss";
 
 export default class CalloutManager extends Component {
     ruleMap: Map<Admonition, number> = new Map();
@@ -31,6 +30,8 @@ export default class CalloutManager extends Component {
         )) {
             this.addAdmonition(admonition);
         }
+
+        this.plugin.registerEditorSuggest(new AdmonitionSuggest(this.plugin));
 
         this.plugin.registerMarkdownPostProcessor(
             this.calloutProcessor.bind(this)
@@ -55,8 +56,13 @@ export default class CalloutManager extends Component {
         const titleEl = callout.querySelector<HTMLDivElement>(".callout-title");
         const content =
             callout.querySelector<HTMLDivElement>(".callout-content");
+
+        if (admonition.noTitle && !callout.dataset.calloutFold) {
+            titleEl.addClass("no-title");
+        }
         if (
-            this.plugin.data.defaultCollapseType &&
+            !admonition.noTitle &&
+            this.plugin.data.autoCollapse &&
             !callout.dataset.calloutFold
         ) {
             if (!content) return;
@@ -75,16 +81,24 @@ export default class CalloutManager extends Component {
             let collapsed = callout.hasClass("is-collapsed");
 
             this.getComputedHeights(content);
-            content.style.setProperty(
-                "transition",
-                "all 100ms cubic-bezier(.02, .01, .47, 1)"
-            );
+
             if (collapsed) {
                 for (const prop of this.heights) {
                     content.style.setProperty(prop, "0px");
                 }
             }
             titleEl.onclick = (event: MouseEvent) => {
+                event.preventDefault();
+
+                function transitionEnd(evt: TransitionEvent) {
+                    content.removeEventListener("transitionend", transitionEnd);
+                    content.style.removeProperty("transition");
+                }
+                content.addEventListener("transitionend", transitionEnd);
+                content.style.setProperty(
+                    "transition",
+                    "all 100ms cubic-bezier(.02, .01, .47, 1)"
+                );
                 collapsed = callout.hasClass("is-collapsed");
                 if (event.button == 0) {
                     for (const prop of this.heights) {
@@ -100,14 +114,19 @@ export default class CalloutManager extends Component {
             };
         }
 
-        if (admonition.noTitle && !callout.dataset.calloutFold) {
-            titleEl.addClass("no-title");
-        }
-
-        if (admonition.title) {
+        if (
+            admonition.title &&
+            titleEl.textContent ==
+                type[0].toUpperCase() + type.slice(1).toLowerCase()
+        ) {
+            const titleContentEl = titleEl.querySelector<HTMLDivElement>(
+                ".callout-title-inner"
+            );
+            if (titleContentEl) {
+                titleContentEl.setText(admonition.title);
+            }
         }
     }
-
     getComputedHeights(el: HTMLDivElement): Heights {
         if (this.heightMap.has(el)) {
             return this.heightMap.get(el);
