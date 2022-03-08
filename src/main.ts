@@ -85,7 +85,6 @@ declare module "obsidian" {
 import AdmonitionSetting from "./settings";
 import { DownloadableIconPack, IconManager } from "./icons/manager";
 import { InsertAdmonitionModal } from "./modal";
-import "./assets/main.css";
 import { IconName } from "@fortawesome/fontawesome-svg-core";
 import CalloutManager from "./callout/manager";
 
