@@ -206,7 +206,81 @@ export default class ObsidianAdmonition extends Plugin {
                 id: "insert-admonition",
                 name: "Insert Admonition",
                 editorCallback: (editor, view) => {
-                    let suggestor = new InsertAdmonitionModal(this, editor);
+                    let suggestor = new InsertAdmonitionModal(this);
+                    suggestor.onClose = () => {
+                        if (!suggestor.insert) return;
+                        let titleLine = "",
+                            collapseLine = "";
+                        if (
+                            suggestor.title.length &&
+                            suggestor.title.toLowerCase() !=
+                                suggestor.type.toLowerCase()
+                        ) {
+                            titleLine = `title: ${suggestor.title}\n`;
+                        }
+                        if (
+                            (this.data.autoCollapse &&
+                                suggestor.collapse !=
+                                    this.data.defaultCollapseType) ||
+                            (!this.data.autoCollapse &&
+                                suggestor.collapse != "none")
+                        ) {
+                            collapseLine = `collapse: ${suggestor.collapse}\n`;
+                        }
+                        editor.getDoc().replaceSelection(
+                            `\`\`\`ad-${
+                                suggestor.type
+                            }\n${titleLine}${collapseLine}
+${editor.getDoc().getSelection()}
+\`\`\`\n`
+                        );
+                        const cursor = editor.getCursor();
+                        editor.setCursor(cursor.line - 3);
+                    };
+                    suggestor.open();
+                }
+            });
+            this.addCommand({
+                id: "insert-admonition",
+                name: "Insert Callout",
+                editorCallback: (editor, view) => {
+                    let suggestor = new InsertAdmonitionModal(this);
+                    suggestor.onClose = () => {
+                        if (!suggestor.insert) return;
+                        let title = "",
+                            collapse = "";
+                        if (
+                            (this.data.autoCollapse &&
+                                suggestor.collapse !=
+                                    this.data.defaultCollapseType) ||
+                            (!this.data.autoCollapse &&
+                                suggestor.collapse != "none")
+                        ) {
+                            switch (suggestor.collapse) {
+                                case "open": {
+                                    collapse = "+";
+                                    break;
+                                }
+                                case "closed": {
+                                    collapse = "-";
+                                    break;
+                                }
+                            }
+                        }
+                        if (
+                            suggestor.title.length &&
+                            suggestor.title.toLowerCase() !=
+                                suggestor.type.toLowerCase()
+                        ) {
+                            title = ` ${suggestor.title}`;
+                        }
+                        const selection = editor.getDoc().getSelection();
+                        editor.getDoc().replaceSelection(
+                            `> [!${suggestor.type}]${collapse}${title}
+${selection.split("\n").join("\n> ")}
+`
+                        );
+                    };
                     suggestor.open();
                 }
             });
@@ -528,6 +602,29 @@ export default class ObsidianAdmonition extends Plugin {
     }
     registerCommandsFor(admonition: Admonition) {
         admonition.command = true;
+        this.addCommand({
+            id: `insert-${admonition.type}-callout`,
+            name: `Insert ${admonition.type} Callout`,
+            editorCheckCallback: (checking, editor, view) => {
+                if (checking) return admonition.command;
+                if (admonition.command) {
+                    try {
+                        const selection = editor.getDoc().getSelection();
+                        editor.getDoc().replaceSelection(
+                            `> [!${admonition.type}]
+> ${selection.split("\n").join("\n> ")}
+`
+                        );
+                        const cursor = editor.getCursor();
+                        editor.setCursor(cursor.line - 2);
+                    } catch (e) {
+                        new Notice(
+                            "There was an issue inserting the admonition."
+                        );
+                    }
+                }
+            }
+        });
         this.addCommand({
             id: `insert-${admonition.type}`,
             name: `Insert ${admonition.type}`,
