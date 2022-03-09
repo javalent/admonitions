@@ -39,6 +39,7 @@ export interface AdmonitionSettings {
         other: boolean;
         advanced: boolean;
     };
+    msDocConverted: boolean;
 }
 
 export type AdmonitionIconDefinition = {

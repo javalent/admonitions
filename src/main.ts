@@ -21,7 +21,8 @@ import {
     COPY_ICON,
     COPY_ICON_NAME,
     getParametersFromSource,
-    MSDOCREGEX,
+    SPIN_ICON,
+    SPIN_ICON_NAME,
     WARNING_ICON,
     WARNING_ICON_NAME
 } from "./util";
@@ -34,21 +35,6 @@ import {
 } from "./util";
 
 import type codemirror from "codemirror";
-
-import { syntaxTree } from "@codemirror/language";
-import {
-    ViewPlugin,
-    DecorationSet,
-    EditorView,
-    ViewUpdate,
-    Decoration,
-    WidgetType
-} from "@codemirror/view";
-
-import { tokenClassNodeProp } from "@codemirror/stream-parser";
-import { Range } from "@codemirror/rangeset";
-import { StateEffect, StateField } from "@codemirror/state";
-import { isLivePreview, rangesInclude } from "./util";
 
 declare global {
     interface Window {
@@ -108,7 +94,8 @@ const DEFAULT_APP_SETTINGS: AdmonitionSettings = {
     },
     icons: [],
     useFontAwesome: true,
-    rpgDownloadedOnce: false
+    rpgDownloadedOnce: false,
+    msDocConverted: false
 };
 
 export default class ObsidianAdmonition extends Plugin {
@@ -159,6 +146,7 @@ export default class ObsidianAdmonition extends Plugin {
             addIcon(REMOVE_COMMAND_NAME, REMOVE_ADMONITION_COMMAND_ICON);
             addIcon(WARNING_ICON_NAME, WARNING_ICON);
             addIcon(COPY_ICON_NAME, COPY_ICON);
+            addIcon(SPIN_ICON_NAME, SPIN_ICON);
 
             if (this.data.syntaxHighlight) {
                 this.turnOnSyntaxHighlighting();

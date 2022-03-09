@@ -1,19 +1,22 @@
 # Obsidian Admonition
 
-> :pencil: Obsidian 0.14 adds support for [Callout boxes](https://help.obsidian.md/Use+callouts)!
-> 
-> Going forward, the Admonitions plugin will be focused around enhancing this new core feature.
-> 
-> Your existing Admonitions will continue to work (and always will)! But it is recommend to use the core syntax going forward.
-
 
 Adds admonition block-styled content to Obsidian.md, styled after [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/reference/admonitions/)
 
-**Please note, as of 2.0.0, all admonitions must be prefixed with `ad-`**
+## Please note!
 
-![](https://raw.githubusercontent.com/valentine195/obsidian-admonition/master/images/all.gif)
+Obsidian 0.14 adds support for [Callout boxes](https://help.obsidian.md/Use+callouts)!
+
+Going forward, the Admonitions plugin will be focused around enhancing this new core feature.
+
+Your existing Admonitions will continue to work (and always will)! But it is recommend to use the core syntax going forward.
+
+With this update, however, [Microsoft Document syntax](#microsoft-document-syntax) has been removed from the plugin.
+
 
 ## Usage
+
+![](https://raw.githubusercontent.com/valentine195/obsidian-admonition/master/images/all.gif)
 
 Place a code block with the admonition type:
 
@@ -421,11 +424,9 @@ Mermaid graphs are supported by Admonitions, but with some caveats:
 
 ## Non-code block Admonitions
 
-> :heavy_exclamation_mark: This syntax will be removed in a future version!
+> :heavy_exclamation_mark: This syntax has been officially removed as of Admonitions 7.0.0.
 >
-> It is no longer possible to enable this syntax. Legacy support will continue until version **7.0.0**.
-
-Please note: An additional non-code block syntax can be seen in the [Microsoft Document Syntax](#microsoft-document-syntax) section.
+> Use the [Obsidian Callout box](https://help.obsidian.md/Use+callouts) syntax instead!
 
 As of version 6.0.0, there is a new setting: Enable Non-codeblock Admonitions.
 
@@ -498,6 +499,10 @@ content
 If you experience any bugs using this setting, please create an issue and I will look into them.
 
 ## Microsoft Document Syntax
+
+> :heavy_exclamation_mark: This syntax has been officially removed as of version **8.0.0**.
+>
+> Use the [Obsidian Callout box](https://help.obsidian.md/Use+callouts) syntax instead!
 
 As of v6.8.0, an additional non-code block syntax can be used that is inspired by the [Microsoft Document Syntax](https://docs.microsoft.com/en-us/contribute/markdown-reference) to render admonitions.
 
@@ -640,27 +645,49 @@ Current additional icon packs available are the [Octicons](https://primer.style/
 
 ## Additional Syntaxes
 
+Obsidian 0.14 has introduced [Callout boxes](https://help.obsidian.md/Use+callouts) to its core functionality using a similar syntax to the Microsoft Document callouts.
+
+This has rendered the Microsoft Document syntax for Admonitions obsolete, but Admonitions can still be used to create and manage your custom callout types.
+
+Your existing code block Admonitions will always work!
+
 ### Enable Non-codeblock Admonitions
 
 > :heavy_exclamation_mark: This setting has been removed as of version **7.0.0**.
 >
-> It is recommended to use the [Microsoft Document Syntax](#microsoft-document-syntax) instead.
+> It is recommended to use the [Obsidian Callout box](https://help.obsidian.md/Use+callouts) instead.
 
 Enabled use of `!!! ad-<type>` style admonitions. No longer supported, will be removed in a future version.
 
 ### Allow Microsoft Document Syntax
 
+> :heavy_exclamation_mark: This syntax has been officially removed as of version **8.0.0**.
+>
+> Use the [Obsidian Callout box](https://help.obsidian.md/Use+callouts) syntax instead!
+
 Enables use of the [Microsoft Document Syntax](#microsoft-document-syntax) for blockquote admonitions.
 
 ### Use Microsoft Document Syntax for Indented Code Blocks
+
+> :heavy_exclamation_mark: This syntax has been officially removed as of version **8.0.0**.
+>
+> Use the [Obsidian Callout box](https://help.obsidian.md/Use+callouts) syntax instead!
 
 Enables use of the [Microsoft Document Syntax](#microsoft-document-syntax) for indented code blocks.
 
 ### Render Microsoft Document Syntax in Live Preview
 
+> :heavy_exclamation_mark: This syntax has been officially removed as of version **8.0.0**.
+>
+> Use the [Obsidian Callout box](https://help.obsidian.md/Use+callouts) syntax instead!
+
 Enables use of the [Microsoft Document Syntax](#microsoft-document-syntax) in live preview.
 
 This feature is still under development and you may experience rendering bugs.
+
+### Convert MSDoc Admonitions to Callouts (**v8.0.0+**)
+
+This button can be used to convert any existing Microsoft Document syntax Admonitions to the new [Callout box](https://help.obsidian.md/Use+callouts) syntax.
 
 ## Advanced Settings
 

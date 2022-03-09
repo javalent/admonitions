@@ -6,7 +6,8 @@ import {
     Modal,
     TextComponent,
     Notice,
-    setIcon
+    setIcon,
+    TFile
 } from "obsidian";
 import {
     Admonition,
@@ -18,6 +19,7 @@ import {
 import {
     ADD_COMMAND_NAME,
     REMOVE_COMMAND_NAME,
+    SPIN_ICON_NAME,
     WARNING_ICON_NAME
 } from "./util";
 
@@ -43,6 +45,7 @@ const isSelectorValid = ((dummyElement) => (selector: string) => {
 
 export default class AdmonitionSetting extends PluginSettingTab {
     additionalEl: HTMLDivElement;
+    notice: Notice;
     constructor(app: App, public plugin: ObsidianAdmonition) {
         super(app, plugin);
     }
@@ -382,6 +385,91 @@ export default class AdmonitionSetting extends PluginSettingTab {
             text: "Your existing code block Admonitions will always work!",
 
             cls: "setting-item"
+        });
+
+        if (!this.plugin.data.msDocConverted) {
+            new Setting(containerEl)
+                .setName("Convert MSDoc Admonitions to Callouts")
+                .setDesc(
+                    createFragment((e) => {
+                        const text = e.createDiv("admonition-convert");
+                        setIcon(text.createSpan(), WARNING_ICON_NAME);
+                        text.createSpan({
+                            text: "This "
+                        });
+                        text.createEl("strong", { text: "will" });
+                        text.createSpan({
+                            text: " modify notes. Use at your own risk and please make backups."
+                        });
+                        e.createEl("p", {
+                            text: "With large vaults, this could take awhile!"
+                        });
+                    })
+                )
+                .addButton((b) =>
+                    b
+                        .setButtonText("Convert")
+                        .setCta()
+                        .onClick(() => {
+                            this.queue =
+                                this.plugin.app.vault.getMarkdownFiles();
+                            this.notice = new Notice(
+                                createFragment((e) => {
+                                    const container =
+                                        e.createDiv("admonition-convert");
+                                    container.createSpan({
+                                        text: "Converting MS-doc admonitions..."
+                                    });
+                                    setIcon(
+                                        container.createSpan(
+                                            "admonition-convert-icon"
+                                        ),
+                                        SPIN_ICON_NAME
+                                    );
+                                }),
+                                0
+                            );
+                            this.checkAndReplace();
+                        })
+                );
+        }
+    }
+    queue: TFile[] = [];
+    converted = 0;
+    async checkAndReplace() {
+        if (!this.queue.length) {
+            if (this.converted) {
+                this.notice.setMessage(
+                    `${this.converted} MS-doc Admonitions converted!`
+                );
+            } else {
+                this.notice.setMessage(
+                    "No MS-doc Admonitions found to convert."
+                );
+            }
+            this.plugin.data.msDocConverted = true;
+            await this.plugin.saveSettings();
+            this.display();
+            setTimeout(() => {
+                this.notice.hide();
+                this.notice = undefined;
+            }, 2000);
+            return;
+        }
+        setImmediate(async () => {
+            const file = this.queue.shift();
+            const contents = await this.app.vault.read(file);
+            if (/> \[!([^ :]+)(?::[ ]?(.+))\](x|\+|\-)?/.test(contents)) {
+                this.converted++;
+                await this.plugin.app.vault.modify(
+                    file,
+                    contents.replace(
+                        /> \[!([^ :]+)(?::[ ]?(.+))\](x|\+|\-)?/g,
+                        `> [!$1]$3 $2`
+                    )
+                );
+            }
+            this.checkAndReplace();
         });
     }
     buildAdvanced(containerEl: HTMLDetailsElement) {
