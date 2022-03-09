@@ -249,21 +249,28 @@ Several commands are available for the plugin by default.
 
 If these two commands are triggered with an open note, all collapsible admonitions will be collapsed or open respectively.
 
-<!-- ### Replace Admonitions With HTML
-
-Replace _all_ admonition source blocks with the rendered HTML in the note content.
-
-This command will overwrite all Admonitions in the open note. -->
-
 ### Insert Admonition
 
 This will open a modal where the admonition type, title and collapse behavior can be set, then the generated admonition code block will be inserted into the open editor.
 
 ### Admonition-specific commands
 
-Commands may be registered for each custom admonition type to insert them into an open note by clicking the `Register Commands` button.
+Commands may be registered for each [custom admonition](#custom-admonition-types) type to insert them into an open note by clicking the `Register Commands` button in [Settings](#custom-admonition-types).
 
-See [this section](#register-and-unregister-commands) for more information.
+3 commands will be registered: `Insert <type> Callout`, `Insert <type>`, and `Insert <type> with Title`.
+
+#### Insert <type> Callout
+
+The selected type will be inserted as an Obsidian callout, and any selected text will be included with it.
+
+
+#### Insert <type>
+
+The selected type will be inserted as a codeblock admonition, and any selected text will be included with it.
+
+#### Insert <type> with Title
+
+The selected type will be inserted as a codeblock admonition, and any selected text will be included with it. The `title:` parameter will also be added and the cursor will be placed at that line.
 
 ### Mermaid Graphs
 
@@ -283,13 +290,14 @@ As of version 6.0.0, there is a new setting: Enable Non-codeblock Admonitions.
 This setting is highly experimental and may not work as expected, and there are a few caveats listed at the end of this section to keep in mind.
 
 This setting allows for creating an admonition without wrapping it in a code block, which means that links and tags will sync into Obsidian's cache. A non-codeblock admonition may be created using the following syntax:
-
 ```
+
 !!! ad-<type> Title goes here!
 
 content
 
 --- admonition
+
 ```
 
 This will create the appropriate admonition type, embed the content, and give it the supplied title.
@@ -301,21 +309,25 @@ Titles should be placed after the admonition block. Currently, markdown in title
 An empty title can be created by either placing two spaces after the admonition type:
 
 ```
+
 !!! ad-<type>
 
 content
 
 --- admonition
+
 ```
 
 or by placing empty double quotes:
 
 ```
+
 !!! ad-<type> ""
 
 content
 
 --- admonition
+
 ```
 
 ### Collapsible
@@ -323,22 +335,26 @@ content
 A collapsible admonition may be created using the following syntax:
 
 ```
+
 ??? ad-<type> Title goes here!
 
 content
 
 --- admonition
+
 ```
 
 A collapsible admonition may default to "open" by appending a +:
 
 ```
+
 ???+ ad-<type> Title goes here!
 
 content
 
 --- admonition
-```
+
+````
 
 ### Caveats
 
@@ -365,7 +381,7 @@ As of v6.8.0, an additional non-code block syntax can be used that is inspired b
 ```md
 > [!quote]
 > This is an admonition!
-```
+````
 
 ![](https://raw.githubusercontent.com/valentine195/obsidian-admonition/master/images/msdocs.png)
 
