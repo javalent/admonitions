@@ -368,99 +368,21 @@ export default class AdmonitionSetting extends PluginSettingTab {
         new Setting(summary).setHeading().setName("Additional Syntaxes");
         summary.createDiv("collapser").createDiv("handle");
 
-        if (this.plugin.obsidian14) {
-            containerEl.createEl("p", {
-                text: "Obsidian 0.14 has introduced Callout boxes to its core functionality using the same syntax as the Microsoft Document callouts.",
+        containerEl.createEl("p", {
+            text: "Obsidian 0.14 has introduced Callout boxes to its core functionality using the same syntax as the Microsoft Document callouts.",
 
-                cls: "setting-item"
-            });
-            containerEl.createEl("p", {
-                text: "This has rendered the Microsoft Document syntax for Admonitions obsolete, but Admonitions can still be used to create and manage your custom callout types.",
+            cls: "setting-item"
+        });
+        containerEl.createEl("p", {
+            text: "This has rendered the Microsoft Document syntax for Admonitions obsolete, but Admonitions can still be used to create and manage your custom callout types.",
 
-                cls: "setting-item"
-            });
-        } else {
-            new Setting(containerEl)
-                .setName("Allow Microsoft Document Syntax")
-                .setDesc(
-                    createFragment((e) => {
-                        e.createSpan({
-                            text: "The plugin will render blockquotes created using the "
-                        });
-                        e.createEl("a", {
-                            href: "https://docs.microsoft.com/en-us/contribute/markdown-reference",
-                            text: "Microsoft Document Syntax."
-                        });
-                    })
-                )
-                .addToggle((t) => {
-                    t.setValue(this.plugin.data.allowMSSyntax).onChange((v) => {
-                        this.plugin.data.allowMSSyntax = v;
-                        this.display();
-                        this.plugin.saveSettings();
-                    });
-                });
-            if (this.plugin.data.allowMSSyntax) {
-                new Setting(containerEl)
-                    .setClass("admonition-setting-warning")
-                    .setName(
-                        "Use Microsoft Document Syntax for Indented Codeblocks"
-                    )
-                    .setDesc(
-                        createFragment((e) => {
-                            e.createSpan({
-                                text: "The plugin will render code blocks created by indentation using the "
-                            });
-                            e.createEl("a", {
-                                href: "https://docs.microsoft.com/en-us/contribute/markdown-reference",
-                                text: "Microsoft Document Syntax."
-                            });
-                            e.createEl("br");
+            cls: "setting-item"
+        });
+        containerEl.createEl("p", {
+            text: "Your existing code block Admonitions will always work!",
 
-                            const strong = e.createSpan(
-                                "admonition-setting-warning text-warning"
-                            );
-
-                            setIcon(strong.createSpan(), WARNING_ICON_NAME);
-                            strong.createSpan({
-                                text: "This syntax will not work in Live Preview."
-                            });
-                        })
-                    )
-                    .addToggle((t) => {
-                        t.setValue(this.plugin.data.msSyntaxIndented).onChange(
-                            (v) => {
-                                this.plugin.data.msSyntaxIndented = v;
-                                this.plugin.saveSettings();
-                            }
-                        );
-                    });
-                new Setting(containerEl)
-                    .setName("Render Microsoft Document Syntax in Live Preview")
-                    .setDesc(
-                        createFragment((e) => {
-                            e.createSpan({
-                                text: "The plugin will render blockquotes created using the "
-                            });
-                            e.createEl("a", {
-                                href: "https://docs.microsoft.com/en-us/contribute/markdown-reference",
-                                text: "Microsoft Document Syntax"
-                            });
-                            e.createSpan({
-                                text: " in live preview mode."
-                            });
-                        })
-                    )
-                    .addToggle((t) => {
-                        t.setValue(this.plugin.data.livePreviewMS).onChange(
-                            (v) => {
-                                this.plugin.data.livePreviewMS = v;
-                                this.plugin.saveSettings();
-                            }
-                        );
-                    });
-            }
-        }
+            cls: "setting-item"
+        });
     }
     buildAdvanced(containerEl: HTMLDetailsElement) {
         containerEl.empty();
