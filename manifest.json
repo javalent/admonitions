@@ -3,7 +3,7 @@
     "name": "Admonition",
     "version": "7.0.4",
     "minAppVersion": "0.14.0",
-    "description": "Admonition block-styled content for Obsidian.md",
+    "description": "Enhanced callouts for Obsidian.md",
     "author": "Jeremy Valentine",
     "authorUrl": "",
     "isDesktopOnly": false
