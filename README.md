@@ -1,6 +1,5 @@
 # Obsidian Admonition
 
-
 Adds admonition block-styled content to Obsidian.md, styled after [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/reference/admonitions/)
 
 ## Please note!
@@ -12,7 +11,6 @@ Going forward, the Admonitions plugin will be focused around enhancing this new 
 Your existing Admonitions will continue to work (and always will)! But it is recommend to use the core syntax going forward.
 
 With this update, however, [Microsoft Document syntax](#microsoft-document-syntax) has been removed from the plugin.
-
 
 ## Usage
 
@@ -241,67 +239,7 @@ To set the color of admonition types via CSS, specific the following the `--admo
 
 ### Parent Element
 
-As of version 6.6, the admonition's parent element _also_ receives classes: `.admonition-parent` and `.admonition-<type>-parent`.
-
-### Collapsible
-
-If an admonition is collapsible, it will receive the following CSS:
-
-```css
-details.admonition:not([open]) {
-    padding-bottom: 0;
-}
-
-details.admonition > summary {
-    outline: none;
-    list-style: none;
-    display: block;
-    min-height: 1rem;
-    border-top-left-radius: 0.1rem;
-    border-top-right-radius: 0.1rem;
-    cursor: pointer;
-}
-
-details.admonition > summary::-webkit-details-marker {
-    display: none;
-}
-
-details.admonition > summary > .collapser {
-    position: absolute;
-    top: 50%;
-    right: 8px;
-    transform: translateY(-50%);
-    content: "";
-}
-
-details.admonition > summary > .collapser > .handle {
-    transform: rotate(0deg);
-    transition: transform 0.25s;
-    background-color: currentColor;
-    -webkit-mask-repeat: no-repeat;
-    mask-repeat: no-repeat;
-    -webkit-mask-size: contain;
-    mask-size: contain;
-    -webkit-mask-image: var(--admonition-details-icon);
-    mask-image: var(--admonition-details-icon);
-    width: 20px;
-    height: 20px;
-}
-
-details.admonition[open] > summary > .collapser > .handle {
-    transform: rotate(90deg);
-}
-```
-
-### No Title
-
-An icon without a title will have this CSS:
-
-```css
-.admonition-title.no-title {
-    display: none;
-}
-```
+As of version 6.6, the admonition's parent element _also_ receives classes: `.admonition-parent` and `.admonition-<type>-parent`, allowing you to target admonition containers.
 
 ## Global Commands
 
