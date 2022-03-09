@@ -6,7 +6,7 @@ import {
 } from "obsidian";
 import { Admonition } from "src/@types";
 import ObsidianAdmonition from "src/main";
-import AdmonitionSuggest from "./suggest";
+import { CalloutSuggest } from "../suggest/suggest";
 
 type Heights = Partial<{
     height: string;
@@ -31,7 +31,7 @@ export default class CalloutManager extends Component {
             this.addAdmonition(admonition);
         }
 
-        this.plugin.registerEditorSuggest(new AdmonitionSuggest(this.plugin));
+        this.plugin.registerEditorSuggest(new CalloutSuggest(this.plugin));
 
         this.plugin.registerMarkdownPostProcessor(
             this.calloutProcessor.bind(this)
