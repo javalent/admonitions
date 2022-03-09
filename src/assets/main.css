@@ -153,13 +153,6 @@ details.admonition[open] > summary > .collapser > .handle {
     border-top: 0;
     padding-top: 9px;
 }
-.admonition-settings
-    .additional
-    > .setting-item
-    > .setting-item-control
-    > *:first-child {
-    margin: 0 6px;
-}
 
 .setting-item > .admonition {
     width: 50%;
