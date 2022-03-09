@@ -148,10 +148,20 @@ export default class CalloutManager extends Component {
                 .outerHTML.replace(/(width|height)=(\\?"|')\d+(\\?"|')/g, "")
         );
         const rule = `.callout[data-callout="${admonition.type}"] {
-    --callout-color: ${admonition.color}; /* RGB Tuple (just like admonitions) */
-    --callout-icon: ADMONITION_ICON_MANAGER_${admonition.type};  /* Icon name from the Obsidian Icon Set */
+    --callout-color: ${
+        admonition.color
+    }; /* RGB Tuple (just like admonitions) */
+    --callout-icon: '${this.plugin.iconManager
+        .getIconNode(admonition.icon)
+        .outerHTML.replace(
+            /(width|height)=(\\?"|')\d+(\\?"|')/g,
+            ""
+        )}';  /* Icon name from the Obsidian Icon Set */
 }`;
-        this.ruleMap.set(admonition, this.sheet.insertRule(rule));
+        this.ruleMap.set(
+            admonition,
+            this.sheet.insertRule(rule, this.sheet.cssRules.length)
+        );
     }
     removeAdmonition(admonition: Admonition) {
         if (!this.ruleMap.has(admonition)) return;

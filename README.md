@@ -197,9 +197,9 @@ See [this](https://squidfunk.github.io/mkdocs-material/reference/admonitions/) f
 
 The default admonitions are customizable by creating a user-defined admonition of the same name.
 
-## Custom Admonitions
+## Custom Admonitions & Callouts
 
-Custom admonitions may be created in settings.
+Custom admonitions may be created in settings. Creating a custom admonition will also enable it to be used as an Obsidian callout.
 
 Creating a new admonition requires three things: the type, the icon to use, and the color of the admonition.
 
@@ -263,7 +263,6 @@ Commands may be registered for each [custom admonition](#custom-admonition-types
 
 The selected type will be inserted as an Obsidian callout, and any selected text will be included with it.
 
-
 #### Insert <type>
 
 The selected type will be inserted as a codeblock admonition, and any selected text will be included with it.
@@ -290,6 +289,7 @@ As of version 6.0.0, there is a new setting: Enable Non-codeblock Admonitions.
 This setting is highly experimental and may not work as expected, and there are a few caveats listed at the end of this section to keep in mind.
 
 This setting allows for creating an admonition without wrapping it in a code block, which means that links and tags will sync into Obsidian's cache. A non-codeblock admonition may be created using the following syntax:
+
 ```
 
 !!! ad-<type> Title goes here!
@@ -354,7 +354,7 @@ content
 
 --- admonition
 
-````
+```
 
 ### Caveats
 
@@ -381,7 +381,7 @@ As of v6.8.0, an additional non-code block syntax can be used that is inspired b
 ```md
 > [!quote]
 > This is an admonition!
-````
+```
 
 ![](https://raw.githubusercontent.com/valentine195/obsidian-admonition/master/images/msdocs.png)
 
@@ -449,7 +449,11 @@ Want to add an existing icon pack? Make a pull request with the following:
 
 ## Custom Admonition Types
 
-[Custom admonition](#custom-admonitions) types can be created and managed in this section of the settings.
+[Custom admonition](#custom-admonitions--callouts) types can be created and managed in this section of the settings.
+
+### Export Custom Types as CSS
+
+This button will generate a CSS snippet that you can save and use for your custom callout types.
 
 ## Admonition Settings
 
