@@ -6,11 +6,16 @@ Adds admonition block-styled content to Obsidian.md, styled after [Material for 
 
 Obsidian 0.14 adds support for [Callout boxes](https://help.obsidian.md/Use+callouts)!
 
-Going forward, the Admonitions plugin will be focused around enhancing this new core feature.
+**With this change, Admonitions will be transitioning to a plugin that enhances the core callout box feature.**
 
-Your existing Admonitions will continue to work (and always will)! But it is recommend to use the core syntax going forward.
+What does this mean, you might ask?
 
-With this update, however, [Microsoft Document syntax](#microsoft-document-syntax) has been removed from the plugin.
+1. All of your existing code block admonitions will continue to work, and will always work!
+2. You can continue to use Admonitions to create custom types, and all of your custom types will just work as a callout, without you having to do anything!
+3. If you have any Microsoft Document syntax admonitions, they will have to be converted to the new callout box syntax - there is a button in Admonition settings to auto-convert these for you.
+4. You can use Admonitions to set default titles, default collapse states, or defaulting to not having a title.
+5. Admonitions adds helpful editor suggestors for quickly entering your custom callout boxes.
+6. Admonitions adds helpful commands for inserting callout boxes, including the ability to register commands for specific types.
 
 ## Usage
 
