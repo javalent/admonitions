@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [8.1.0](https://github.com/valentine195/obsidian-admonition/compare/8.0.1...8.1.0) (2022-03-14)
+
+
+### Features
+
+* Adds ability to convert code block admonitions to callouts in settings. ([3f5c6f0](https://github.com/valentine195/obsidian-admonition/commit/3f5c6f0f93f059cf50009366f331edd335632afa))
+
 ### [8.0.1](https://github.com/valentine195/obsidian-admonition/compare/8.0.0...8.0.1) (2022-03-14)
 
 
