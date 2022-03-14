@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [8.0.1](https://github.com/valentine195/obsidian-admonition/compare/8.0.0...8.0.1) (2022-03-14)
+
+
+### Bug Fixes
+
+* Significant improvements to the publish feature for code blocks. ([ce644a5](https://github.com/valentine195/obsidian-admonition/commit/ce644a5dc22b56226479a4c8dd5fc4fd4a8d6a21))
+
 ## [8.0.0](https://github.com/valentine195/obsidian-admonition/compare/7.0.4...8.0.0) (2022-03-14)
 
 
