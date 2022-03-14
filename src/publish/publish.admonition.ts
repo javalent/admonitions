@@ -25,7 +25,7 @@ function createEl<K extends keyof HTMLElementTagNameMap>(
             (Array.isArray(o)
                 ? (i.className = o.join(" "))
                 : (i.className = o)),
-        s && (i.textContent = s),
+        s && (i.textContent = s as string),
         a &&
             Object.keys(a).forEach((t) => {
                 const n = a[t];
@@ -249,9 +249,11 @@ interface AdmonitionPublishDefinition {
 }
 
 const blockSet: Set<HTMLPreElement> = new Set();
-const ADMONITION_ICON_MAP: {
-    [admonitionType: string]: AdmonitionPublishDefinition;
-} = {};
+class AdmonitionIcons {
+    static ADMONITION_ICON_MAP: {
+        [admonitionType: string]: AdmonitionPublishDefinition;
+    } = {};
+}
 if (document.readyState === "complete") {
     postprocess();
     registerToProcess();
@@ -261,26 +263,107 @@ if (document.readyState === "complete") {
         registerToProcess();
     };
 }
-
-function registerToProcess() {
-    const sizer = document.querySelector(".markdown-preview-sizer");
+function findSizer(): Promise<HTMLElement> {
+    return new Promise((resolve, reject) => {
+        const sizer = document.querySelector<HTMLElement>(
+            ".markdown-preview-sizer"
+        );
+        if (sizer) {
+            resolve(sizer);
+        } else {
+            const observer = new MutationObserver((mutations) => {
+                for (const mutation of mutations) {
+                    if (
+                        mutation.type == "childList" &&
+                        mutation.addedNodes.length
+                    ) {
+                        for (const node of Array.from(mutation.addedNodes)) {
+                            if (!(node instanceof HTMLDivElement)) continue;
+                            if (node.hasClass("publish-renderer")) {
+                                let sizer = node.querySelector<HTMLElement>(
+                                    ".markdown-preview-sizer"
+                                );
+                                if (sizer) {
+                                    observer.disconnect();
+                                    console.log(sizer);
+                                    resolve(sizer);
+                                }
+                            }
+                            if (node.hasClass("markdown-preview-sizer")) {
+                                observer.disconnect();
+                                console.log(sizer);
+                                resolve(sizer);
+                            }
+                        }
+                    }
+                }
+            });
+            observer.observe(document.body, {
+                attributes: false,
+                childList: true,
+                characterData: false,
+                subtree: true
+            });
+        }
+    });
+}
+async function registerToProcess() {
+    const sizer = await findSizer();
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
             if (mutation.type == "childList" && mutation.addedNodes.length) {
                 mutation.addedNodes.forEach((node) => {
                     if (
                         node &&
-                        node instanceof Element &&
-                        node.children.length &&
-                        node.firstElementChild?.tagName === "PRE"
+                        node instanceof HTMLDivElement &&
+                        !node.childElementCount
                     ) {
-                        //postprocess(node);
-                        preObserver.observe(node.firstChild, {
-                            attributes: true,
-                            childList: false,
+                        const observer = new MutationObserver((mutations) => {
+                            for (const mutation of mutations) {
+                                if (
+                                    mutation.type == "childList" &&
+                                    mutation.addedNodes.length
+                                ) {
+                                    for (const node of Array.from(
+                                        mutation.addedNodes
+                                    )) {
+                                        if (!(node instanceof HTMLPreElement)) {
+                                            continue;
+                                        }
+                                        if (
+                                            !blockSet.has(node) &&
+                                            Array.from(node.classList).some(
+                                                (cls) =>
+                                                    /language-ad-(\w+)/.test(
+                                                        cls
+                                                    )
+                                            )
+                                        ) {
+                                            observer.disconnect();
+                                            blockSet.add(node);
+                                            processAdmonitionBlock(node);
+                                        } else {
+                                            observer.disconnect();
+                                            createPreObserver(node);
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                        observer.observe(node, {
+                            attributes: false,
+                            childList: true,
                             characterData: false,
                             subtree: false
                         });
+                    }
+                    if (
+                        node &&
+                        node instanceof HTMLElement &&
+                        node.children.length &&
+                        node.firstElementChild instanceof HTMLPreElement
+                    ) {
+                        createPreObserver(node.firstElementChild);
                     }
                 });
             }
@@ -291,7 +374,9 @@ function registerToProcess() {
         childList: true,
         subtree: false
     });
+}
 
+function createPreObserver(node: HTMLPreElement) {
     const preObserver = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
             if (
@@ -303,10 +388,17 @@ function registerToProcess() {
                     /language-ad-(\w+)/.test(cls)
                 )
             ) {
+                preObserver.disconnect();
                 blockSet.add(mutation.target);
                 processAdmonitionBlock(mutation.target);
             }
         });
+    });
+    preObserver.observe(node, {
+        attributes: true,
+        childList: false,
+        characterData: false,
+        subtree: false
     });
 }
 
@@ -315,14 +407,14 @@ function processAdmonitionBlock(admonitionBlock: HTMLPreElement) {
         .toString()
         .match(/language-ad-(\w+)/);
     if (!type) return;
-    if (!(type in ADMONITION_ICON_MAP)) return;
+    if (!(type in AdmonitionIcons.ADMONITION_ICON_MAP)) return;
 
     let {
         title = type[0].toUpperCase() + type.slice(1).toLowerCase(),
         collapse,
         content,
-        icon = ADMONITION_ICON_MAP[type].icon,
-        color = ADMONITION_ICON_MAP[type].color
+        icon = AdmonitionIcons.ADMONITION_ICON_MAP[type].icon,
+        color = AdmonitionIcons.ADMONITION_ICON_MAP[type].color
     } = getParametersFromSource(type, admonitionBlock.innerText);
 
     let admonition = getAdmonitionElement(type, title, icon, color, collapse);
@@ -350,14 +442,14 @@ function postprocess() {
             .toString()
             .match(/language-ad-(\w+)/);
         if (!type) continue;
-        if (!(type in ADMONITION_ICON_MAP)) continue;
+        if (!(type in AdmonitionIcons.ADMONITION_ICON_MAP)) continue;
 
         let {
             title = type[0].toUpperCase() + type.slice(1).toLowerCase(),
             collapse,
             content,
-            icon = ADMONITION_ICON_MAP[type].icon,
-            color = ADMONITION_ICON_MAP[type].color
+            icon = AdmonitionIcons.ADMONITION_ICON_MAP[type].icon,
+            color = AdmonitionIcons.ADMONITION_ICON_MAP[type].color
         } = getParametersFromSource(type, admonitionBlock.innerText);
 
         let admonition = getAdmonitionElement(

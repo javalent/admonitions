@@ -564,20 +564,21 @@ export default class AdmonitionSetting extends PluginSettingTab {
                     }
 
                     const js = CONTENT.replace(
-                        "const ADMONITION_ICON_MAP = {}",
-                        "const ADMONITION_ICON_MAP = " +
+                        /ADMONITION_ICON_MAP\s?=\s?\{\}/,
+                        "ADMONITION_ICON_MAP=" +
                             JSON.stringify(admonition_icons)
                     );
-                    let csvFile = new Blob([js], {
+                    const file = new Blob([js], {
                         type: "text/javascript"
                     });
-                    let downloadLink = document.createElement("a");
-                    downloadLink.download = "publish.admonition.js";
-                    downloadLink.href = window.URL.createObjectURL(csvFile);
-                    downloadLink.style.display = "none";
-                    document.body.appendChild(downloadLink);
-                    downloadLink.click();
-                    document.body.removeChild(downloadLink);
+                    const link = createEl("a", {
+                        href: URL.createObjectURL(file),
+                        attr: {
+                            download: "publish.admonition.js"
+                        }
+                    });
+                    link.click();
+                    link.detach();
                 });
             });
     }
