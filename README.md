@@ -2,11 +2,24 @@
 
 Adds admonition block-styled content to Obsidian.md, styled after [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/reference/admonitions/)
 
-**Please note, as of 2.0.0, all admonitions must be prefixed with `ad-`**
+## Please note!
 
-![](https://raw.githubusercontent.com/valentine195/obsidian-admonition/master/images/all.gif)
+Obsidian 0.14 adds support for [Callout boxes](https://help.obsidian.md/How+to/Use+callouts)!
+
+**With this change, Admonitions will be transitioning to a plugin that enhances the core callout box feature.**
+
+What does this mean, you might ask?
+
+1. All of your existing code block admonitions will continue to work, and will always work!
+2. You can continue to use Admonitions to create custom types, and all of your custom types will just work as a callout, without you having to do anything!
+3. If you have any Microsoft Document syntax admonitions, they will have to be converted to the new callout box syntax - there is a button in Admonition settings to auto-convert these for you.
+4. You can use Admonitions to set default titles, default collapse states, or defaulting to not having a title.
+5. Admonitions adds helpful editor suggestors for quickly entering your custom callout boxes.
+6. Admonitions adds helpful commands for inserting callout boxes, including the ability to register commands for specific types.
 
 ## Usage
+
+![](https://raw.githubusercontent.com/valentine195/obsidian-admonition/master/images/all.gif)
 
 Place a code block with the admonition type:
 
@@ -189,9 +202,9 @@ See [this](https://squidfunk.github.io/mkdocs-material/reference/admonitions/) f
 
 The default admonitions are customizable by creating a user-defined admonition of the same name.
 
-## Custom Admonitions
+## Custom Admonitions & Callouts
 
-Custom admonitions may be created in settings.
+Custom admonitions may be created in settings. Creating a custom admonition will also enable it to be used as an Obsidian callout.
 
 Creating a new admonition requires three things: the type, the icon to use, and the color of the admonition.
 
@@ -217,94 +230,6 @@ This is all of the CSS applied to the admonitions. Override these classes to cus
 
 The full CSS is located in [main.css](src/assets/main.css).
 
-Every admonition receives the following CSS classes:
-
-```css
-:root {
-    --admonition-details-icon: url("data:image/svg+xml;charset=utf-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M8.59 16.58L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.42z'/></svg>");
-}
-
-.admonition {
-    margin: 1.5625em 0;
-    padding: 0;
-    overflow: hidden;
-    color: var(--text-normal);
-    page-break-inside: avoid;
-    background-color: var(--background-secondary);
-    border-left: 0.2rem solid rgb(var(--admonition-color));
-    border-radius: 0.1rem;
-    box-shadow: 0 0.2rem 0.5rem var(--background-modifier-box-shadow);
-}
-
-.admonition-title {
-    position: relative;
-    padding: 0.6rem 0.25em;
-    font-weight: 700;
-    background-color: rgba(var(--admonition-color), 0.1);
-}
-
-.admonition-title-content {
-    display: flex;
-    justify-content: flex-start;
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
-}
-
-.admonition-title-icon {
-    color: rgb(var(--admonition-color));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 0.5em 0 0.25em;
-    min-width: 1em;
-}
-
-.admonition-title-markdown {
-    display: block;
-}
-
-.admonition-title.no-title {
-    display: none;
-}
-
-.admonition > .admonition-title.no-title + .admonition-content-holder {
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-}
-
-.admonition-content-holder {
-    position: relative;
-}
-
-.admonition-content {
-    margin: 10px 15px;
-    position: relative;
-    overflow-x: auto;
-}
-
-.admonition-content-copy {
-    color: var(--text-faint);
-    cursor: pointer;
-    opacity: 0;
-    position: absolute;
-    right: 0.375rem;
-    top: -5px;
-    transition: 0.3s opacity ease-in;
-}
-
-.admonition-content-copy:hover {
-    color: var(--text-normal);
-}
-
-.admonition:hover .admonition-content-copy,
-.admonition-content-copy:hover {
-    opacity: 1;
-}
-.admonition-title:hover + .admonition-content .admonition-content-copy {
-    opacity: 0;
-}
-```
-
 **_Please note, as of 3.0.0, the admonition colors are no longer set in the CSS._**
 
 Each admonition receives the `.admonition-<type>` class. You can use this selector to override specific admonition types, but the plugin does not add any styling using this selector by default.
@@ -319,67 +244,7 @@ To set the color of admonition types via CSS, specific the following the `--admo
 
 ### Parent Element
 
-As of version 6.6, the admonition's parent element _also_ receives classes: `.admonition-parent` and `.admonition-<type>-parent`.
-
-### Collapsible
-
-If an admonition is collapsible, it will receive the following CSS:
-
-```css
-details.admonition:not([open]) {
-    padding-bottom: 0;
-}
-
-details.admonition > summary {
-    outline: none;
-    list-style: none;
-    display: block;
-    min-height: 1rem;
-    border-top-left-radius: 0.1rem;
-    border-top-right-radius: 0.1rem;
-    cursor: pointer;
-}
-
-details.admonition > summary::-webkit-details-marker {
-    display: none;
-}
-
-details.admonition > summary > .collapser {
-    position: absolute;
-    top: 50%;
-    right: 8px;
-    transform: translateY(-50%);
-    content: "";
-}
-
-details.admonition > summary > .collapser > .handle {
-    transform: rotate(0deg);
-    transition: transform 0.25s;
-    background-color: currentColor;
-    -webkit-mask-repeat: no-repeat;
-    mask-repeat: no-repeat;
-    -webkit-mask-size: contain;
-    mask-size: contain;
-    -webkit-mask-image: var(--admonition-details-icon);
-    mask-image: var(--admonition-details-icon);
-    width: 20px;
-    height: 20px;
-}
-
-details.admonition[open] > summary > .collapser > .handle {
-    transform: rotate(90deg);
-}
-```
-
-### No Title
-
-An icon without a title will have this CSS:
-
-```css
-.admonition-title.no-title {
-    display: none;
-}
-```
+As of version 6.6, the admonition's parent element _also_ receives classes: `.admonition-parent` and `.admonition-<type>-parent`, allowing you to target admonition containers.
 
 ## Global Commands
 
@@ -389,21 +254,27 @@ Several commands are available for the plugin by default.
 
 If these two commands are triggered with an open note, all collapsible admonitions will be collapsed or open respectively.
 
-<!-- ### Replace Admonitions With HTML
-
-Replace _all_ admonition source blocks with the rendered HTML in the note content.
-
-This command will overwrite all Admonitions in the open note. -->
-
 ### Insert Admonition
 
 This will open a modal where the admonition type, title and collapse behavior can be set, then the generated admonition code block will be inserted into the open editor.
 
 ### Admonition-specific commands
 
-Commands may be registered for each custom admonition type to insert them into an open note by clicking the `Register Commands` button.
+Commands may be registered for each [custom admonition](#custom-admonition-types) type to insert them into an open note by clicking the `Register Commands` button in [Settings](#custom-admonition-types).
 
-See [this section](#register-and-unregister-commands) for more information.
+3 commands will be registered: `Insert <type> Callout`, `Insert <type>`, and `Insert <type> with Title`.
+
+#### Insert <type> Callout
+
+The selected type will be inserted as an Obsidian callout, and any selected text will be included with it.
+
+#### Insert <type>
+
+The selected type will be inserted as a codeblock admonition, and any selected text will be included with it.
+
+#### Insert <type> with Title
+
+The selected type will be inserted as a codeblock admonition, and any selected text will be included with it. The `title:` parameter will also be added and the cursor will be placed at that line.
 
 ### Mermaid Graphs
 
@@ -414,11 +285,9 @@ Mermaid graphs are supported by Admonitions, but with some caveats:
 
 ## Non-code block Admonitions
 
-> :heavy_exclamation_mark: This syntax will be removed in a future version!
+> :heavy_exclamation_mark: This syntax has been officially removed as of Admonitions 7.0.0.
 >
-> It is no longer possible to enable this syntax. Legacy support will continue until version **7.0.0**.
-
-Please note: An additional non-code block syntax can be seen in the [Microsoft Document Syntax](#microsoft-document-syntax) section.
+> Use the [Obsidian Callout box](https://help.obsidian.md/How+to/Use+callouts) syntax instead!
 
 As of version 6.0.0, there is a new setting: Enable Non-codeblock Admonitions.
 
@@ -427,11 +296,13 @@ This setting is highly experimental and may not work as expected, and there are 
 This setting allows for creating an admonition without wrapping it in a code block, which means that links and tags will sync into Obsidian's cache. A non-codeblock admonition may be created using the following syntax:
 
 ```
+
 !!! ad-<type> Title goes here!
 
 content
 
 --- admonition
+
 ```
 
 This will create the appropriate admonition type, embed the content, and give it the supplied title.
@@ -443,21 +314,25 @@ Titles should be placed after the admonition block. Currently, markdown in title
 An empty title can be created by either placing two spaces after the admonition type:
 
 ```
+
 !!! ad-<type>
 
 content
 
 --- admonition
+
 ```
 
 or by placing empty double quotes:
 
 ```
+
 !!! ad-<type> ""
 
 content
 
 --- admonition
+
 ```
 
 ### Collapsible
@@ -465,21 +340,25 @@ content
 A collapsible admonition may be created using the following syntax:
 
 ```
+
 ??? ad-<type> Title goes here!
 
 content
 
 --- admonition
+
 ```
 
 A collapsible admonition may default to "open" by appending a +:
 
 ```
+
 ???+ ad-<type> Title goes here!
 
 content
 
 --- admonition
+
 ```
 
 ### Caveats
@@ -491,6 +370,10 @@ content
 If you experience any bugs using this setting, please create an issue and I will look into them.
 
 ## Microsoft Document Syntax
+
+> :heavy_exclamation_mark: This syntax has been officially removed as of version **8.0.0**.
+>
+> Use the [Obsidian Callout box](https://help.obsidian.md/How+to/Use+callouts) syntax instead!
 
 As of v6.8.0, an additional non-code block syntax can be used that is inspired by the [Microsoft Document Syntax](https://docs.microsoft.com/en-us/contribute/markdown-reference) to render admonitions.
 
@@ -571,7 +454,11 @@ Want to add an existing icon pack? Make a pull request with the following:
 
 ## Custom Admonition Types
 
-[Custom admonition](#custom-admonitions) types can be created and managed in this section of the settings.
+[Custom admonition](#custom-admonitions--callouts) types can be created and managed in this section of the settings.
+
+### Export Custom Types as CSS
+
+This button will generate a CSS snippet that you can save and use for your custom callout types.
 
 ## Admonition Settings
 
@@ -633,27 +520,49 @@ Current additional icon packs available are the [Octicons](https://primer.style/
 
 ## Additional Syntaxes
 
+Obsidian 0.14 has introduced [Callout boxes](https://help.obsidian.md/How+to/Use+callouts) to its core functionality using a similar syntax to the Microsoft Document callouts.
+
+This has rendered the Microsoft Document syntax for Admonitions obsolete, but Admonitions can still be used to create and manage your custom callout types.
+
+Your existing code block Admonitions will always work!
+
 ### Enable Non-codeblock Admonitions
 
 > :heavy_exclamation_mark: This setting has been removed as of version **7.0.0**.
 >
-> It is recommended to use the [Microsoft Document Syntax](#microsoft-document-syntax) instead.
+> It is recommended to use the [Obsidian Callout box](https://help.obsidian.md/How+to/Use+callouts) instead.
 
 Enabled use of `!!! ad-<type>` style admonitions. No longer supported, will be removed in a future version.
 
 ### Allow Microsoft Document Syntax
 
+> :heavy_exclamation_mark: This syntax has been officially removed as of version **8.0.0**.
+>
+> Use the [Obsidian Callout box](https://help.obsidian.md/How+to/Use+callouts) syntax instead!
+
 Enables use of the [Microsoft Document Syntax](#microsoft-document-syntax) for blockquote admonitions.
 
 ### Use Microsoft Document Syntax for Indented Code Blocks
+
+> :heavy_exclamation_mark: This syntax has been officially removed as of version **8.0.0**.
+>
+> Use the [Obsidian Callout box](https://help.obsidian.md/How+to/Use+callouts) syntax instead!
 
 Enables use of the [Microsoft Document Syntax](#microsoft-document-syntax) for indented code blocks.
 
 ### Render Microsoft Document Syntax in Live Preview
 
+> :heavy_exclamation_mark: This syntax has been officially removed as of version **8.0.0**.
+>
+> Use the [Obsidian Callout box](https://help.obsidian.md/How+to/Use+callouts) syntax instead!
+
 Enables use of the [Microsoft Document Syntax](#microsoft-document-syntax) in live preview.
 
 This feature is still under development and you may experience rendering bugs.
+
+### Convert MSDoc Admonitions to Callouts (**v8.0.0+**)
+
+This button can be used to convert any existing Microsoft Document syntax Admonitions to the new [Callout box](https://help.obsidian.md/How+to/Use+callouts) syntax.
 
 ## Advanced Settings
 
@@ -685,101 +594,6 @@ No additional features are planned at this time. If there is a feature missing t
 -   [x] Custom admonitions
 -   [x] Settings tab to customize icon and color of all admonitions
 -   [x] Ability to render markdown inside an admonition
-
-# Version History
-
-## 6.0.0
-
--   Added ability to define admonitions without using a code block
--   Added `.admonition-plugin` class to top level element
--   Add command to "Insert Admonition" with a modal chooser
--   Add command to "Replace Admonitions with HTML"
-
-## 5.0.0
-
--   Added [RPG Awesome Icons](http://nagoshiashumari.github.io/Rpg-Awesome/) as an option for admonition icons.
-
-## 4.4.1
-
--   Removed `content` parameter
--   Fixed some issues related to resolving parameters
-
-## 4.4.0
-
--   Added ability to register and unregister commands to insert admonitions into a note
-    -   Admonitions that have been created in settings can have commands registered by clicking the new "Register Commands" button
-    -   Registering commands adds two commands: `Insert <type>` and `Insert <type> With Title`
-    -   Registered commands can be removed by clicking "Unregister Commands"
-
-## 4.3.0
-
--   Added Sync Links to Metadata Cache setting
-
-## 4.2.0
-
--   Added Collapsible by Default and Default Collapse Type settings
-
-## 4.1.5
-
--   Improved Admonition Icon selection experience
-
-## 4.1.4
-
--   Trimmed whitespace from content when copying to clipboard.
-
-## 4.1.0
-
--   Added "Copy Button" setting
-    -   Turning this on adds a "copy content" button to each admonition, which copies the admonition content to the clipboard
-
-## 4.0.0
-
--   Nested admonitions are now possible
-
-## 3.3.0
-
--   Added commands to open and collapse all admonitions in active note
--   Admonition icons now respect the font size of the admonition title
--   Collapse handle now centers inside the title element
--   CSS changes
-
-## 3.2.0
-
--   Added a setting to turn on default Obsidian syntax highlighting to admonition code block types
--   Admonitions now render titles as Markdown
-
-## 3.1.0
-
--   Fixed issue where checkboxes in admonitions were not toggleable
-
-## 3.0.0
-
--   Added ability to create custom admonitions via Settings
-    -   Color, icon, and admonition-type are customizable
-    -   Default admonitions can be overridden by creating a custom admonition of the same type
-    -   Delete the custom admonition to restore default
-
-## 2.0.0
-
--   To maintain compatibility with other plugins, admonition types must now be prefixed with `ad-` (as in, `ad-note`).
-
-## 1.0.0
-
--   Community plugin release
--   Bug fixes
-
-## 0.2.0
-
--   Uses Obsidian's native markdown renderer to render admonition content
--   Removed requirement to use the `content:` tag if `title:` or `collapse:` is set
-
-## 0.0.5
-
--   Added `collapse:` parameter to create collapsible admonitions
-
-## 0.0.1
-
--   Release
 
 # Installation
 

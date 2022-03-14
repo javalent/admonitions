@@ -153,13 +153,6 @@ details.admonition[open] > summary > .collapser > .handle {
     border-top: 0;
     padding-top: 9px;
 }
-.admonition-settings
-    .additional
-    > .setting-item
-    > .setting-item-control
-    > *:first-child {
-    margin: 0 6px;
-}
 
 .setting-item > .admonition {
     width: 50%;
@@ -239,6 +232,36 @@ input.is-invalid {
     cursor: not-allowed;
 }
 
+.admonition-convert {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.admonition-convert-icon {
+    display: flex;
+    align-items: center;
+}
+
+.admonition-convert-icon .admonition-spin {
+    animation: admonition-convert 1s ease-in-out infinite;
+    fill: currentColor;
+}
+@keyframes admonition-convert {
+    from {
+        transform: rotateZ(-45deg);
+    }
+    to {
+        transform: rotateZ(315deg);
+    }
+}
+.admonition-settings .admonition-convert {
+    color: var(--text-error);
+}
+.notice-container .admonition-convert {
+    justify-content: space-between;
+    gap: 1rem;
+}
 /** Internal */
 
 .admonition li.task-list-item.is-checked p {

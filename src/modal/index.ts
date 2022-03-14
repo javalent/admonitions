@@ -407,7 +407,8 @@ export class InsertAdmonitionModal extends Modal {
         : "none";
     private element: HTMLElement;
     admonitionEl: HTMLDivElement;
-    constructor(private plugin: ObsidianAdmonition, private editor: Editor) {
+    insert: boolean;
+    constructor(private plugin: ObsidianAdmonition) {
         super(plugin.app);
 
         this.containerEl.addClass("insert-admonition-modal");
@@ -517,40 +518,7 @@ export class InsertAdmonitionModal extends Modal {
                     .setButtonText("Insert")
                     .setCta()
                     .onClick(() => {
-                        try {
-                            let titleLine = "",
-                                collapseLine = "";
-                            if (
-                                this.title.length &&
-                                this.title.toLowerCase() !=
-                                    this.type.toLowerCase()
-                            ) {
-                                titleLine = `title: ${this.title}\n`;
-                            }
-                            if (
-                                (this.plugin.data.autoCollapse &&
-                                    this.collapse !=
-                                        this.plugin.data.defaultCollapseType) ||
-                                (!this.plugin.data.autoCollapse &&
-                                    this.collapse != "none")
-                            ) {
-                                collapseLine = `collapse: ${this.collapse}\n`;
-                            }
-                            this.editor.getDoc().replaceSelection(
-                                `\`\`\`ad-${
-                                    this.type
-                                }\n${titleLine}${collapseLine}
-${this.editor.getDoc().getSelection()}
-
-\`\`\`\n`
-                            );
-                            const cursor = this.editor.getCursor();
-                            this.editor.setCursor(cursor.line - 3);
-                        } catch (e) {
-                            new Notice(
-                                "There was an issue inserting the admonition."
-                            );
-                        }
+                        this.insert = true;
                         this.close();
                     })
             )
