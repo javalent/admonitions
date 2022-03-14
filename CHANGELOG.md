@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [8.0.0](https://github.com/valentine195/obsidian-admonition/compare/7.0.4...8.0.0) (2022-03-14)
+
+
+### Features
+
+* Admonitions has been updated to support the new Obsidian callouts feature! Check the Readme for more information on what this means. ([3697e4b](https://github.com/valentine195/obsidian-admonition/commit/3697e4b60ca34ad703555de19f0b21f628aea530))
+
 ### [7.0.4](https://github.com/valentine195/obsidian-admonition/compare/7.0.3...7.0.4) (2022-03-03)
 
 
