@@ -458,6 +458,50 @@ export default class AdmonitionSetting extends PluginSettingTab {
                         })
                 );
         }
+        new Setting(containerEl)
+            .setName("Convert Codeblock Admonitions to Callouts")
+            .setDesc(
+                createFragment((e) => {
+                    const text = e.createDiv("admonition-convert");
+                    setIcon(text.createSpan(), WARNING_ICON_NAME);
+                    text.createSpan({
+                        text: "This "
+                    });
+                    text.createEl("strong", { text: "will" });
+                    text.createSpan({
+                        text: " modify notes. Use at your own risk and please make backups."
+                    });
+                    e.createEl("p", {
+                        text: "With large vaults, this could take awhile!"
+                    });
+                })
+            )
+            .addButton((b) =>
+                b
+                    .setButtonText("Convert")
+                    .setCta()
+                    .onClick(() => {
+                        this.queue = this.plugin.app.vault.getMarkdownFiles();
+                        this.notice = new Notice(
+                            createFragment((e) => {
+                                const container =
+                                    e.createDiv("admonition-convert");
+                                container.createSpan({
+                                    text: "Converting Codeblock admonitions..."
+                                });
+                                setIcon(
+                                    container.createSpan(
+                                        "admonition-convert-icon"
+                                    ),
+                                    SPIN_ICON_NAME
+                                );
+                            }),
+                            0
+                        );
+                        this.converted = 0;
+                        this.checkAndReplaceCodeBlocks();
+                    })
+            );
     }
     queue: TFile[] = [];
     converted = 0;
@@ -495,6 +539,67 @@ export default class AdmonitionSetting extends PluginSettingTab {
                 );
             }
             this.checkAndReplace();
+        });
+    }
+    async checkAndReplaceCodeBlocks() {
+        if (!this.queue.length) {
+            if (this.converted) {
+                this.notice.setMessage(
+                    `${this.converted} Codeblock Admonitions converted!`
+                );
+            } else {
+                this.notice.setMessage(
+                    "No Codeblock Admonitions found to convert."
+                );
+            }
+            this.display();
+            setTimeout(() => {
+                this.notice.hide();
+                this.notice = undefined;
+            }, 2000);
+            return;
+        }
+        setImmediate(async () => {
+            const file = this.queue.shift();
+            let contents = await this.app.vault.read(file);
+            if (/```ad-(\w+)\n([\s\S]*?)?\n```?/m.test(contents)) {
+                const admonitions =
+                    contents.match(/```ad-(\w+)([\s\S]*?)?\n```/gm) ?? [];
+                for (const admonition of admonitions) {
+                    let [, type] = admonition.match(/^```ad-(\w+)/),
+                        title = "",
+                        collapse = "";
+                    if (!type) continue;
+                    const content = [];
+
+                    for (const line of admonition.split("\n").slice(1, -1)) {
+                        if (/^title:/.test(line)) {
+                            title =
+                                line.match(/^title:(.*)/)?.[1] ??
+                                type[0].toUpperCase() +
+                                    type.slice(1).toLowerCase();
+                            continue;
+                        }
+                        if (/^collapse:/.test(line)) {
+                            const state =
+                                line.match(/^collapse:(.*)/)?.[1] ?? "open";
+                            collapse = state == "open" ? "+" : "-";
+                            continue;
+                        }
+                        content.push(line);
+                    }
+                    contents = contents.replace(
+                        admonition,
+                        `> [!${type}]${collapse}${
+                            title.length ? " " : ""
+                        }${title}\n> ${content.join("\n> ")}`
+                    );
+
+                    this.converted++;
+                }
+                await this.app.vault.modify(file, contents);
+            }
+            this.checkAndReplaceCodeBlocks();
         });
     }
     buildAdvanced(containerEl: HTMLDetailsElement) {
