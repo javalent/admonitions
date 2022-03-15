@@ -592,7 +592,7 @@ ${selection.split("\n").join("\n> ")}
         }
     }
     get admonitions() {
-        return { ...ADMONITION_MAP, ...this.data.userAdmonitions}
+        return { ...ADMONITION_MAP, ...this.data.userAdmonitions };
     }
     async addAdmonition(admonition: Admonition): Promise<void> {
         this.data.userAdmonitions = {
@@ -600,7 +600,7 @@ ${selection.split("\n").join("\n> ")}
             [admonition.type]: admonition
         };
 
-        this.registerCommandsFor(admonition);
+        this.registerType(admonition);
 
         /** Create the admonition type in CSS */
         this.calloutManager.addAdmonition(admonition);
@@ -808,7 +808,7 @@ ${editor.getDoc().getSelection()}
                 this.data.rpgDownloadedOnce = true;
             } catch (e) {}
         }
-        
+
         await this.saveSettings();
     }
 

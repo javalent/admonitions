@@ -42,6 +42,7 @@ export interface AdmonitionSettings {
     };
     msDocConverted: boolean;
     useSnippet: boolean;
+    snippetPath: string;
 }
 
 export type AdmonitionIconDefinition = {
