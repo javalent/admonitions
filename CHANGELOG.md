@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [8.2.0](https://github.com/valentine195/obsidian-admonition/compare/8.1.0...8.2.0) (2022-03-15)
+
+
+### Features
+
+* Adds Obsidian's icon set to list of icons ([e17b75a](https://github.com/valentine195/obsidian-admonition/commit/e17b75a01a84426824dd447596da7e732991b824))
+* Adds setting to use CSS snippet to manage custom callouts ([cdd5b85](https://github.com/valentine195/obsidian-admonition/commit/cdd5b8543a32e2cf0071db53f288d9938dbcb81f))
+
+
+### Bug Fixes
+
+* Adds publish script generation to build ([c47d5f0](https://github.com/valentine195/obsidian-admonition/commit/c47d5f0b19b3f36003046607381672b7b0e6a275))
+* Admonitions updated in settings are no longer moved to the bottom of the list ([54ea584](https://github.com/valentine195/obsidian-admonition/commit/54ea584fb19e11a5cd3f0207809e8a231a1e6b47))
+* removes console logs from publish script ([43cd171](https://github.com/valentine195/obsidian-admonition/commit/43cd171976d243cb00a1bfad03d4860509f6a58d))
+
 ## [8.1.0](https://github.com/valentine195/obsidian-admonition/compare/8.0.1...8.1.0) (2022-03-14)
 
 
