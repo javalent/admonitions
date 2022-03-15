@@ -141,26 +141,46 @@ export default class CalloutManager extends Component {
     }
 
     addAdmonition(admonition: Admonition) {
-        addIcon(
-            `ADMONITION_ICON_MANAGER_${admonition.type}`,
-            this.plugin.iconManager
-                .getIconNode(admonition.icon)
-                .outerHTML.replace(/(width|height)=(\\?"|')\d+(\\?"|')/g, "")
-        );
-        const rule = `.callout[data-callout="${admonition.type}"] {
-    --callout-color: ${
-        admonition.color
-    }; /* RGB Tuple (just like admonitions) */
-    --callout-icon: '${this.plugin.iconManager
-        .getIconNode(admonition.icon)
-        .outerHTML.replace(
-            /(width|height)=(\\?"|')\d+(\\?"|')/g,
-            ""
-        )}';  /* Icon name from the Obsidian Icon Set */
+        if (!admonition.icon) return;
+        let rule: string;
+        if (admonition.icon.type == "obsidian") {
+            rule = `.callout[data-callout="${admonition.type}"] {
+    --callout-color: ${admonition.color}; /* RGB Tuple (just like admonitions) */
+    --callout-icon: '${admonition.icon.name}';  /* Icon name from the Obsidian Icon Set */
 }`;
+            this.ruleMap.set(
+                admonition,
+                this.sheet.insertRule(rule, this.sheet.cssRules.length)
+            );
+        } else {
+            addIcon(
+                `ADMONITION_ICON_MANAGER_${admonition.type}`,
+                this.plugin.iconManager
+                    .getIconNode(admonition.icon)
+                    .outerHTML.replace(
+                        /(width|height)=(\\?"|')\d+(\\?"|')/g,
+                        ""
+                    )
+            );
+            rule = `.callout[data-callout="${admonition.type}"] {
+        --callout-color: ${
+            admonition.color
+        }; /* RGB Tuple (just like admonitions) */
+        --callout-icon: '${this.plugin.iconManager
+            .getIconNode(admonition.icon)
+            .outerHTML.replace(
+                /(width|height)=(\\?"|')\d+(\\?"|')/g,
+                ""
+            )}';  /* Icon name from the Obsidian Icon Set */
+    }`;
+        }
         this.ruleMap.set(
             admonition,
             this.sheet.insertRule(rule, this.sheet.cssRules.length)
+        );
+        console.log(
+            "🚀 ~ file: manager.ts ~ line 180 ~ this.sheet",
+            this.sheet
         );
     }
     removeAdmonition(admonition: Admonition) {

@@ -11,10 +11,11 @@ import {
 import type { IconName } from "@fortawesome/fontawesome-svg-core";
 
 /* import { RPG } from "./rpgawesome"; */
-import type { AdmonitionIconDefinition } from "src/@types";
+import type { AdmonitionIconDefinition, IconType } from "src/@types";
 import type ObsidianAdmonition from "src/main";
-import { Notice } from "obsidian";
+import { Notice, setIcon } from "obsidian";
 import { type DownloadableIconPack, DownloadableIcons } from "./packs";
+import { ObsidianIconNames, ObsidianIcons } from "./obsidian";
 
 export { type DownloadableIconPack, DownloadableIcons };
 
@@ -72,6 +73,9 @@ export class IconManager {
             ...(this.plugin.data.useFontAwesome
                 ? this.FONT_AWESOME_MAP.values()
                 : []),
+            ...ObsidianIcons.map((name) => {
+                return { type: "obsidian" as IconType, name };
+            }),
             ...downloaded
         ];
     }
@@ -110,20 +114,23 @@ export class IconManager {
         await this.plugin.saveSettings();
         this.setIconDefinitions();
     }
-    getIconType(str: string): "font-awesome" | DownloadableIconPack {
+    getIconType(str: string): IconType {
         if (findIconDefinition({ iconName: str as IconName, prefix: "fas" }))
             return "font-awesome";
         if (findIconDefinition({ iconName: str as IconName, prefix: "far" }))
             return "font-awesome";
         if (findIconDefinition({ iconName: str as IconName, prefix: "fab" }))
             return "font-awesome";
+        if (ObsidianIcons.includes(str as ObsidianIconNames)) {
+            return "obsidian";
+        }
         for (const [pack, icons] of Object.entries(this.DOWNLOADED)) {
-            if (Object.keys(icons).find((icon) => icon == str))
-                return pack as DownloadableIconPack;
+            if (str in icons) return pack as DownloadableIconPack;
         }
     }
     getIconModuleName(icon: AdmonitionIconDefinition) {
         if (icon.type === "font-awesome") return "Font Awesome";
+        if (icon.type === "obsidian") return "Obsidian Icon";
         if (icon.type === "image") return;
         if (icon.type in DownloadableIcons) return DownloadableIcons[icon.type];
     }
@@ -132,6 +139,11 @@ export class IconManager {
             const img = new Image();
             img.src = icon.name;
             return img;
+        }
+        if (icon.type == "obsidian") {
+            const el = createDiv();
+            setIcon(el, icon.name);
+            return el;
         }
         if (this.DOWNLOADED[icon.type as DownloadableIconPack]?.[icon.name]) {
             const el = createDiv();

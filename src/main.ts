@@ -8,7 +8,6 @@ import {
     MarkdownView,
     Notice,
     Plugin,
-    requireApiVersion,
     setIcon
 } from "obsidian";
 
@@ -95,7 +94,8 @@ const DEFAULT_APP_SETTINGS: AdmonitionSettings = {
     icons: [],
     useFontAwesome: true,
     rpgDownloadedOnce: false,
-    msDocConverted: false
+    msDocConverted: false,
+    useSnippet: false
 };
 
 export default class ObsidianAdmonition extends Plugin {
@@ -240,6 +240,7 @@ ${editor.getDoc().getSelection()}
                     suggestor.open();
                 }
             });
+
             this.addCommand({
                 id: "insert-admonition",
                 name: "Insert Callout",

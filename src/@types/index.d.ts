@@ -1,5 +1,6 @@
 import { IconName } from "@fortawesome/fontawesome-svg-core";
 import { DownloadableIconPack } from "src/icons/manager";
+import { ObsidianIconNames } from "src/icons/obsidian";
 
 export interface Admonition {
     type: string;
@@ -40,12 +41,19 @@ export interface AdmonitionSettings {
         advanced: boolean;
     };
     msDocConverted: boolean;
+    useSnippet: boolean;
 }
 
 export type AdmonitionIconDefinition = {
-    type?: "font-awesome" | "image" | DownloadableIconPack;
-    name?: IconName | string;
+    type?: IconType;
+    name?: IconName | ObsidianIconNames | string;
 };
+
+export type IconType =
+    | "font-awesome"
+    | "obsidian"
+    | "image"
+    | DownloadableIconPack;
 
 export type AdmonitionIconName = AdmonitionIconDefinition["name"];
 export type AdmonitionIconType = AdmonitionIconDefinition["type"];
