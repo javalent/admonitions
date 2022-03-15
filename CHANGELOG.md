@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [8.2.1](https://github.com/valentine195/obsidian-admonition/compare/8.2.0...8.2.1) (2022-03-15)
+
+
+### Bug Fixes
+
+* Fixes issue preventing Settings Search from searching Admonition settings ([d020438](https://github.com/valentine195/obsidian-admonition/commit/d02043846a0ad08c678af3c995306c1ff2071682))
+
 ## [8.2.0](https://github.com/valentine195/obsidian-admonition/compare/8.1.0...8.2.0) (2022-03-15)
 
 
