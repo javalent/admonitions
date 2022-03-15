@@ -285,13 +285,11 @@ function findSizer(): Promise<HTMLElement> {
                                 );
                                 if (sizer) {
                                     observer.disconnect();
-                                    console.log(sizer);
                                     resolve(sizer);
                                 }
                             }
                             if (node.hasClass("markdown-preview-sizer")) {
                                 observer.disconnect();
-                                console.log(sizer);
                                 resolve(sizer);
                             }
                         }
