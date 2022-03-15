@@ -138,7 +138,7 @@ export default class AdmonitionSetting extends PluginSettingTab {
             });
 
         this.additionalEl = admonitionEl.createDiv("additional");
-        await this.buildTypes();
+        this.buildTypes();
 
         this.buildAdmonitions(
             this.containerEl.createEl("details", {
@@ -183,7 +183,7 @@ export default class AdmonitionSetting extends PluginSettingTab {
         });
     }
 
-    async buildAdmonitions(containerEl: HTMLDetailsElement) {
+    buildAdmonitions(containerEl: HTMLDetailsElement) {
         containerEl.empty();
         containerEl.ontoggle = () => {
             this.plugin.data.open.admonitions = containerEl.open;
@@ -536,8 +536,8 @@ export default class AdmonitionSetting extends PluginSettingTab {
                 );
             }
             this.plugin.data.msDocConverted = true;
-            await this.plugin.saveSettings();
-            this.display();
+            this.plugin.saveSettings().then(() => this.display());
+
             setTimeout(() => {
                 this.notice.hide();
                 this.notice = undefined;
@@ -560,7 +560,7 @@ export default class AdmonitionSetting extends PluginSettingTab {
             this.checkAndReplace();
         });
     }
-    async checkAndReplaceCodeBlocks() {
+    checkAndReplaceCodeBlocks() {
         if (!this.queue.length) {
             if (this.converted) {
                 this.notice.setMessage(
@@ -707,7 +707,7 @@ export default class AdmonitionSetting extends PluginSettingTab {
             });
     }
 
-    async buildTypes() {
+    buildTypes() {
         this.additionalEl.empty();
         for (const admonition of Object.values(
             this.plugin.data.userAdmonitions
