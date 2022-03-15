@@ -5,7 +5,7 @@
     "main": "main.js",
     "scripts": {
         "dev": "node ./esbuild.config.mjs",
-        "build": "node ./esbuild.config.mjs production",
+        "build": "npm run publish && node ./esbuild.config.mjs production",
         "publish": "node ./esbuild.publish.mjs production",
         "release": "standard-version"
     },
