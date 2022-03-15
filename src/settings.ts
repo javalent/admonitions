@@ -690,9 +690,9 @@ export default class AdmonitionSetting extends PluginSettingTab {
 
     async buildTypes() {
         this.additionalEl.empty();
-        for (let a in this.plugin.data.userAdmonitions) {
-            const admonition = this.plugin.data.userAdmonitions[a];
-
+        for (const admonition of Object.values(
+            this.plugin.data.userAdmonitions
+        )) {
             let setting = new Setting(this.additionalEl);
 
             let admonitionElement = this.plugin.getAdmonitionElement(
@@ -741,8 +741,7 @@ export default class AdmonitionSetting extends PluginSettingTab {
                             modal.onClose = async () => {
                                 if (modal.saved) {
                                     const hasCommand = admonition.command;
-                                    this.plugin.removeAdmonition(admonition);
-                                    this.plugin.addAdmonition({
+                                    const modalAdmonition = {
                                         type: modal.type,
                                         color: modal.color,
                                         icon: modal.icon,
@@ -751,7 +750,44 @@ export default class AdmonitionSetting extends PluginSettingTab {
                                         injectColor: modal.injectColor,
                                         noTitle: modal.noTitle,
                                         copy: modal.copy
-                                    });
+                                    };
+
+                                    if (
+                                        modalAdmonition.type != admonition.type
+                                    ) {
+                                        this.plugin.unregisterType(admonition);
+                                        this.plugin.registerType(
+                                            modalAdmonition
+                                        );
+
+                                        const existing: [string, Admonition][] =
+                                            Object.entries(
+                                                this.plugin.data.userAdmonitions
+                                            );
+
+                                        this.plugin.data.userAdmonitions =
+                                            Object.fromEntries(
+                                                existing.map(([type, def]) => {
+                                                    if (
+                                                        type == admonition.type
+                                                    ) {
+                                                        return [
+                                                            modalAdmonition.type,
+                                                            modalAdmonition
+                                                        ];
+                                                    }
+                                                    return [type, def];
+                                                })
+                                            );
+                                    } else {
+                                        this.plugin.data.userAdmonitions[
+                                            modalAdmonition.type
+                                        ] = modalAdmonition;
+                                    }
+
+                                    /* this.plugin.removeAdmonition(admonition);
+                                    this.plugin.addAdmonition(modalAdmonition); */
+
                                     this.display();
                                 }
                             };

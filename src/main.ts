@@ -54,6 +54,11 @@ declare module "obsidian" {
             executeCommandById(id: string): void;
             findCommand(id: string): Command;
         };
+        customCss: {
+            getSnippetPath(file: string): string;
+            readCssFolders(): void;
+            setCssEnabledStatus(snippet: string, enabled: boolean): void;
+        };
         plugins: {
             getPluginFolder(): string;
         };
@@ -95,11 +100,13 @@ const DEFAULT_APP_SETTINGS: AdmonitionSettings = {
     useFontAwesome: true,
     rpgDownloadedOnce: false,
     msDocConverted: false,
-    useSnippet: false
+    useSnippet: false,
+    snippetPath: `custom-admonitions.${[...Array(6).keys()]
+        .map(() => ((16 * Math.random()) | 0).toString(16))
+        .join("")}`
 };
 
 export default class ObsidianAdmonition extends Plugin {
-    admonitions: { [admonitionType: string]: Admonition } = {};
     data: AdmonitionSettings;
 
     postprocessors: Map<string, MarkdownPostProcessor> = new Map();
@@ -129,16 +136,9 @@ export default class ObsidianAdmonition extends Plugin {
 
             this.registerEditorSuggest(new AdmonitionSuggest(this));
 
-            Object.keys(this.admonitions).forEach((type) => {
-                const processor = this.registerMarkdownCodeBlockProcessor(
-                    `ad-${type}`,
-                    (src, el, ctx) => this.postprocessor(type, src, el, ctx)
-                );
-                this.postprocessors.set(type, processor);
-                if (this.admonitions[type].command) {
-                    this.registerCommandsFor(this.admonitions[type]);
-                }
-            });
+            Object.values(this.admonitions).forEach((admonition) =>
+                this.registerType(admonition)
+            );
 
             this.addSettingTab(new AdmonitionSetting(this.app, this));
 
@@ -147,10 +147,6 @@ export default class ObsidianAdmonition extends Plugin {
             addIcon(WARNING_ICON_NAME, WARNING_ICON);
             addIcon(COPY_ICON_NAME, COPY_ICON);
             addIcon(SPIN_ICON_NAME, SPIN_ICON);
-
-            if (this.data.syntaxHighlight) {
-                this.turnOnSyntaxHighlighting();
-            }
 
             /** Add generic commands. */
             this.addCommand({
@@ -201,7 +197,6 @@ export default class ObsidianAdmonition extends Plugin {
                     }
                 }
             });
-
             this.addCommand({
                 id: "insert-admonition",
                 name: "Insert Admonition",
@@ -240,7 +235,6 @@ ${editor.getDoc().getSelection()}
                     suggestor.open();
                 }
             });
-
             this.addCommand({
                 id: "insert-admonition",
                 name: "Insert Callout",
@@ -572,22 +566,19 @@ ${selection.split("\n").join("\n> ")}
         return contentEl;
     }
 
-    async addAdmonition(admonition: Admonition): Promise<void> {
-        this.data.userAdmonitions = {
-            ...this.data.userAdmonitions,
-            [admonition.type]: admonition
-        };
-        this.admonitions = {
-            ...ADMONITION_MAP,
-            ...this.data.userAdmonitions
-        };
-
+    registerType(admonition: Admonition) {
         /** Turn on CodeMirror syntax highlighting for this "language" */
         if (this.data.syntaxHighlight) {
             this.turnOnSyntaxHighlighting([admonition.type]);
         }
 
         /** Register an admonition code-block post processor for legacy support. */
+        if (this.postprocessors.has(admonition.type)) {
+            //@ts-expect-error
+            MarkdownPreviewRenderer.unregisterCodeBlockPostProcessor(
+                `ad-${admonition.type}`
+            );
+        }
         this.postprocessors.set(
             admonition.type,
             this.registerMarkdownCodeBlockProcessor(
@@ -596,6 +587,21 @@ ${selection.split("\n").join("\n> ")}
                     this.postprocessor(admonition.type, src, el, ctx)
             )
         );
+        if (admonition.command) {
+            this.registerCommandsFor(admonition);
+        }
+    }
+    get admonitions() {
+        return { ...ADMONITION_MAP, ...this.data.userAdmonitions}
+    }
+    async addAdmonition(admonition: Admonition): Promise<void> {
+        this.data.userAdmonitions = {
+            ...this.data.userAdmonitions,
+            [admonition.type]: admonition
+        };
+
+        this.registerCommandsFor(admonition);
+
         /** Create the admonition type in CSS */
         this.calloutManager.addAdmonition(admonition);
 
@@ -677,15 +683,7 @@ ${editor.getDoc().getSelection()}
             }
         });
     }
-    async removeAdmonition(admonition: Admonition) {
-        if (this.data.userAdmonitions[admonition.type]) {
-            delete this.data.userAdmonitions[admonition.type];
-        }
-        this.admonitions = {
-            ...ADMONITION_MAP,
-            ...this.data.userAdmonitions
-        };
-
+    unregisterType(admonition: Admonition) {
         if (this.data.syntaxHighlight) {
             this.turnOffSyntaxHighlighting([admonition.type]);
         }
@@ -704,6 +702,13 @@ ${editor.getDoc().getSelection()}
             );
             this.postprocessors.delete(admonition.type);
         }
+    }
+    async removeAdmonition(admonition: Admonition) {
+        if (this.data.userAdmonitions[admonition.type]) {
+            delete this.data.userAdmonitions[admonition.type];
+        }
+
+        this.unregisterType(admonition);
 
         /** Remove the admonition type in CSS */
         this.calloutManager.removeAdmonition(admonition);
@@ -803,11 +808,7 @@ ${editor.getDoc().getSelection()}
                 this.data.rpgDownloadedOnce = true;
             } catch (e) {}
         }
-
-        this.admonitions = {
-            ...ADMONITION_MAP,
-            ...this.data.userAdmonitions
-        };
+        
         await this.saveSettings();
     }
 
