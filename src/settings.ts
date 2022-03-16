@@ -906,7 +906,11 @@ class SettingsModal extends Modal {
 
                     this.type = v;
                     if (!this.title)
-                        this.updateTitle(this.admonitionPreview, this.type);
+                        this.updateTitle(
+                            this.admonitionPreview,
+                            this.type?.[0].toUpperCase() +
+                                title.slice(1).toLowerCase()
+                        );
                 });
             });
         typeSetting.controlEl.addClass("admonition-type-setting");
@@ -936,7 +940,11 @@ class SettingsModal extends Modal {
                 text.setValue(this.title).onChange((v) => {
                     if (!v.length) {
                         this.title = null;
-                        this.updateTitle(this.admonitionPreview, this.type);
+                        this.updateTitle(
+                            this.admonitionPreview,
+                            this.type?.[0].toUpperCase() +
+                                title.slice(1).toLowerCase()
+                        );
                         return;
                     }
 
@@ -1224,8 +1232,7 @@ class SettingsModal extends Modal {
             ".admonition-title-content"
         );
         let iconEl = admonitionPreview.querySelector(".admonition-title-icon");
-        titleSpan.textContent =
-            title[0].toUpperCase() + title.slice(1).toLowerCase();
+        titleSpan.textContent = title;
         titleSpan.prepend(iconEl);
     }
     onOpen() {
