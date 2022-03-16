@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [8.2.2](https://github.com/valentine195/obsidian-admonition/compare/8.2.1...8.2.2) (2022-03-16)
+
+
+### Bug Fixes
+
+* Fixes casing display issue for custom titles in settings (close [#214](https://github.com/valentine195/obsidian-admonition/issues/214)) ([211b323](https://github.com/valentine195/obsidian-admonition/commit/211b3239c5faf897336a6f6439f38f237abaa48c))
+* Fixes issue where admonition types were being set incorrectly ([06fa0bf](https://github.com/valentine195/obsidian-admonition/commit/06fa0bf54b90c68114223bcaf1ad3903cef9fc81))
+
 ### [8.2.1](https://github.com/valentine195/obsidian-admonition/compare/8.2.0...8.2.1) (2022-03-15)
 
 
