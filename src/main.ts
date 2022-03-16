@@ -136,9 +136,9 @@ export default class ObsidianAdmonition extends Plugin {
 
             this.registerEditorSuggest(new AdmonitionSuggest(this));
 
-            Object.values(this.admonitions).forEach((admonition) =>
-                this.registerType(admonition)
-            );
+            Object.keys(this.admonitions).forEach((type) => {
+                this.registerType(type);
+            });
 
             this.addSettingTab(new AdmonitionSetting(this.app, this));
 
@@ -566,27 +566,27 @@ ${selection.split("\n").join("\n> ")}
         return contentEl;
     }
 
-    registerType(admonition: Admonition) {
+    registerType(type: string) {
         /** Turn on CodeMirror syntax highlighting for this "language" */
         if (this.data.syntaxHighlight) {
-            this.turnOnSyntaxHighlighting([admonition.type]);
+            this.turnOnSyntaxHighlighting([type]);
         }
 
         /** Register an admonition code-block post processor for legacy support. */
-        if (this.postprocessors.has(admonition.type)) {
+        if (this.postprocessors.has(type)) {
             //@ts-expect-error
             MarkdownPreviewRenderer.unregisterCodeBlockPostProcessor(
-                `ad-${admonition.type}`
+                `ad-${type}`
             );
         }
         this.postprocessors.set(
-            admonition.type,
+            type,
             this.registerMarkdownCodeBlockProcessor(
-                `ad-${admonition.type}`,
-                (src, el, ctx) =>
-                    this.postprocessor(admonition.type, src, el, ctx)
+                `ad-${type}`,
+                (src, el, ctx) => this.postprocessor(type, src, el, ctx)
             )
         );
+        const admonition = this.admonitions[type];
         if (admonition.command) {
             this.registerCommandsFor(admonition);
         }
@@ -600,7 +600,7 @@ ${selection.split("\n").join("\n> ")}
             [admonition.type]: admonition
         };
 
-        this.registerType(admonition);
+        this.registerType(admonition.type);
 
         /** Create the admonition type in CSS */
         this.calloutManager.addAdmonition(admonition);
@@ -850,7 +850,7 @@ ${editor.getDoc().getSelection()}
 
     async onunload() {
         console.log("Obsidian Admonition unloaded");
-
+        this.postprocessors = null;
         this.turnOffSyntaxHighlighting();
     }
 }

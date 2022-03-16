@@ -776,7 +776,7 @@ export default class AdmonitionSetting extends PluginSettingTab {
                                     ) {
                                         this.plugin.unregisterType(admonition);
                                         this.plugin.registerType(
-                                            modalAdmonition
+                                            modalAdmonition.type
                                         );
 
                                         const existing: [string, Admonition][] =
