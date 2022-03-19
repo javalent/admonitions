@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [8.2.3](https://github.com/valentine195/obsidian-admonition/compare/8.2.2...8.2.3) (2022-03-19)
+
+
+### Bug Fixes
+
+* Fixes issue with custom admonitions not working with callouts ([9c9c486](https://github.com/valentine195/obsidian-admonition/commit/9c9c486f192c82a3a64d12bc442f05eeb30df4e6))
+
 ### [8.2.2](https://github.com/valentine195/obsidian-admonition/compare/8.2.1...8.2.2) (2022-03-16)
 
 
