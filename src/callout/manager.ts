@@ -155,41 +155,24 @@ export default class CalloutManager extends Component {
         if (admonition.icon.type == "obsidian") {
             rule = `.callout[data-callout="${admonition.type}"] {
     --callout-color: ${admonition.color}; /* RGB Tuple (just like admonitions) */
-    --callout-icon: '${admonition.icon.name}';  /* Icon name from the Obsidian Icon Set */
+    --callout-icon: ${admonition.icon.name};  /* Icon name from the Obsidian Icon Set */
 }`;
         } else {
-            addIcon(
-                `ADMONITION_ICON_MANAGER_${admonition.type}`,
-                this.plugin.iconManager
-                    .getIconNode(admonition.icon)
-                    .outerHTML.replace(
-                        /(width|height)=(\\?"|')\d+(\\?"|')/g,
-                        ""
-                    )
-            );
             rule = `.callout[data-callout="${admonition.type}"] {
-        --callout-color: ${
-            admonition.color
-        }; /* RGB Tuple (just like admonitions) */
+        --callout-color: ${admonition.color};
         --callout-icon: '${this.plugin.iconManager
             .getIconNode(admonition.icon)
-            .outerHTML.replace(
-                /(width|height)=(\\?"|')\d+(\\?"|')/g,
-                ""
-            )}';  /* Icon name from the Obsidian Icon Set */
+            .outerHTML.replace(/(width|height)=(\\?"|')\d+(\\?"|')/g, "")}';
     }`;
         }
         if (this.indexing.contains(admonition.type)) {
             this.sheet.deleteRule(this.indexing.indexOf(admonition.type));
         }
-        const index = this.sheet.insertRule(
-            rule,
-            this.indexing.contains(admonition.type)
-                ? this.indexing.indexOf(admonition.type)
-                : this.sheet.cssRules.length
-        );
-        this.indexing.splice(index, 1, admonition.type);
-
+        this.indexing = [
+            ...this.indexing.filter((type) => type != admonition.type),
+            admonition.type
+        ];
+        this.sheet.insertRule(rule /* , this.sheet.cssRules.length */);
         this.updateSnippet();
     }
     indexing: string[] = [];
@@ -203,7 +186,9 @@ export default class CalloutManager extends Component {
     style = document.head.createEl("style", {
         attr: { id: "ADMONITIONS_CUSTOM_STYLE_SHEET" }
     });
-    sheet = this.style.sheet;
+    get sheet() {
+        return this.style.sheet;
+    }
 
     unload() {
         this.style.detach();
@@ -219,7 +204,9 @@ export default class CalloutManager extends Component {
             this.style.detach();
             this.updateSnippet();
         } else {
-            document.head.appendChild(this.style);
+            if (!this.style.parentElement) {
+                document.head.appendChild(this.style);
+            }
         }
     }
     async updateSnippet() {
