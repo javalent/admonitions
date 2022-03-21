@@ -127,6 +127,9 @@ export default class CalloutManager extends Component {
                 titleContentEl.setText(admonition.title);
             }
         }
+        if (this.plugin.data.dropShadow) {
+            callout.addClass('drop-shadow')
+        }
     }
     getComputedHeights(el: HTMLDivElement): Heights {
         if (this.heightMap.has(el)) {

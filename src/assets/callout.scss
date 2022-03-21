@@ -1,6 +1,8 @@
 .callout:not(.admonition) {
+    &.drop-shadow {
+        box-shadow: 0 0.2rem 0.5rem var(--background-modifier-box-shadow);
+    }
     .no-title {
         display: none;
     }
-    
 }
