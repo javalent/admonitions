@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [8.2.4](https://github.com/valentine195/obsidian-admonition/compare/8.2.3...8.2.4) (2022-03-21)
+
+
+### Bug Fixes
+
+* Admonition drop shadow setting will now apply to callouts (close [#222](https://github.com/valentine195/obsidian-admonition/issues/222)) ([0457ced](https://github.com/valentine195/obsidian-admonition/commit/0457ced760384690928a243bc7e391c691ccbdcc))
+
 ### [8.2.3](https://github.com/valentine195/obsidian-admonition/compare/8.2.2...8.2.3) (2022-03-19)
 
 
