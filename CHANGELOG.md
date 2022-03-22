@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [8.3.1](https://github.com/valentine195/obsidian-admonition/compare/8.3.0...8.3.1) (2022-03-22)
+
+
+### Bug Fixes
+
+* fixes callout metadata surfacing not applying to default types ([25b7756](https://github.com/valentine195/obsidian-admonition/commit/25b7756884d0bcf0049a20c0fcaa84adb3a2ff1a))
+
 ## [8.3.0](https://github.com/valentine195/obsidian-admonition/compare/8.2.4...8.3.0) (2022-03-22)
 
 
