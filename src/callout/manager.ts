@@ -49,11 +49,6 @@ export default class CalloutManager extends Component {
     calloutProcessor(el: HTMLElement, ctx: MarkdownPostProcessorContext) {
         const callout = el?.querySelector<HTMLDivElement>(".callout");
         if (!callout) return;
-
-        const type = callout.dataset.callout;
-        const admonition = this.plugin.data.userAdmonitions[type];
-        if (!admonition) return;
-
         //apply metadata
         const section = ctx.getSectionInfo(el);
         if (section) {
@@ -65,6 +60,10 @@ export default class CalloutManager extends Component {
                 callout.dataset.calloutMetadata = metadata;
             }
         }
+
+        const type = callout.dataset.callout;
+        const admonition = this.plugin.data.userAdmonitions[type];
+        if (!admonition) return;
 
         const titleEl = callout.querySelector<HTMLDivElement>(".callout-title");
         const content =
