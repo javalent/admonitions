@@ -54,6 +54,18 @@ export default class CalloutManager extends Component {
         const admonition = this.plugin.data.userAdmonitions[type];
         if (!admonition) return;
 
+        //apply metadata
+        const section = ctx.getSectionInfo(el);
+        if (section) {
+            const { text, lineStart } = section;
+            const definition = text.split("\n")[lineStart];
+
+            const [, metadata] = definition.match(/> \[!.+\|(.*)]/) ?? [];
+            if (metadata) {
+                callout.dataset.calloutMetadata = metadata;
+            }
+        }
+
         const titleEl = callout.querySelector<HTMLDivElement>(".callout-title");
         const content =
             callout.querySelector<HTMLDivElement>(".callout-content");
@@ -128,7 +140,7 @@ export default class CalloutManager extends Component {
             }
         }
         if (this.plugin.data.dropShadow) {
-            callout.addClass('drop-shadow')
+            callout.addClass("drop-shadow");
         }
     }
     getComputedHeights(el: HTMLDivElement): Heights {
