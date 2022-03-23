@@ -236,7 +236,7 @@ ${editor.getDoc().getSelection()}
                 }
             });
             this.addCommand({
-                id: "insert-admonition",
+                id: "insert-callout",
                 name: "Insert Callout",
                 editorCallback: (editor, view) => {
                     let suggestor = new InsertAdmonitionModal(this);
@@ -272,7 +272,7 @@ ${editor.getDoc().getSelection()}
                         const selection = editor.getDoc().getSelection();
                         editor.getDoc().replaceSelection(
                             `> [!${suggestor.type}]${collapse}${title}
-${selection.split("\n").join("\n> ")}
+> ${selection.split("\n").join("\n> ")}
 `
                         );
                     };
