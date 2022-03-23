@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [8.3.2](https://github.com/valentine195/obsidian-admonition/compare/8.3.1...8.3.2) (2022-03-23)
+
+
+### Bug Fixes
+
+* Fixes issue where Insert Callout wouldn't insert a `>` on the first line ([c276afe](https://github.com/valentine195/obsidian-admonition/commit/c276afea945bda3bbeed9512c2f9eaedcda4834d))
+
 ### [8.3.1](https://github.com/valentine195/obsidian-admonition/compare/8.3.0...8.3.1) (2022-03-22)
 
 
