@@ -544,7 +544,7 @@ export default class AdmonitionSetting extends PluginSettingTab {
             }, 2000);
             return;
         }
-        setImmediate(async () => {
+        setTimeout(async () => {
             const file = this.queue.shift();
             const contents = await this.app.vault.read(file);
             if (/> \[!([^ :]+)(?::[ ]?(.+))\](x|\+|\-)?/.test(contents)) {
@@ -578,7 +578,7 @@ export default class AdmonitionSetting extends PluginSettingTab {
             }, 2000);
             return;
         }
-        setImmediate(async () => {
+        setTimeout(async () => {
             const file = this.queue.shift();
             let contents = await this.app.vault.read(file);
             if (/```ad-(\w+)\n([\s\S]*?)?\n```?/m.test(contents)) {
