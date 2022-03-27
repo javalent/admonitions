@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [8.3.3](https://github.com/valentine195/obsidian-admonition/compare/8.3.2...8.3.3) (2022-03-27)
+
+
+### Bug Fixes
+
+* fixes admonition conversion on mobile ([b4d29fc](https://github.com/valentine195/obsidian-admonition/commit/b4d29fc1dc850db6bc08d08156501728c5dba6a7))
+
 ### [8.3.2](https://github.com/valentine195/obsidian-admonition/compare/8.3.1...8.3.2) (2022-03-23)
 
 
