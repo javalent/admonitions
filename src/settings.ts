@@ -501,6 +501,11 @@ export default class AdmonitionSetting extends PluginSettingTab {
                     .setCta()
                     .onClick(() => {
                         this.queue = this.plugin.app.vault.getMarkdownFiles();
+                        /* this.queue = [
+                            this.plugin.app.vault.getAbstractFileByPath(
+                                "99 Plugin Testing/admonition/Admonition Codeblock.md"
+                            ) as TFile
+                        ]; */
                         this.notice = new Notice(
                             createFragment((e) => {
                                 const container =
@@ -560,7 +565,7 @@ export default class AdmonitionSetting extends PluginSettingTab {
             this.checkAndReplace();
         });
     }
-    checkAndReplaceCodeBlocks() {
+    async checkAndReplaceCodeBlocks() {
         if (!this.queue.length) {
             if (this.converted) {
                 this.notice.setMessage(
@@ -581,45 +586,62 @@ export default class AdmonitionSetting extends PluginSettingTab {
         setTimeout(async () => {
             const file = this.queue.shift();
             let contents = await this.app.vault.read(file);
-            if (/```ad-(\w+)\n([\s\S]*?)?\n```?/m.test(contents)) {
-                const admonitions =
-                    contents.match(/```ad-(\w+)([\s\S]*?)?\n```/gm) ?? [];
-                for (const admonition of admonitions) {
-                    let [, type] = admonition.match(/^```ad-(\w+)/),
-                        title = "",
-                        collapse = "";
-                    if (!type) continue;
-                    const content = [];
 
-                    for (const line of admonition.split("\n").slice(1, -1)) {
-                        if (/^title:/.test(line)) {
-                            title =
-                                line.match(/^title:(.*)/)?.[1] ??
-                                type[0].toUpperCase() +
-                                    type.slice(1).toLowerCase();
-                            continue;
-                        }
-                        if (/^collapse:/.test(line)) {
-                            const state =
-                                line.match(/^collapse:(.*)/)?.[1] ?? "open";
-                            collapse = state == "open" ? "+" : "-";
-                            continue;
-                        }
-                        content.push(line);
-                    }
-                    contents = contents.replace(
-                        admonition,
-                        `> [!${type}]${collapse}${
-                            title.length ? " " : ""
-                        }${title}\n> ${content.join("\n> ")}`
-                    );
-
-                    this.converted++;
-                }
-                await this.app.vault.modify(file, contents);
+            if (/^(`{3,})ad-(\w+)([\s\S]*?)?\n^\1/m.test(contents)) {
+                contents = this.replaceCodeBlockInPlace(contents);
+                this.app.vault.modify(file, contents);
             }
             this.checkAndReplaceCodeBlocks();
         });
+    }
+    replaceCodeBlockInPlace(contents: string): string {
+        const admonitions =
+            contents.match(/^(`{3,})ad-(\w+)([\s\S]*?)?\n^\1/gm) ?? [];
+
+        for (const admonition of admonitions) {
+            let [, type] = admonition.match(/^`{3,}ad-(\w+)/),
+                title = "",
+                collapse = "";
+            if (!type) continue;
+            let content = [];
+
+            let mine = true;
+            for (const line of admonition.split("\n").slice(1, -1)) {
+                if (mine) {
+                    if (/^title:/.test(line)) {
+                        title =
+                            line.match(/^title:(.*)/)?.[1].trim() ??
+                            type[0].toUpperCase() + type.slice(1).toLowerCase();
+                        continue;
+                    }
+                    if (/^collapse:/.test(line)) {
+                        const state =
+                            line.match(/^collapse:\s?(.*)/)?.[1].trim() ??
+                            "open";
+                        collapse = state == "open" ? "+" : "-";
+                        continue;
+                    }
+                    if (!/^(title|collapse|color|icon):/.test(line)) {
+                        mine = false;
+                    }
+                }
+                content.push(line);
+            }
+
+            let parsed = content.join("\n");
+            if (/^(`{3,})ad-(\w+)([\s\S]*?)?\n^\1/m.test(parsed)) {
+                parsed = this.replaceCodeBlockInPlace(parsed);
+            }
+            contents = contents.replace(
+                admonition,
+                `> [!${type}]${collapse}${
+                    title.length ? " " : ""
+                }${title}\n> ${parsed.split("\n").join("\n> ")}`
+            );
+
+            this.converted++;
+        }
+        return contents;
     }
     buildAdvanced(containerEl: HTMLDetailsElement) {
         containerEl.empty();
