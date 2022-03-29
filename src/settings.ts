@@ -803,9 +803,6 @@ export default class AdmonitionSetting extends PluginSettingTab {
                                         modalAdmonition.type != admonition.type
                                     ) {
                                         this.plugin.unregisterType(admonition);
-                                        this.plugin.registerType(
-                                            modalAdmonition.type
-                                        );
 
                                         const existing: [string, Admonition][] =
                                             Object.entries(
@@ -831,6 +828,10 @@ export default class AdmonitionSetting extends PluginSettingTab {
                                             modalAdmonition.type
                                         ] = modalAdmonition;
                                     }
+
+                                    this.plugin.registerType(
+                                        modalAdmonition.type
+                                    );
 
                                     this.plugin.calloutManager.addAdmonition(
                                         modalAdmonition
