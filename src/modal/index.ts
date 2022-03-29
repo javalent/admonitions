@@ -308,7 +308,9 @@ export class IconSuggestionModal extends SuggestionModal<AdmonitionIconDefinitio
         }
 
         const iconDiv = createDiv("suggestion-flair admonition-suggester-icon");
-        iconDiv.appendChild(this.plugin.iconManager.getIconNode(item));
+        iconDiv.appendChild(
+            this.plugin.iconManager.getIconNode(item) ?? createDiv()
+        );
         content.prepend(iconDiv);
         content.createDiv({
             cls: "suggestion-note",
@@ -388,7 +390,9 @@ class AdmonitionSuggestionModal extends SuggestionModal<Admonition> {
 
         const iconDiv = createDiv("suggestion-flair admonition-suggester-icon");
         iconDiv
-            .appendChild(this.plugin.iconManager.getIconNode(item.icon))
+            .appendChild(
+                this.plugin.iconManager.getIconNode(item.icon) ?? createDiv()
+            )
             .setAttribute("color", `rgb(${item.color})`);
 
         content.prepend(iconDiv);

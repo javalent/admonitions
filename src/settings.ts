@@ -708,9 +708,9 @@ export default class AdmonitionSetting extends PluginSettingTab {
                         const value = this.plugin.admonitions[key];
 
                         admonition_icons[key] = {
-                            icon: this.plugin.iconManager.getIconNode(
-                                value.icon
-                            ).outerHTML,
+                            icon:
+                                this.plugin.iconManager.getIconNode(value.icon)
+                                    ?.outerHTML ?? "",
                             color: value.color
                         };
                     }
@@ -1055,9 +1055,9 @@ class SettingsModal extends Modal {
                         ".admonition-title-icon"
                     );
 
-                    iconEl.innerHTML = this.plugin.iconManager.getIconNode(
-                        this.icon
-                    ).outerHTML;
+                    iconEl.innerHTML =
+                        this.plugin.iconManager.getIconNode(this.icon)
+                            ?.outerHTML ?? "";
                 };
 
                 const modal = new IconSuggestionModal(this.plugin, text);

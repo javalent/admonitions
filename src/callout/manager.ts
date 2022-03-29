@@ -176,9 +176,9 @@ export default class CalloutManager extends Component {
         } else {
             rule = `.callout[data-callout="${admonition.type}"] {
         --callout-color: ${admonition.color};
-        --callout-icon: '${this.plugin.iconManager
+        --callout-icon: '${(this.plugin.iconManager
             .getIconNode(admonition.icon)
-            .outerHTML.replace(/(width|height)=(\\?"|')\d+(\\?"|')/g, "")}';
+            ?.outerHTML ?? "").replace(/(width|height)=(\\?"|')\d+(\\?"|')/g, "")}';
     }`;
         }
         if (this.indexing.contains(admonition.type)) {
