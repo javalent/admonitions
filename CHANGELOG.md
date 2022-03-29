@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [8.3.5](https://github.com/valentine195/obsidian-admonition/compare/8.3.4...8.3.5) (2022-03-29)
+
+
+### Bug Fixes
+
+* Fixes issue with maintaining a CSS snippet for callouts ([f7efbbc](https://github.com/valentine195/obsidian-admonition/commit/f7efbbc092b5b9dd9ae88ca3b62af7406a68ad17))
+* Fixes issue with post processors map not getting reinitialized properly ([a7752d9](https://github.com/valentine195/obsidian-admonition/commit/a7752d9d4238407e48412d70161598925df21395))
+
 ### [8.3.4](https://github.com/valentine195/obsidian-admonition/compare/8.3.3...8.3.4) (2022-03-28)
 
 
