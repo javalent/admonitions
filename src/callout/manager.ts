@@ -24,12 +24,14 @@ export default class CalloutManager extends Component {
 
     onload() {
         //build sheet for custom admonitions
+
+        document.head.appendChild(this.style);
+        
         for (const admonition of Object.values(
             this.plugin.data.userAdmonitions
         )) {
             this.addAdmonition(admonition);
         }
-
         this.setUseSnippet();
 
         this.plugin.registerEditorSuggest(new CalloutSuggest(this.plugin));
@@ -215,12 +217,7 @@ export default class CalloutManager extends Component {
     }
     setUseSnippet() {
         if (this.plugin.data.useSnippet) {
-            this.style.detach();
             this.updateSnippet();
-        } else {
-            if (!this.style.parentElement) {
-                document.head.appendChild(this.style);
-            }
         }
     }
     async updateSnippet() {
