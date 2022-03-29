@@ -26,7 +26,7 @@ export default class CalloutManager extends Component {
         //build sheet for custom admonitions
 
         document.head.appendChild(this.style);
-        
+
         for (const admonition of Object.values(
             this.plugin.data.userAdmonitions
         )) {
@@ -188,7 +188,7 @@ export default class CalloutManager extends Component {
             ...this.indexing.filter((type) => type != admonition.type),
             admonition.type
         ];
-        this.sheet.insertRule(rule /* , this.sheet.cssRules.length */);
+        this.sheet.insertRule(rule, this.sheet.cssRules.length);
         this.updateSnippet();
     }
     indexing: string[] = [];
