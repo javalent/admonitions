@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [8.3.7](https://github.com/valentine195/obsidian-admonition/compare/8.3.6...8.3.7) (2022-03-29)
+
+
+### Bug Fixes
+
+* Properly handles the icon manager not finding an icon node ([4470170](https://github.com/valentine195/obsidian-admonition/commit/44701700e3209a82de836bb139c015f1896b2108))
+
 ### [8.3.6](https://github.com/valentine195/obsidian-admonition/compare/8.3.5...8.3.6) (2022-03-29)
 
 
