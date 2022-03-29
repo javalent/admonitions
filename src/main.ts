@@ -68,7 +68,9 @@ declare module "obsidian" {
     }
     interface MarkdownPreviewRenderer {
         onCheckboxClick: (evt: MouseEvent, el: HTMLInputElement) => void;
-        unregisterCodeBlockPostProcessor(lang: string): void;
+    }
+    namespace MarkdownPreviewRenderer {
+        function unregisterCodeBlockPostProcessor(lang: string): void;
     }
 }
 
@@ -128,6 +130,8 @@ export default class ObsidianAdmonition extends Plugin {
 
     async onload(): Promise<void> {
         console.log("Obsidian Admonition loaded");
+
+        this.postprocessors = new Map();
 
         await this.loadSettings();
         await this.iconManager.load();
@@ -574,7 +578,6 @@ ${editor.getDoc().getSelection()}
 
         /** Register an admonition code-block post processor for legacy support. */
         if (this.postprocessors.has(type)) {
-            //@ts-expect-error
             MarkdownPreviewRenderer.unregisterCodeBlockPostProcessor(
                 `ad-${type}`
             );
@@ -696,7 +699,6 @@ ${editor.getDoc().getSelection()}
             MarkdownPreviewRenderer.unregisterPostProcessor(
                 this.postprocessors.get(admonition.type)
             );
-            //@ts-expect-error
             MarkdownPreviewRenderer.unregisterCodeBlockPostProcessor(
                 `ad-${admonition.type}`
             );
