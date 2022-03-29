@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [8.3.6](https://github.com/valentine195/obsidian-admonition/compare/8.3.5...8.3.6) (2022-03-29)
+
+
+### Bug Fixes
+
+* Fixes issue where a type couldn't be renamed ([f8d37ac](https://github.com/valentine195/obsidian-admonition/commit/f8d37ace0c528e92e2dbd10908eb684b623974cf))
+* Fixes issue where removing types from the callout manager was removing the wrong type ([a3435c7](https://github.com/valentine195/obsidian-admonition/commit/a3435c7fd47534bf43610f5c4f59085bb6a4450b))
+* Fixes title display in admonition creation modal ([1a73421](https://github.com/valentine195/obsidian-admonition/commit/1a734212b7ecddeeb400ac4dce4cfc2bfc3493c5))
+* Temporarily remove Export Custom Types button from mobile until it can be fixed ([f56ebb8](https://github.com/valentine195/obsidian-admonition/commit/f56ebb8a69a8aca41794058838ac993733d6a17e))
+
 ### [8.3.5](https://github.com/valentine195/obsidian-admonition/compare/8.3.4...8.3.5) (2022-03-29)
 
 
