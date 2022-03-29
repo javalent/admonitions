@@ -938,7 +938,7 @@ class SettingsModal extends Modal {
                         this.updateTitle(
                             this.admonitionPreview,
                             this.type?.[0].toUpperCase() +
-                                title.slice(1).toLowerCase()
+                                this.type?.slice(1).toLowerCase()
                         );
                 });
             });
