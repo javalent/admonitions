@@ -896,9 +896,11 @@ class SettingsModal extends Modal {
             this.icon,
             this.injectColor ?? this.plugin.data.injectColor ? this.color : null
         );
-        this.admonitionPreview.createDiv("admonition-content").createEl("p", {
-            text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et euismod nulla."
-        });
+        this.admonitionPreview
+            .createDiv("callout-content admonition-content")
+            .createEl("p", {
+                text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et euismod nulla."
+            });
 
         contentEl.appendChild(this.admonitionPreview);
         let typeText: TextComponent;
@@ -1228,7 +1230,7 @@ class SettingsModal extends Modal {
                     this.color = `${color.r}, ${color.g}, ${color.b}`;
                     this.admonitionPreview.setAttribute(
                         "style",
-                        `--admonition-color: ${this.color};`
+                        `--callout-color: ${this.color};`
                     );
                 });
             })
@@ -1248,7 +1250,7 @@ class SettingsModal extends Modal {
                         } else {
                             this.admonitionPreview.setAttribute(
                                 "style",
-                                `--admonition-color: ${this.color};`
+                                `--callout-color: ${this.color};`
                             );
                         }
 

@@ -10,7 +10,7 @@ export interface Admonition {
     command: boolean;
     injectColor: boolean;
     noTitle: boolean;
-    copy: boolean;
+    copy?: boolean;
 }
 
 export interface NestedAdmonition {

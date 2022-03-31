@@ -1,7 +1,7 @@
 import {
-    addIcon,
     Component,
     MarkdownPostProcessorContext,
+    Notice,
     setIcon
 } from "obsidian";
 import { Admonition } from "src/@types";
@@ -52,24 +52,46 @@ export default class CalloutManager extends Component {
         const callout = el?.querySelector<HTMLDivElement>(".callout");
         if (!callout) return;
         //apply metadata
+
+        const type = callout.dataset.callout;
+        const admonition = this.plugin.admonitions[type];
+        if (!admonition) return;
+
+        const titleEl = callout.querySelector<HTMLDivElement>(".callout-title");
+        const content =
+            callout.querySelector<HTMLDivElement>(".callout-content");
+
         const section = ctx.getSectionInfo(el);
         if (section) {
-            const { text, lineStart } = section;
+            const { text, lineStart, lineEnd } = section;
             const definition = text.split("\n")[lineStart];
 
             const [, metadata] = definition.match(/> \[!.+\|(.*)]/) ?? [];
             if (metadata) {
                 callout.dataset.calloutMetadata = metadata;
             }
+
+            if (
+                this.plugin.admonitions[type].copy ??
+                this.plugin.data.copyButton
+            ) {
+                let copy = content.createDiv("admonition-content-copy");
+                setIcon(copy, "copy");
+                copy.addEventListener("click", () => {
+                    navigator.clipboard
+                        .writeText(
+                            text
+                                .split("\n")
+                                .slice(lineStart + 1, lineEnd + 1)
+                                .join("\n")
+                                .replace(/^> /gm, "")
+                        )
+                        .then(async () => {
+                            new Notice("Callout content copied to clipboard.");
+                        });
+                });
+            }
         }
-
-        const type = callout.dataset.callout;
-        const admonition = this.plugin.data.userAdmonitions[type];
-        if (!admonition) return;
-
-        const titleEl = callout.querySelector<HTMLDivElement>(".callout-title");
-        const content =
-            callout.querySelector<HTMLDivElement>(".callout-content");
 
         if (admonition.noTitle && !callout.dataset.calloutFold) {
             titleEl.addClass("no-title");
@@ -79,53 +101,7 @@ export default class CalloutManager extends Component {
             this.plugin.data.autoCollapse &&
             !callout.dataset.calloutFold
         ) {
-            if (!content) return;
-            callout.addClass("is-collapsible");
-            if (this.plugin.data.defaultCollapseType == "closed") {
-                callout.dataset.calloutFold = "-";
-                callout.addClass("is-collapsed");
-            } else {
-                callout.dataset.calloutFold = "+";
-            }
-
-            const iconEl = titleEl.createDiv("callout-fold");
-
-            setIcon(iconEl, "chevron-down");
-
-            let collapsed = callout.hasClass("is-collapsed");
-
-            this.getComputedHeights(content);
-
-            if (collapsed) {
-                for (const prop of this.heights) {
-                    content.style.setProperty(prop, "0px");
-                }
-            }
-            titleEl.onclick = (event: MouseEvent) => {
-                event.preventDefault();
-
-                function transitionEnd(evt: TransitionEvent) {
-                    content.removeEventListener("transitionend", transitionEnd);
-                    content.style.removeProperty("transition");
-                }
-                content.addEventListener("transitionend", transitionEnd);
-                content.style.setProperty(
-                    "transition",
-                    "all 100ms cubic-bezier(.02, .01, .47, 1)"
-                );
-                collapsed = callout.hasClass("is-collapsed");
-                if (event.button == 0) {
-                    for (const prop of this.heights) {
-                        const heights = this.getComputedHeights(content);
-                        content.style.setProperty(
-                            prop,
-                            collapsed ? heights[prop] : "0px"
-                        );
-                    }
-
-                    callout.toggleClass("is-collapsed", !collapsed);
-                }
-            };
+            this.setCollapsible(callout);
         }
 
         if (
@@ -144,6 +120,61 @@ export default class CalloutManager extends Component {
             callout.addClass("drop-shadow");
         }
     }
+
+    setCollapsible(callout: HTMLElement) {
+        const titleEl = callout.querySelector<HTMLDivElement>(".callout-title");
+        const content =
+            callout.querySelector<HTMLDivElement>(".callout-content");
+
+        if (!content) return;
+        callout.addClass("is-collapsible");
+        if (this.plugin.data.defaultCollapseType == "closed") {
+            callout.dataset.calloutFold = "-";
+            callout.addClass("is-collapsed");
+        } else {
+            callout.dataset.calloutFold = "+";
+        }
+
+        const iconEl = titleEl.createDiv("callout-fold");
+
+        setIcon(iconEl, "chevron-down");
+
+        let collapsed = callout.hasClass("is-collapsed");
+
+        this.getComputedHeights(content);
+
+        if (collapsed) {
+            for (const prop of this.heights) {
+                content.style.setProperty(prop, "0px");
+            }
+        }
+        titleEl.onclick = (event: MouseEvent) => {
+            event.preventDefault();
+
+            function transitionEnd(evt: TransitionEvent) {
+                content.removeEventListener("transitionend", transitionEnd);
+                content.style.removeProperty("transition");
+            }
+            content.addEventListener("transitionend", transitionEnd);
+            content.style.setProperty(
+                "transition",
+                "all 100ms cubic-bezier(.02, .01, .47, 1)"
+            );
+            collapsed = callout.hasClass("is-collapsed");
+            if (event.button == 0) {
+                for (const prop of this.heights) {
+                    const heights = this.getComputedHeights(content);
+                    content.style.setProperty(
+                        prop,
+                        collapsed ? heights[prop] : "0px"
+                    );
+                }
+
+                callout.toggleClass("is-collapsed", !collapsed);
+            }
+        };
+    }
+
     getComputedHeights(el: HTMLDivElement): Heights {
         if (this.heightMap.has(el)) {
             return this.heightMap.get(el);
@@ -176,9 +207,10 @@ export default class CalloutManager extends Component {
         } else {
             rule = `.callout[data-callout="${admonition.type}"] {
         --callout-color: ${admonition.color};
-        --callout-icon: '${(this.plugin.iconManager
-            .getIconNode(admonition.icon)
-            ?.outerHTML ?? "").replace(/(width|height)=(\\?"|')\d+(\\?"|')/g, "")}';
+        --callout-icon: '${(
+            this.plugin.iconManager.getIconNode(admonition.icon)?.outerHTML ??
+            ""
+        ).replace(/(width|height)=(\\?"|')\d+(\\?"|')/g, "")}';
     }`;
         }
         if (this.indexing.contains(admonition.type)) {

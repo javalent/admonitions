@@ -17,8 +17,6 @@ import {
     AdmonitionIconDefinition
 } from "./@types";
 import {
-    COPY_ICON,
-    COPY_ICON_NAME,
     getParametersFromSource,
     SPIN_ICON,
     SPIN_ICON_NAME,
@@ -149,7 +147,6 @@ export default class ObsidianAdmonition extends Plugin {
             addIcon(ADD_COMMAND_NAME, ADD_ADMONITION_COMMAND_ICON);
             addIcon(REMOVE_COMMAND_NAME, REMOVE_ADMONITION_COMMAND_ICON);
             addIcon(WARNING_ICON_NAME, WARNING_ICON);
-            addIcon(COPY_ICON_NAME, COPY_ICON);
             addIcon(SPIN_ICON_NAME, SPIN_ICON);
 
             /** Add generic commands. */
@@ -340,6 +337,9 @@ ${editor.getDoc().getSelection()}
                 sourcePath,
                 src
             );
+            if (collapse && collapse != "none") {
+                this.calloutManager.setCollapsible(admonitionElement);
+            }
             /**
              * Replace the <pre> tag with the new admonition.
              */
@@ -371,6 +371,14 @@ ${editor.getDoc().getSelection()}
         }
     }
 
+    /**
+     *  .callout.admonition.is-collapsible.is-collapsed
+     *      .callout-title
+     *          .callout-icon
+     *          .callout-title-inner
+     *          .callout-fold
+     *      .callout-content
+     */
     getAdmonitionElement(
         type: string,
         title: string,
@@ -378,73 +386,26 @@ ${editor.getDoc().getSelection()}
         color?: string,
         collapse?: string
     ): HTMLElement {
-        let admonition, titleEl;
-        let attrs: { style?: string; open?: string } = color
-            ? {
-                  style: `--admonition-color: ${color};`
-              }
-            : {};
-        if (collapse && collapse != "none") {
-            if (collapse === "open") {
-                attrs.open = "open";
+        const admonition = createDiv({
+            cls: `callout admonition admonition-${type} admonition-plugin ${
+                !title?.trim().length ? "no-title" : ""
+            }`,
+            attr: {
+                style: `--admonition-color: ${color};`,
+                "data-callout": type,
+                "data-callout-fold": ""
             }
-            admonition = createEl("details", {
-                cls: `admonition admonition-${type} admonition-plugin ${
-                    !title?.trim().length ? "no-title" : ""
-                }`,
-                attr: attrs
-            });
-            titleEl = admonition.createEl("summary", {
-                cls: `admonition-title ${
-                    !title?.trim().length ? "no-title" : ""
-                }`
-            });
-        } else {
-            admonition = createDiv({
-                cls: `admonition admonition-${type} admonition-plugin ${
-                    !title?.trim().length ? "no-title" : ""
-                }`,
-                attr: attrs
-            });
-            titleEl = admonition.createDiv({
-                cls: `admonition-title ${
-                    !title?.trim().length ? "no-title" : ""
-                }`
-            });
-        }
+        });
+        const titleEl = admonition.createDiv({
+            cls: `callout-title admonition-title ${
+                !title?.trim().length ? "no-title" : ""
+            }`
+        });
 
         if (title && title.trim().length) {
-            /**
-             * Title structure
-             * <div|summary>.admonition-title
-             *      <element>.admonition-title-content - Rendered Markdown top-level element (e.g. H1/2/3 etc, p)
-             *          div.admonition-title-icon
-             *              svg
-             *          div.admonition-title-markdown - Container of rendered markdown
-             *              ...rendered markdown children...
-             */
-
-            //get markdown
-            const markdownHolder = createDiv();
-            MarkdownRenderer.renderMarkdown(title, markdownHolder, "", null);
-
-            //admonition-title-content is first child of rendered markdown
-
-            const admonitionTitleContent =
-                markdownHolder.children[0]?.tagName === "P"
-                    ? createDiv()
-                    : markdownHolder.children[0];
-
-            //get children of markdown element, then remove them
-            const markdownElements = Array.from(
-                markdownHolder.children[0]?.childNodes || []
-            );
-            admonitionTitleContent.innerHTML = "";
-            admonitionTitleContent.addClass("admonition-title-content");
-
             //build icon element
-            const iconEl = admonitionTitleContent.createDiv(
-                "admonition-title-icon"
+            const iconEl = titleEl.createDiv(
+                "callout-icon admonition-title-icon"
             );
             if (icon && icon.name && icon.type) {
                 iconEl.appendChild(
@@ -452,20 +413,28 @@ ${editor.getDoc().getSelection()}
                 );
             }
 
-            //add markdown children back
-            const admonitionTitleMarkdown = admonitionTitleContent.createDiv(
-                "admonition-title-markdown"
+            //get markdown
+            const titleInnerEl = titleEl.createDiv(
+                "callout-title-inner admonition-title-content"
             );
-            for (let i = 0; i < markdownElements.length; i++) {
-                admonitionTitleMarkdown.appendChild(markdownElements[i]);
+            MarkdownRenderer.renderMarkdown(title, titleInnerEl, "", null);
+            if (
+                titleInnerEl.firstElementChild &&
+                titleInnerEl.firstElementChild instanceof HTMLParagraphElement
+            ) {
+                titleInnerEl.setChildrenInPlace([
+                    titleInnerEl.firstElementChild.firstChild
+                ]);
             }
-            titleEl.appendChild(admonitionTitleContent || createDiv());
         }
 
         //add them to title element
 
         if (collapse) {
-            titleEl.createDiv("collapser").createDiv("handle");
+            admonition.addClass("is-collapsible");
+            if (collapse == "closed") {
+                admonition.addClass("is-collapsed");
+            }
         }
         if (!this.data.dropShadow) {
             admonition.addClass("no-drop");
@@ -554,13 +523,12 @@ ${editor.getDoc().getSelection()}
         admonitionElement: HTMLElement,
         content: string
     ) {
-        const contentHolder = admonitionElement.createDiv(
-            "admonition-content-holder"
+        const contentEl = admonitionElement.createDiv(
+            "callout-content admonition-content"
         );
-        const contentEl = contentHolder.createDiv("admonition-content");
         if (this.admonitions[type].copy ?? this.data.copyButton) {
-            let copy = contentHolder.createDiv("admonition-content-copy");
-            setIcon(copy, COPY_ICON_NAME);
+            let copy = contentEl.createDiv("admonition-content-copy");
+            setIcon(copy, "copy");
             copy.addEventListener("click", () => {
                 navigator.clipboard.writeText(content.trim()).then(async () => {
                     new Notice("Admonition content copied to clipboard.");

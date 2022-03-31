@@ -10,15 +10,6 @@
 .admonition {
     margin-top: var(--admonition-margin-top);
     margin-bottom: var(--admonition-margin-bottom);
-    margin-left: 0;
-    margin-right: 0;
-    padding: 0;
-    overflow: hidden;
-    color: var(--text-normal);
-    page-break-inside: avoid;
-    background-color: var(--background-secondary);
-    border-left: 0.2rem solid rgb(var(--admonition-color));
-    border-radius: 0.1rem;
     box-shadow: 0 0.2rem 0.5rem var(--background-modifier-box-shadow);
 }
 
@@ -29,52 +20,18 @@
     opacity: 0.1;
 }
 
-.admonition-title {
-    position: relative;
-    padding: 0.6rem 0.25em;
-    font-weight: 700;
-    background-color: rgba(var(--admonition-color), 0.1);
-}
-
-.admonition-title-content {
-    display: flex;
-    justify-content: flex-start;
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
-}
-
-.admonition-title-icon {
-    color: rgb(var(--admonition-color));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 0.5em 0 0.25em;
-    min-width: 1em;
-    width: min-content;
-}
-
-.admonition-title-markdown {
-    display: block;
-}
-
 .admonition-title.no-title {
     display: none;
 }
 
-.admonition-plugin.no-title .admonition-content-holder,
-.admonition-plugin.no-title .admonition-content-holder > .admonition-content {
+.admonition-content,
+.callout-content {
+    position: relative;
+}
+
+.admonition.no-title .admonition-content {
     margin-top: 0;
     margin-bottom: 0;
-}
-
-.admonition-content-holder {
-    position: relative;
-}
-
-.admonition-content {
-    margin: 10px 15px;
-    position: relative;
-    overflow-x: auto;
 }
 
 .admonition-content-copy {
@@ -82,8 +39,9 @@
     cursor: pointer;
     opacity: 0;
     position: absolute;
-    right: 0.375rem;
-    top: -5px;
+    margin: 0.375rem;
+    right: 0;
+    top: 0;
     transition: 0.3s opacity ease-in;
 }
 
@@ -92,57 +50,12 @@
 }
 
 .admonition:hover .admonition-content-copy,
+.callout:hover .admonition-content-copy,
 .admonition-content-copy:hover {
     opacity: 1;
 }
 .admonition-title:hover + .admonition-content .admonition-content-copy {
     opacity: 0;
-}
-
-details.admonition:not([open]) {
-    padding-bottom: 0;
-}
-
-details.admonition > summary {
-    outline: none;
-    display: block !important;
-    list-style: none !important;
-    list-style-type: none !important;
-    min-height: 1rem;
-    border-top-left-radius: 0.1rem;
-    border-top-right-radius: 0.1rem;
-    cursor: pointer;
-}
-
-details.admonition > summary::-webkit-details-marker,
-details.admonition > summary::marker {
-    display: none !important;
-}
-
-details.admonition > summary > .collapser {
-    position: absolute;
-    top: 50%;
-    right: 8px;
-    transform: translateY(-50%);
-    content: "";
-}
-
-details.admonition > summary > .collapser > .handle {
-    transform: rotate(0deg);
-    transition: transform 0.25s;
-    background-color: currentColor;
-    -webkit-mask-repeat: no-repeat;
-    mask-repeat: no-repeat;
-    -webkit-mask-size: contain;
-    mask-size: contain;
-    -webkit-mask-image: var(--admonition-details-icon);
-    mask-image: var(--admonition-details-icon);
-    width: 20px;
-    height: 20px;
-}
-
-details.admonition[open] > summary > .collapser > .handle {
-    transform: rotate(90deg);
 }
 
 /** Settings */
@@ -360,19 +273,19 @@ input.is-invalid {
 .admonition.no-drop {
     box-shadow: none;
 }
-.admonition.no-drop > .admonition-title.no-title + .admonition-content-holder {
+.admonition.no-drop > .admonition-title.no-title + .admonition-content {
     margin-top: 0;
     margin-bottom: 0;
 }
 
-.admonition.no-drop .admonition .admonition-content-holder {
+.admonition.no-drop .admonition .admonition-content {
     border-right: 1px solid rgba(var(--admonition-color), 0.2);
     border-bottom: 1px solid rgba(var(--admonition-color), 0.2);
 }
 .admonition.no-drop
     .admonition
     .admonition-title.no-title
-    + .admonition-content-holder {
+    + .admonition-content {
     border-top: 1px solid rgba(var(--admonition-color), 0.2);
     margin-top: 0;
     margin-bottom: 0;
