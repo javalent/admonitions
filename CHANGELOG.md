@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [9.0.0](https://github.com/valentine195/obsidian-admonition/compare/8.3.7...9.0.0) (2022-03-31)
+
+
+### ⚠ BREAKING CHANGES
+
+* Admonitions now mimics the structure of callouts
+
+### Features
+
+* Admonitions now mimics the structure of callouts ([1ba0085](https://github.com/valentine195/obsidian-admonition/commit/1ba0085258fed225514632b6aefd5d1cb79f897a))
+* Callouts now receive the "copy content" button if turned on in Admonition settings ([266efde](https://github.com/valentine195/obsidian-admonition/commit/266efde5395659a45aea124a20d3eb29e95ea457))
+
+
+### Bug Fixes
+
+* Fixes admonition copy button setting inheritance ([4776da3](https://github.com/valentine195/obsidian-admonition/commit/4776da3fe6243ebfaa6d66c3d2419271d01f70a8))
+
 ### [8.3.7](https://github.com/valentine195/obsidian-admonition/compare/8.3.6...8.3.7) (2022-03-29)
 
 
