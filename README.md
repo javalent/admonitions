@@ -222,30 +222,6 @@ These images will be resized to 24px x 24px to be stored in the plugin's saved d
 
 To remove an image icon, simply choose an icon in the icon chooser text box.
 
-## Customization
-
-This is all of the CSS applied to the admonitions. Override these classes to customize the look.
-
-### Base Classes
-
-The full CSS is located in [main.css](src/assets/main.css).
-
-**_Please note, as of 3.0.0, the admonition colors are no longer set in the CSS._**
-
-Each admonition receives the `.admonition-<type>` class. You can use this selector to override specific admonition types, but the plugin does not add any styling using this selector by default.
-
-To set the color of admonition types via CSS, specific the following the `--admonition-color` variable **_as an RGB triad_**:
-
-```css
-.admonition-note {
-    --admonition-color: 68, 138, 255 !important;
-}
-```
-
-### Parent Element
-
-As of version 6.6, the admonition's parent element _also_ receives classes: `.admonition-parent` and `.admonition-<type>-parent`, allowing you to target admonition containers.
-
 ## Global Commands
 
 Several commands are available for the plugin by default.
