@@ -252,7 +252,7 @@ export default class AdmonitionSetting extends PluginSettingTab {
         }
         new Setting(containerEl)
             .setName(t("Add Copy Button"))
-            .setDesc(t("Add a 'copy content' button to admonitions."))
+            .setDesc("Add a 'copy content' button to admonitions & callouts.")
             .addToggle((t) => {
                 t.setValue(this.plugin.data.copyButton);
                 t.onChange(async (v) => {
@@ -1002,9 +1002,7 @@ class SettingsModal extends Modal {
             .setDesc(
                 createFragment((e) => {
                     e.createSpan({
-                        text: t(
-                            "A copy button will be added to the admonition."
-                        )
+                        text: "A copy button will be added to the admonition & callout."
                     });
                 })
             )

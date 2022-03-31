@@ -482,7 +482,7 @@ Set the default collapse type used when setting an admonition collapsible by def
 
 ### Add Copy Button
 
-A "Copy Content" button will be added to the top-right corner of the admonition content.
+A "Copy Content" button will be added to the top-right corner of the admonition & callout content.
 
 ### Parse Titles as Markdown
 
