@@ -422,9 +422,9 @@ ${editor.getDoc().getSelection()}
                 titleInnerEl.firstElementChild &&
                 titleInnerEl.firstElementChild instanceof HTMLParagraphElement
             ) {
-                titleInnerEl.setChildrenInPlace([
-                    titleInnerEl.firstElementChild.firstChild
-                ]);
+                titleInnerEl.setChildrenInPlace(
+                    Array.from(titleInnerEl.firstElementChild.childNodes)
+                );
             }
         }
 
