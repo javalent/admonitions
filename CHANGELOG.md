@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [9.0.1](https://github.com/valentine195/obsidian-admonition/compare/9.0.0...9.0.1) (2022-04-04)
+
+
+### Bug Fixes
+
+* Admonition titles now take all child nodes from paragraph parent, not just html elements (close [#239](https://github.com/valentine195/obsidian-admonition/issues/239)) ([4db9a01](https://github.com/valentine195/obsidian-admonition/commit/4db9a01e5dd1cb8dab8387fc14db34b448664a61))
+
 ## [9.0.0](https://github.com/valentine195/obsidian-admonition/compare/8.3.7...9.0.0) (2022-03-31)
 
 
