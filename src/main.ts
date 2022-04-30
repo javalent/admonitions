@@ -391,7 +391,7 @@ ${editor.getDoc().getSelection()}
                 !title?.trim().length ? "no-title" : ""
             }`,
             attr: {
-                style: `--admonition-color: ${color};`,
+                style: `--callout-color: ${color};`,
                 "data-callout": type,
                 "data-callout-fold": ""
             }
