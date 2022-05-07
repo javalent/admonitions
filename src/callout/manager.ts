@@ -199,14 +199,15 @@ export default class CalloutManager extends Component {
     addAdmonition(admonition: Admonition) {
         if (!admonition.icon) return;
         let rule: string;
+        const color = admonition.injectColor ?? this.plugin.data.injectColor ? `--callout-color: ${admonition.color};` : '';
         if (admonition.icon.type == "obsidian") {
             rule = `.callout[data-callout="${admonition.type}"] {
-    --callout-color: ${admonition.color}; /* RGB Tuple (just like admonitions) */
+    ${color}
     --callout-icon: ${admonition.icon.name};  /* Icon name from the Obsidian Icon Set */
 }`;
         } else {
             rule = `.callout[data-callout="${admonition.type}"] {
-        --callout-color: ${admonition.color};
+       ${color}
         --callout-icon: '${(
             this.plugin.iconManager.getIconNode(admonition.icon)?.outerHTML ??
             ""
