@@ -21,7 +21,6 @@ export const ADMONITION_MAP: Record<string, Admonition> = {
             name: "pencil-alt"
         },
         command: false,
-        injectColor: true,
         noTitle: false
     },
     seealso: {
@@ -32,7 +31,6 @@ export const ADMONITION_MAP: Record<string, Admonition> = {
             name: "pencil-alt"
         },
         command: false,
-        injectColor: true,
         noTitle: false
     },
     abstract: {
@@ -43,7 +41,6 @@ export const ADMONITION_MAP: Record<string, Admonition> = {
             name: "book"
         },
         command: false,
-        injectColor: true,
         noTitle: false
     },
     summary: {
@@ -54,7 +51,6 @@ export const ADMONITION_MAP: Record<string, Admonition> = {
             name: "book"
         },
         command: false,
-        injectColor: true,
         noTitle: false
     },
     tldr: {
@@ -65,7 +61,6 @@ export const ADMONITION_MAP: Record<string, Admonition> = {
             name: "book"
         },
         command: false,
-        injectColor: true,
         noTitle: false
     },
     info: {
@@ -76,7 +71,6 @@ export const ADMONITION_MAP: Record<string, Admonition> = {
             name: "info-circle"
         },
         command: false,
-        injectColor: true,
         noTitle: false
     },
     todo: {
@@ -87,7 +81,6 @@ export const ADMONITION_MAP: Record<string, Admonition> = {
             name: "info-circle"
         },
         command: false,
-        injectColor: true,
         noTitle: false
     },
     tip: {
@@ -98,7 +91,6 @@ export const ADMONITION_MAP: Record<string, Admonition> = {
             name: "fire"
         },
         command: false,
-        injectColor: true,
         noTitle: false
     },
     hint: {
@@ -109,7 +101,6 @@ export const ADMONITION_MAP: Record<string, Admonition> = {
             name: "fire"
         },
         command: false,
-        injectColor: true,
         noTitle: false
     },
     important: {
@@ -120,7 +111,6 @@ export const ADMONITION_MAP: Record<string, Admonition> = {
             name: "fire"
         },
         command: false,
-        injectColor: true,
         noTitle: false
     },
     success: {
@@ -131,7 +121,6 @@ export const ADMONITION_MAP: Record<string, Admonition> = {
             name: "check-circle"
         },
         command: false,
-        injectColor: true,
         noTitle: false
     },
     check: {
@@ -142,7 +131,6 @@ export const ADMONITION_MAP: Record<string, Admonition> = {
             name: "check-circle"
         },
         command: false,
-        injectColor: true,
         noTitle: false
     },
     done: {
@@ -153,7 +141,6 @@ export const ADMONITION_MAP: Record<string, Admonition> = {
             name: "check-circle"
         },
         command: false,
-        injectColor: true,
         noTitle: false
     },
     question: {
@@ -164,7 +151,6 @@ export const ADMONITION_MAP: Record<string, Admonition> = {
             name: "question-circle"
         },
         command: false,
-        injectColor: true,
         noTitle: false
     },
     help: {
@@ -175,7 +161,6 @@ export const ADMONITION_MAP: Record<string, Admonition> = {
             name: "question-circle"
         },
         command: false,
-        injectColor: true,
         noTitle: false
     },
     faq: {
@@ -186,7 +171,6 @@ export const ADMONITION_MAP: Record<string, Admonition> = {
             name: "question-circle"
         },
         command: false,
-        injectColor: true,
         noTitle: false
     },
     warning: {
@@ -197,7 +181,6 @@ export const ADMONITION_MAP: Record<string, Admonition> = {
             name: "exclamation-triangle"
         },
         command: false,
-        injectColor: true,
         noTitle: false
     },
     caution: {
@@ -208,7 +191,6 @@ export const ADMONITION_MAP: Record<string, Admonition> = {
             name: "exclamation-triangle"
         },
         command: false,
-        injectColor: true,
         noTitle: false
     },
     attention: {
@@ -219,7 +201,6 @@ export const ADMONITION_MAP: Record<string, Admonition> = {
             name: "exclamation-triangle"
         },
         command: false,
-        injectColor: true,
         noTitle: false
     },
     failure: {
@@ -230,7 +211,6 @@ export const ADMONITION_MAP: Record<string, Admonition> = {
             name: "times-circle"
         },
         command: false,
-        injectColor: true,
         noTitle: false
     },
     fail: {
@@ -241,7 +221,6 @@ export const ADMONITION_MAP: Record<string, Admonition> = {
             name: "times-circle"
         },
         command: false,
-        injectColor: true,
         noTitle: false
     },
     missing: {
@@ -252,7 +231,6 @@ export const ADMONITION_MAP: Record<string, Admonition> = {
             name: "times-circle"
         },
         command: false,
-        injectColor: true,
         noTitle: false
     },
     danger: {
@@ -263,7 +241,6 @@ export const ADMONITION_MAP: Record<string, Admonition> = {
             name: "bolt"
         },
         command: false,
-        injectColor: true,
         noTitle: false
     },
     error: {
@@ -274,7 +251,6 @@ export const ADMONITION_MAP: Record<string, Admonition> = {
             name: "bolt"
         },
         command: false,
-        injectColor: true,
         noTitle: false
     },
     bug: {
@@ -285,7 +261,6 @@ export const ADMONITION_MAP: Record<string, Admonition> = {
             name: "bug"
         },
         command: false,
-        injectColor: true,
         noTitle: false
     },
     example: {
@@ -296,7 +271,6 @@ export const ADMONITION_MAP: Record<string, Admonition> = {
             name: "list-ol"
         },
         command: false,
-        injectColor: true,
         noTitle: false
     },
     quote: {
@@ -307,7 +281,6 @@ export const ADMONITION_MAP: Record<string, Admonition> = {
             name: "quote-right"
         },
         command: false,
-        injectColor: true,
         noTitle: false
     },
     cite: {
@@ -318,7 +291,6 @@ export const ADMONITION_MAP: Record<string, Admonition> = {
             name: "quote-right"
         },
         command: false,
-        injectColor: true,
         noTitle: false
     }
 };

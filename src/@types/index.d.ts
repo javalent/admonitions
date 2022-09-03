@@ -8,7 +8,7 @@ export interface Admonition {
     icon: AdmonitionIconDefinition;
     color: string;
     command: boolean;
-    injectColor: boolean;
+    injectColor?: boolean;
     noTitle: boolean;
     copy?: boolean;
 }
