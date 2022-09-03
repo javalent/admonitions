@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [9.0.4](https://github.com/valentine195/obsidian-admonition/compare/9.0.3...9.0.4) (2022-09-03)
+
+
+### Bug Fixes
+
+* Fixes default Admonitions not respecting the injectColor setting. ([7cf16f0](https://github.com/valentine195/obsidian-admonition/commit/7cf16f063c2a03e7fa6aa33cf7820b2e02422d86))
+
 ### [9.0.1](https://github.com/valentine195/obsidian-admonition/compare/9.0.0...9.0.1) (2022-04-04)
 
 
