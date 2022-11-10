@@ -141,7 +141,9 @@ export default class CalloutManager extends Component {
 
         let collapsed = callout.hasClass("is-collapsed");
 
-        this.getComputedHeights(content);
+        setTimeout(() => {
+            this.getComputedHeights(content);
+        }, 200);
 
         if (collapsed) {
             for (const prop of this.heights) {
