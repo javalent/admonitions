@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [9.1.0](https://github.com/valentine195/obsidian-admonition/compare/9.0.5...9.1.0) (2023-01-26)
+
+
+### Features
+
+* adds admonition importing ([723f2fb](https://github.com/valentine195/obsidian-admonition/commit/723f2fb4fb88d372cb424dbb139fc1567d169c7d))
+
 ### [9.0.4](https://github.com/valentine195/obsidian-admonition/compare/9.0.3...9.0.4) (2022-09-03)
 
 
