@@ -436,6 +436,51 @@ Want to add an existing icon pack? Make a pull request with the following:
 
 This button will generate a CSS snippet that you can save and use for your custom callout types.
 
+## Importing Custom Admonitions
+
+Custom admonitions can be imported in settings from a JSON array of definitions.
+
+At a _minimum_, you only need a valid admonition type:
+
+```json
+[
+    {
+        "type": "my-custom-type"
+    }
+]
+```
+
+This will use the `pencil-alt` FontAwesome icon and a random color, and set all other properties as false.
+
+However, you can specify an icon and color as well:
+
+```json
+[
+    {
+        "type": "my-custom-type",
+        "icon": "globe",
+        "color": "120,120,120"
+    }
+]
+```
+
+If you want to specify an icon pack, you can do so like this:
+
+```json
+[
+    {
+        "type": "my-custom-type",
+        "icon": {
+            "name": "globe",
+            "type": "font-awesome"
+        },
+        "color": "120,120,120"
+    }
+]
+```
+
+All of the possible fields are defined [here](https://github.com/valentine195/obsidian-admonition/blob/2fb38ccc0b39ada8d3d0a4476e9ff3333c52c3ae/src/%40types/index.d.ts#L5).
+
 ## Admonition Settings
 
 Settings specific to admonitions are managed in this section.

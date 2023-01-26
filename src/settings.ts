@@ -8,7 +8,8 @@ import {
     Notice,
     setIcon,
     TFile,
-    Platform
+    Platform,
+    TextAreaComponent
 } from "obsidian";
 import {
     Admonition,
@@ -33,6 +34,7 @@ import { t } from "src/lang/helpers";
 import ObsidianAdmonition from "./main";
 import { confirmWithModal } from "./modal/confirm";
 import { DownloadableIconPack, DownloadableIcons } from "./icons/packs";
+import { AdmonitionValidator } from "./util/validator";
 
 /** Taken from https://stackoverflow.com/questions/34849001/check-if-css-selector-is-valid/42149818 */
 const isSelectorValid = ((dummyElement) => (selector: string) => {
@@ -142,7 +144,124 @@ export default class AdmonitionSetting extends PluginSettingTab {
 
                 return b;
             });
+        new Setting(admonitionEl)
+            .setName("Import Admonition(s)")
+            .setDesc("Import admonitions from a JSON definition.")
+            .addButton((b) => {
+                const input = createEl("input", {
+                    attr: {
+                        type: "file",
+                        name: "merge",
+                        accept: ".json",
+                        multiple: true,
+                        style: "display: none;"
+                    }
+                });
+                input.onchange = async () => {
+                    const { files } = input;
 
+                    if (!files.length) return;
+                    try {
+                        const data: Admonition[][] | Admonition[] = [];
+                        for (let file of Array.from(files)) {
+                            data.push(JSON.parse(await file.text()));
+                        }
+                        for (const item of data.flat()) {
+                            if (typeof item != "object") continue;
+
+                            if (!item.icon) {
+                                item.icon = {
+                                    name: "pencil-alt",
+                                    type: "font-awesome"
+                                };
+                            }
+                            const valid = AdmonitionValidator.validateImport(
+                                this.plugin,
+                                item
+                            );
+                            if (valid.success == false) {
+                                new Notice(
+                                    createFragment((e) => {
+                                        e.createSpan({
+                                            text: `There was an issue importing the ${item.type} admonition:`
+                                        });
+                                        e.createEl("br");
+                                        e.createSpan({ text: valid.message });
+                                    })
+                                );
+                                continue;
+                            }
+                            if (valid.messages?.length) {
+                                new Notice(
+                                    createFragment((e) => {
+                                        e.createSpan({
+                                            text: `There was an issue importing the ${item.type} admonition:`
+                                        });
+                                        for (const message of valid.messages) {
+                                            e.createEl("br");
+                                            e.createSpan({
+                                                text: message
+                                            });
+                                        }
+                                    })
+                                );
+                            }
+                            await this.plugin.addAdmonition(item);
+                        }
+                        this.display();
+                    } catch (e) {
+                        new Notice(
+                            `There was an error while importing the admonition${
+                                files.length == 1 ? "" : "s"
+                            }.`
+                        );
+                        console.error(e);
+                    }
+
+                    input.value = null;
+                };
+                b.setButtonText("Choose Files");
+                b.buttonEl.appendChild(input);
+                b.onClick(() => input.click());
+            })
+            .addExtraButton((b) =>
+                b.setIcon("info").onClick(() => {
+                    const modal = new Modal(this.plugin.app);
+                    modal.onOpen = () => {
+                        modal.contentEl.createSpan({
+                            text: "Import one or more admonition definitions as a JSON array. An admonition definition should look as follows at minimum:"
+                        });
+                        modal.contentEl.createEl("br");
+                        const textarea = new TextAreaComponent(
+                            modal.contentEl.createDiv()
+                        )
+                            .setDisabled(true)
+                            .setValue(
+                                JSON.stringify(
+                                    {
+                                        type: "embed-affliction",
+                                        color: "149, 214, 148",
+                                        icon: {
+                                            name: "head-side-cough",
+                                            type: "font-awesome"
+                                        }
+                                    },
+                                    null,
+                                    4
+                                )
+                            );
+                        textarea.inputEl.setAttribute(
+                            "style",
+                            `height: ${textarea.inputEl.scrollHeight}px; resize: none;`
+                        );
+                        modal.contentEl.createEl("br");
+                        modal.contentEl.createSpan({
+                            text: "See the plugin ReadMe for more information."
+                        });
+                    };
+                    modal.open();
+                })
+            );
         this.additionalEl = admonitionEl.createDiv("additional");
         this.buildTypes();
 
@@ -909,31 +1028,20 @@ class SettingsModal extends Modal {
             .addText((text) => {
                 typeText = text;
                 typeText.setValue(this.type).onChange((v) => {
-                    if (!v.length) {
+                    const valid = AdmonitionValidator.validateType(
+                        v,
+                        this.plugin,
+                        this.originalType
+                    );
+                    if (valid.success == false) {
                         SettingsModal.setValidationError(
-                            text,
-                            t("Admonition type cannot be empty.")
+                            text.inputEl,
+                            valid.message
                         );
                         return;
                     }
 
-                    if (v.includes(" ")) {
-                        SettingsModal.setValidationError(
-                            text,
-                            t("Admonition type cannot include spaces.")
-                        );
-                        return;
-                    }
-
-                    if (!isSelectorValid(v)) {
-                        SettingsModal.setValidationError(
-                            text,
-                            t("Types must be a valid CSS selector.")
-                        );
-                        return;
-                    }
-
-                    SettingsModal.removeValidationError(text);
+                    SettingsModal.removeValidationError(text.inputEl);
 
                     this.type = v;
                     if (!this.title)
@@ -1027,25 +1135,20 @@ class SettingsModal extends Modal {
 
                 const validate = async () => {
                     const v = text.inputEl.value;
-                    let ic = this.plugin.iconManager.getIconType(v);
-                    if (!ic) {
+                    const valid = AdmonitionValidator.validateIcon(
+                        v,
+                        this.plugin
+                    );
+                    if (valid.success == false) {
                         SettingsModal.setValidationError(
-                            text,
-                            t("Invalid icon name.")
+                            text.inputEl,
+                            valid.message
                         );
                         return;
                     }
 
-                    if (v.length == 0) {
-                        SettingsModal.setValidationError(
-                            text,
-                            t("Icon cannot be empty.")
-                        );
-                        return;
-                    }
-
-                    SettingsModal.removeValidationError(text);
-
+                    SettingsModal.removeValidationError(text.inputEl);
+                    const ic = this.plugin.iconManager.getIconType(v);
                     this.icon = modal.icon ?? {
                         name: v as AdmonitionIconName,
                         type: ic as AdmonitionIconType
@@ -1132,63 +1235,19 @@ class SettingsModal extends Modal {
             b.setTooltip(t("Save"))
                 .setIcon("checkmark")
                 .onClick(async () => {
-                    let error = false;
-                    if (!typeText.inputEl.value.length) {
+                    const valid = AdmonitionValidator.validate(
+                        this.plugin,
+                        typeText.inputEl.value,
+                        iconText.inputEl.value,
+                        this.originalType
+                    );
+                    if (valid.success == false) {
                         SettingsModal.setValidationError(
-                            typeText,
-                            t("Admonition type cannot be empty.")
+                            valid.failed == "type"
+                                ? typeText.inputEl
+                                : iconText.inputEl,
+                            valid.message
                         );
-                        error = true;
-                    }
-
-                    if (typeText.inputEl.value.includes(" ")) {
-                        SettingsModal.setValidationError(
-                            typeText,
-                            t("Admonition type cannot include spaces.")
-                        );
-                        error = true;
-                    }
-                    if (
-                        this.type != this.originalType &&
-                        this.type in this.plugin.data.userAdmonitions
-                    ) {
-                        SettingsModal.setValidationError(
-                            typeText,
-                            "That Admonition type already exists."
-                        );
-                        error = true;
-                    }
-
-                    if (!isSelectorValid(typeText.inputEl.value)) {
-                        SettingsModal.setValidationError(
-                            typeText,
-                            t("Types must be a valid CSS selector.")
-                        );
-                        error = true;
-                    }
-
-                    if (
-                        !this.plugin.iconManager.getIconType(
-                            iconText.inputEl.value
-                        ) &&
-                        this.icon.type !== "image"
-                    ) {
-                        SettingsModal.setValidationError(
-                            iconText,
-                            t("Invalid icon name.")
-                        );
-                        error = true;
-                    }
-
-                    if (!this.icon.name.length) {
-                        SettingsModal.setValidationError(
-                            iconText,
-                            t("Icon cannot be empty.")
-                        );
-                        error = true;
-                    }
-
-                    if (error) {
                         new Notice("Fix errors before saving.");
                         return;
                     }
@@ -1268,44 +1327,40 @@ class SettingsModal extends Modal {
         this.display();
     }
 
-    static setValidationError(textInput: TextComponent, message?: string) {
-        textInput.inputEl.addClass("is-invalid");
+    static setValidationError(textInput: HTMLInputElement, message?: string) {
+        textInput.addClass("is-invalid");
         if (message) {
-            textInput.inputEl.parentElement.addClasses([
+            textInput.parentElement.addClasses([
                 "has-invalid-message",
                 "unset-align-items"
             ]);
-            textInput.inputEl.parentElement.parentElement.addClass(
+            textInput.parentElement.parentElement.addClass(
                 ".unset-align-items"
             );
-            let mDiv = textInput.inputEl.parentElement.querySelector(
+            let mDiv = textInput.parentElement.querySelector(
                 ".invalid-feedback"
             ) as HTMLDivElement;
 
             if (!mDiv) {
-                mDiv = createDiv({ cls: "invalid-feedback" });
+                mDiv = textInput.parentElement.createDiv({
+                    cls: "invalid-feedback"
+                });
+            } else {
             }
-            mDiv.innerText = message;
-            mDiv.insertAfter(textInput.inputEl);
+            mDiv.setText(message);
         }
     }
-    static removeValidationError(textInput: TextComponent) {
-        textInput.inputEl.removeClass("is-invalid");
-        textInput.inputEl.parentElement.removeClasses([
+    static removeValidationError(textInput: HTMLInputElement) {
+        textInput.removeClass("is-invalid");
+        textInput.parentElement.removeClasses([
             "has-invalid-message",
             "unset-align-items"
         ]);
-        textInput.inputEl.parentElement.parentElement.removeClass(
-            ".unset-align-items"
-        );
+        textInput.parentElement.parentElement.removeClass(".unset-align-items");
 
-        if (
-            textInput.inputEl.parentElement.querySelector(".invalid-feedback")
-        ) {
-            textInput.inputEl.parentElement.removeChild(
-                textInput.inputEl.parentElement.querySelector(
-                    ".invalid-feedback"
-                )
+        if (textInput.parentElement.querySelector(".invalid-feedback")) {
+            textInput.parentElement.removeChild(
+                textInput.parentElement.querySelector(".invalid-feedback")
             );
         }
     }
