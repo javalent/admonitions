@@ -35,6 +35,7 @@ import ObsidianAdmonition from "./main";
 import { confirmWithModal } from "./modal/confirm";
 import { DownloadableIconPack, DownloadableIcons } from "./icons/packs";
 import { AdmonitionValidator } from "./util/validator";
+import Export from "./modal/export";
 
 /** Taken from https://stackoverflow.com/questions/34849001/check-if-css-selector-is-valid/42149818 */
 const isSelectorValid = ((dummyElement) => (selector: string) => {
@@ -92,6 +93,40 @@ export default class AdmonitionSetting extends PluginSettingTab {
                         )
                 );
         }
+
+        new Setting(admonitionEl)
+            .setName("Export Custom Types as JSON")
+            .setDesc(
+                "Choose custom types to export as a JSON file that you can then share with other users."
+            )
+            .addButton((b) =>
+                b
+                    .setButtonText("Download All")
+                    .setCta()
+                    .onClick(() => {
+                        const admonitions = Object.values(
+                            this.plugin.data.userAdmonitions
+                        );
+                        this.download(admonitions);
+                    })
+            )
+            .addButton((b) =>
+                b.setButtonText("Select & Download").onClick(() => {
+                    const modal = new Export(this.plugin);
+                    modal.onClose = () => {
+                        if (!modal.export) return;
+                        const admonitions = Object.values(
+                            this.plugin.data.userAdmonitions
+                        );
+                        this.download(
+                            admonitions.filter((a) =>
+                                modal.selectedAdmonitions.includes(a.type)
+                            )
+                        );
+                    };
+                    modal.open();
+                })
+            );
 
         new Setting(admonitionEl)
             .setName("Use CSS Snippet for Custom Callouts")
@@ -307,7 +342,21 @@ export default class AdmonitionSetting extends PluginSettingTab {
             }
         });
     }
-
+    download(admonitions: Admonition[]) {
+        if (!admonitions.length) {
+            new Notice("At least one admonition must be chosen to export.");
+            return;
+        }
+        const link = createEl("a");
+        const file = new Blob([JSON.stringify(admonitions)], {
+            type: "json"
+        });
+        const url = URL.createObjectURL(file);
+        link.href = url;
+        link.download = `admonitions.json`;
+        link.click();
+        URL.revokeObjectURL(url);
+    }
     buildAdmonitions(containerEl: HTMLDetailsElement) {
         containerEl.empty();
         containerEl.ontoggle = () => {
@@ -462,7 +511,8 @@ export default class AdmonitionSetting extends PluginSettingTab {
 
         let selected: DownloadableIconPack;
         const possibilities = Object.entries(DownloadableIcons).filter(
-            ([icon]) => !this.plugin.data.icons.includes(icon)
+            ([icon]) =>
+                !this.plugin.data.icons.includes(icon as DownloadableIconPack)
         );
         new Setting(containerEl)
             .setName("Load Additional Icons")
