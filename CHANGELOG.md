@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [9.2.0](https://github.com/valentine195/obsidian-admonition/compare/9.1.0...9.2.0) (2023-01-27)
+
+
+### Features
+
+* adds admonition exporting ([0897e08](https://github.com/valentine195/obsidian-admonition/commit/0897e08647ac6158c31d99383dd65e21381c5f1e))
+
+
+### Bug Fixes
+
+* fixes obsidian icon definition ([dc05aba](https://github.com/valentine195/obsidian-admonition/commit/dc05abac372ce9256bf63aa0872cfa67e07b883d))
+
 ## [9.1.0](https://github.com/valentine195/obsidian-admonition/compare/9.0.5...9.1.0) (2023-01-26)
 
 
