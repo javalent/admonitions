@@ -13,9 +13,8 @@ import type { IconName } from "@fortawesome/fontawesome-svg-core";
 /* import { RPG } from "./rpgawesome"; */
 import type { AdmonitionIconDefinition, IconType } from "src/@types";
 import type ObsidianAdmonition from "src/main";
-import { Notice, setIcon } from "obsidian";
+import { getIconIds, Notice, setIcon } from "obsidian";
 import { type DownloadableIconPack, DownloadableIcons } from "./packs";
-import { ObsidianIconNames, ObsidianIcons } from "./obsidian";
 
 export { type DownloadableIconPack, DownloadableIcons };
 
@@ -73,7 +72,7 @@ export class IconManager {
             ...(this.plugin.data.useFontAwesome
                 ? this.FONT_AWESOME_MAP.values()
                 : []),
-            ...ObsidianIcons.map((name) => {
+            ...getIconIds().map((name) => {
                 return { type: "obsidian" as IconType, name };
             }),
             ...downloaded
@@ -121,7 +120,7 @@ export class IconManager {
             return "font-awesome";
         if (findIconDefinition({ iconName: str as IconName, prefix: "fab" }))
             return "font-awesome";
-        if (ObsidianIcons.includes(str as ObsidianIconNames)) {
+        if (getIconIds().includes(str)) {
             return "obsidian";
         }
         for (const [pack, icons] of Object.entries(this.DOWNLOADED)) {
