@@ -8,11 +8,12 @@ import {
 } from "obsidian";
 import ObsidianAdmonition from "src/main";
 
-export class CalloutSuggest extends EditorSuggest<string> {
+abstract class AdmonitionOrCalloutSuggester extends EditorSuggest<string> {
     constructor(public plugin: ObsidianAdmonition) {
         super(plugin.app);
     }
     getSuggestions(ctx: EditorSuggestContext) {
+        if (!ctx.query?.length) return Object.keys(this.plugin.admonitions);
         return Object.keys(this.plugin.admonitions).filter((p) =>
             p.toLowerCase().contains(ctx.query.toLowerCase())
         );
@@ -20,6 +21,46 @@ export class CalloutSuggest extends EditorSuggest<string> {
     renderSuggestion(text: string, el: HTMLElement) {
         el.createSpan({ text });
     }
+    onTrigger(
+        cursor: EditorPosition,
+        editor: Editor
+    ): EditorSuggestTriggerInfo {
+        const line = editor.getLine(cursor.line);
+        const match = this.testAndReturnQuery(line, cursor);
+        if (!match) return null;
+        const [_, query] = match;
+
+        if (
+            Object.keys(this.plugin.admonitions).find(
+                (p) => p.toLowerCase() == query.toLowerCase()
+            )
+        ) {
+            return null;
+        }
+
+        const matchData = {
+            end: cursor,
+            start: {
+                ch: match.index + this.offset,
+                line: cursor.line
+            },
+            query
+        };
+        return matchData;
+    }
+    abstract offset: number;
+    abstract selectSuggestion(
+        value: string,
+        evt: MouseEvent | KeyboardEvent
+    ): void;
+    abstract testAndReturnQuery(
+        line: string,
+        cursor: EditorPosition
+    ): RegExpMatchArray | null;
+}
+
+export class CalloutSuggest extends AdmonitionOrCalloutSuggester {
+    offset = 4;
     selectSuggestion(value: string, evt: MouseEvent | KeyboardEvent): void {
         if (!this.context) return;
 
@@ -48,52 +89,17 @@ export class CalloutSuggest extends EditorSuggest<string> {
 
         this.close();
     }
-    onTrigger(
-        cursor: EditorPosition,
-        editor: Editor,
-        file: TFile
-    ): EditorSuggestTriggerInfo {
-        const line = editor.getLine(cursor.line);
-        //not inside the bracket
+    testAndReturnQuery(
+        line: string,
+        cursor: EditorPosition
+    ): RegExpMatchArray | null {
         if (/> \[!\w+\]/.test(line.slice(0, cursor.ch))) return null;
         if (!/> \[!\w*/.test(line)) return null;
-
-        const match = line.match(/> \[!(\w*)\]?/);
-        if (!match) return null;
-
-        const [_, query] = match;
-
-        if (
-            !query ||
-            Object.keys(this.plugin.admonitions).find(
-                (p) => p.toLowerCase() == query.toLowerCase()
-            )
-        ) {
-            return null;
-        }
-        const matchData = {
-            end: cursor,
-            start: {
-                ch: match.index + 4,
-                line: cursor.line
-            },
-            query
-        };
-        return matchData;
+        return line.match(/> \[!(\w*)\]?/);
     }
 }
-export class AdmonitionSuggest extends EditorSuggest<string> {
-    constructor(public plugin: ObsidianAdmonition) {
-        super(plugin.app);
-    }
-    getSuggestions(ctx: EditorSuggestContext) {
-        return Object.keys(this.plugin.admonitions).filter((p) =>
-            p.toLowerCase().contains(ctx.query.toLowerCase())
-        );
-    }
-    renderSuggestion(text: string, el: HTMLElement) {
-        el.createSpan({ text });
-    }
+export class AdmonitionSuggest extends AdmonitionOrCalloutSuggester {
+    offset = 6;
     selectSuggestion(value: string, evt: MouseEvent | KeyboardEvent): void {
         if (!this.context) return;
 
@@ -106,34 +112,11 @@ export class AdmonitionSuggest extends EditorSuggest<string> {
 
         this.close();
     }
-    onTrigger(
-        cursor: EditorPosition,
-        editor: Editor,
-        file: TFile
-    ): EditorSuggestTriggerInfo {
-        const line = editor.getLine(cursor.line);
-        if (!/```ad-\w+/.test(line)) return null;
-        const match = line.match(/```ad-(\w+)/);
-        if (!match) return null;
-        const [_, query] = match;
-
-        if (
-            !query ||
-            Object.keys(this.plugin.admonitions).find(
-                (p) => p.toLowerCase() == query.toLowerCase()
-            )
-        ) {
-            return null;
-        }
-
-        const matchData = {
-            end: cursor,
-            start: {
-                ch: match.index + 6,
-                line: cursor.line
-            },
-            query
-        };
-        return matchData;
+    testAndReturnQuery(
+        line: string,
+        cursor: EditorPosition
+    ): RegExpMatchArray | null {
+        if (!/```ad-\w*/.test(line)) return null;
+        return line.match(/```ad-(\w*)/);
     }
 }
