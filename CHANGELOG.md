@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [9.2.1](https://github.com/valentine195/obsidian-admonition/compare/9.2.0...9.2.1) (2023-02-03)
+
+
+### Bug Fixes
+
+* admonition and callout suggester displays immediately ([#249](https://github.com/valentine195/obsidian-admonition/issues/249)) ([6631412](https://github.com/valentine195/obsidian-admonition/commit/6631412671a2ea2ccc9f892969e2c8c94a7a0b84))
+
 ## [9.2.0](https://github.com/valentine195/obsidian-admonition/compare/9.1.0...9.2.0) (2023-01-27)
 
 
