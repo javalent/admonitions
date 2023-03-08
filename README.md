@@ -4,7 +4,7 @@ Adds admonition block-styled content to Obsidian.md, styled after [Material for 
 
 ## Please note!
 
-Obsidian 0.14 adds support for [Callout boxes](https://help.obsidian.md/How+to/Use+callouts)!
+Obsidian 0.14 adds support for [Callout boxes](https://help.obsidian.md/Editing+and+formatting/Callouts)!
 
 **With this change, Admonitions will be transitioning to a plugin that enhances the core callout box feature.**
 
