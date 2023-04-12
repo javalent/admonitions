@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [9.2.2](https://github.com/valentine195/obsidian-admonition/compare/9.2.1...9.2.2) (2023-04-12)
+
+
+### Bug Fixes
+
+* removes need for space to show callout suggester fixes [#293](https://github.com/valentine195/obsidian-admonition/issues/293) ([db50d92](https://github.com/valentine195/obsidian-admonition/commit/db50d922af79d66a27b188df93189db19b8bae8b))
+* update to new obsidian customCss definition ([518b3d3](https://github.com/valentine195/obsidian-admonition/commit/518b3d396f76ca96e673f3f0c5610646f78e4188))
+
 ### [9.2.1](https://github.com/valentine195/obsidian-admonition/compare/9.2.0...9.2.1) (2023-02-03)
 
 
