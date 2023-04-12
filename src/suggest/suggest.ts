@@ -93,9 +93,9 @@ export class CalloutSuggest extends AdmonitionOrCalloutSuggester {
         line: string,
         cursor: EditorPosition
     ): RegExpMatchArray | null {
-        if (/> \[!\w+\]/.test(line.slice(0, cursor.ch))) return null;
-        if (!/> \[!\w*/.test(line)) return null;
-        return line.match(/> \[!(\w*)\]?/);
+        if (/> ?\[!\w+\]/.test(line.slice(0, cursor.ch))) return null;
+        if (!/> ?\[!\w*/.test(line)) return null;
+        return line.match(/> ?\[!(\w*)\]?/);
     }
 }
 export class AdmonitionSuggest extends AdmonitionOrCalloutSuggester {
