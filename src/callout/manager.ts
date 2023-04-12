@@ -199,7 +199,10 @@ export default class CalloutManager extends Component {
     addAdmonition(admonition: Admonition) {
         if (!admonition.icon) return;
         let rule: string;
-        const color = admonition.injectColor ?? this.plugin.data.injectColor ? `--callout-color: ${admonition.color};` : '';
+        const color =
+            admonition.injectColor ?? this.plugin.data.injectColor
+                ? `--callout-color: ${admonition.color};`
+                : "";
         if (admonition.icon.type == "obsidian") {
             rule = `.callout[data-callout="${admonition.type}"] {
     ${color}
@@ -270,6 +273,6 @@ export default class CalloutManager extends Component {
             this.plugin.data.snippetPath,
             true
         );
-        this.plugin.app.customCss.readCssFolders();
+        this.plugin.app.customCss.readSnippets();
     }
 }

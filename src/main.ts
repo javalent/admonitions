@@ -54,7 +54,7 @@ declare module "obsidian" {
         };
         customCss: {
             getSnippetPath(file: string): string;
-            readCssFolders(): void;
+            readSnippets(): void;
             setCssEnabledStatus(snippet: string, enabled: boolean): void;
         };
         plugins: {
