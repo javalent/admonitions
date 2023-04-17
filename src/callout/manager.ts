@@ -204,12 +204,12 @@ export default class CalloutManager extends Component {
                 ? `--callout-color: ${admonition.color};`
                 : "";
         if (admonition.icon.type == "obsidian") {
-            rule = `.callout[data-callout="${admonition.type}"] {
+            rule = `.callout[data-callout="${admonition.type.toLowerCase()}"] {
     ${color}
     --callout-icon: ${admonition.icon.name};  /* Icon name from the Obsidian Icon Set */
 }`;
         } else {
-            rule = `.callout[data-callout="${admonition.type}"] {
+            rule = `.callout[data-callout="${admonition.type.toLowerCase()}"] {
        ${color}
         --callout-icon: '${(
             this.plugin.iconManager.getIconNode(admonition.icon)?.outerHTML ??
