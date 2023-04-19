@@ -1,6 +1,6 @@
 {
     "name": "obsidian-admonition",
-    "version": "9.2.2",
+    "version": "8.13.11",
     "description": "Enhanced callouts for Obsidian.md",
     "main": "main.js",
     "scripts": {
