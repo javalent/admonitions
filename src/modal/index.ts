@@ -439,6 +439,7 @@ export class InsertAdmonitionModal extends Modal {
                     this.plugin.admonitions[t.inputEl.value]
                 ) {
                     this.type = t.inputEl.value;
+                    this.title = this.plugin.admonitions[this.type].title;
                     if (!this.title?.length) {
                         this.title =
                             this.type[0].toUpperCase() +
