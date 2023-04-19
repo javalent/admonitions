@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [9.2.3](https://github.com/valentine195/obsidian-admonition/compare/8.13.12...9.2.3) (2023-04-19)
+
+
+### Bug Fixes
+
+* version bump oops ([d4d0098](https://github.com/valentine195/obsidian-admonition/commit/d4d00985d6621d7e7d16caade8efa460aee42a26))
+
 ## [8.13.12](https://github.com/valentine195/obsidian-admonition/compare/8.13.11...8.13.12) (2023-04-19)
 
 
