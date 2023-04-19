@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [8.13.12](https://github.com/valentine195/obsidian-admonition/compare/8.13.11...8.13.12) (2023-04-19)
+
+
+### Bug Fixes
+
+* mixed case custom callout types are supported ([#295](https://github.com/valentine195/obsidian-admonition/issues/295)) ([628179e](https://github.com/valentine195/obsidian-admonition/commit/628179ee8f2fb5df20114ea33f4d548798ff8a51))
+* remove webpack ([00a22aa](https://github.com/valentine195/obsidian-admonition/commit/00a22aa276b533838b3c398331138fc222571ba5))
+* use custom title in InsertAdmonitionModal ([#296](https://github.com/valentine195/obsidian-admonition/issues/296)) ([3e17d60](https://github.com/valentine195/obsidian-admonition/commit/3e17d60f706bfd420d31f1659d8b42ee43ec88f0))
+
 ## [8.13.11](https://github.com/valentine195/obsidian-admonition/compare/v8.13.10...8.13.11) (2023-04-19)
 
 
