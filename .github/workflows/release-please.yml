@@ -3,7 +3,7 @@ on:
 
     push:
         branches:
-            - "master"
+            - "main"
 env:
     PLUGIN_NAME: obsidian-admonition
 
