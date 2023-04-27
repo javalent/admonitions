@@ -87,3 +87,10 @@ jobs:
                   asset_path: ./styles.css
                   asset_name: styles.css
                   asset_content_type: text/css
+    notify:
+        needs: upload-build
+        uses: javalent/workflows/.github/workflows/notify.yml@main
+        secrets: inherit
+        with:
+            name: Admonitions
+            repo: admonitions
