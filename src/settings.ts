@@ -1037,9 +1037,11 @@ class SettingsModal extends Modal {
     admonitionPreview: HTMLElement;
     copy: boolean;
     originalType: string;
+    editing = false;
     constructor(public plugin: ObsidianAdmonition, admonition?: Admonition) {
         super(plugin.app);
         if (admonition) {
+            this.editing = true;
             this.color = admonition.color;
             this.icon = admonition.icon;
             this.type = admonition.type;
@@ -1052,6 +1054,8 @@ class SettingsModal extends Modal {
     }
 
     async display() {
+        this.containerEl.addClass("admonition-settings-modal");
+        this.titleEl.setText(`${this.editing ? "Edit" : "Add"} Admonition`);
         let { contentEl } = this;
 
         contentEl.empty();
