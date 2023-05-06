@@ -5,7 +5,7 @@ First off, thanks for taking the time to contribute. ❤️
 
 We encourage and value all types of contributions.
 You can find different ways
-to help and details about how this project handles them in the **[Table of Contents](CONTRIBUTING.md#table-of-contents)**. 
+to help and details about how this project handles them in the **[Table of Contents](CONTRIBUTING.md#table-of-contents)**.
 Make sure to read the relevant section before making your contribution.
 This will help us maintainers and make the experience smoother for everyone involved.
 Your PR helps us help you. 🎉.
@@ -18,10 +18,10 @@ Your PR helps us help you. 🎉.
 
 ## Important Links for Admonitions
 
-- **[Documentation](https://plugins.javalent.com/admonitions)**
+- **[Documentation](https://plugins.javalent.com/initiative-tracker)**
 - **[Submit an Issue](https://github.com/javalent/admonitions/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc)**
-- **[Bug Tracker](https://github.com/javalent/admonitions/issues?q=is%3Aopen+label%3Abug+sort%3Aupdated-desc)**
-- **[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)**.
+- **[Bug Tracker](https://github.com/javalent/admonitions/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc+label%3Abug)**
+- **[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)**
 
 <!-- omit in toc -->
 ## Table of Contents
@@ -48,8 +48,8 @@ By participating, the assumption is that you are agreeing to uphold this code.
 > If you want to ask a question, we assume that you have read the documentation linked above.
 
 Before you ask a question,
-it is best to search for existing Issues that might help you. 
-For when you have found a suitable issue and still need clarification, you can write your question in this issue. 
+it is best to search for existing Issues that might help you.
+For when you have found a suitable issue and still need clarification, you can write your question in this issue.
 It is also advisable to search the internet for answers first.
 
 If you then still feel the need to ask a question and need clarification, we recommend the following:
@@ -91,9 +91,9 @@ Complete the following steps in advance to help us fix any potential bug as fast
 We use GitHub issues to track bugs and errors. If you run into an issue with the project:
 
 - Open a GitHub Issue (link at top) and select the Bug Template.
-- Explain the expected behavior and the actual behavior. 
-- Provide as much context as possible, including reproduction steps that someone else can follow to recreate the issue on their own. This should include your code, and for better bug reports, isolate the problem and create a reduced test case. 
-- Include any relevant information you collected previously. 
+- Explain the expected behavior and the actual behavior.
+- Provide as much context as possible, including reproduction steps that someone else can follow to recreate the issue on their own. This should include your code, and for better bug reports, isolate the problem and create a reduced test case.
+- Include any relevant information you collected previously.
 - Answer all questions on the issue template as accurately as possible.
 
 After submitting your bug report, our team will take the following steps:
@@ -127,7 +127,7 @@ Github Issues logs all of our feature requests.
 - Provide a detailed step-by-step description of the suggested enhancement, including as much relevant information as possible.
 - State the current behavior, and explain what behavior you expected to see instead and why. You may also wish to mention any alternatives that you considered.
 - Consider including screenshots or animated GIFs to demonstrate the steps or highlight the relevant part of the project. Tools such as LiceCap (for macOS and Windows) or Silentcast and Byzanz (for Linux) may be helpful. (Note: this only applies if you are interacting with a GUI, not a CLI.)
-- Explain how the suggested enhancement would benefit most users. You may also want to provide examples of other projects that have successfully implemented similar features for inspiration.
+- Explain how the suggested enhancement would benefit most plugin users. You may also want to provide examples of other projects that have successfully implemented similar features for inspiration.
 
 
 ### Your First Code Contribution
@@ -141,7 +141,7 @@ Once you have installed your desired plugin, you can use `npm` to build new `mai
 1. Open your terminal and navigate to the `source directory`, then run `npm install`.
 2. Trigger `npm run build` to generate the `main.js` and `styles.css` files inside the `source directory`.
 3. Go to the appropriate `javalent-plugin` folder located in your vault's plugins directory, and replace the existing `main.js` and `styles.css` files with the newly generated ones.
-4. To start using the new files, reload Obsidian. 
+4. To start using the new files, reload Obsidian.
    4.a. If you have the **[Hot-Reload](https://github.com/pjeby/hot-reload)** Obsidian plugin installed,
    Hot Reload will automate the reload process for you.
 
@@ -150,7 +150,7 @@ Once you have installed your desired plugin, you can use `npm` to build new `mai
 Alternatively, you can use the `npm run dev` command for a more streamlined workflow after setting up your `.env` file:
 
 1. Create a file called .env in the source directory.
-2. Add the following line to the file: `OUTDIR="/absolute/path/to/your/vault/.obsidian/plugins/plugin-name"`. For example, we would use `OUTDIR="/absolute/path/to/your/vault/.obsidian/plugins/fantasy-calendar"` if we're working on the Fantasy Calendar plugin. 
+2. Add the following line to the file: `OUTDIR="/absolute/path/to/your/vault/.obsidian/plugins/plugin-name"`. For example, we would use `OUTDIR="/absolute/path/to/your/vault/.obsidian/plugins/fantasy-calendar"` if we're working on the Fantasy Calendar plugin.
 3. Run npm run dev in the source directory to build the `main.js` and `styles.css` files, and place them in the folder you specified in your `.env` file.
 4. Whenever you save changes, the dev script will automatically rebuild those files.
 
@@ -160,7 +160,7 @@ Alternatively, you can use the `npm run dev` command for a more streamlined work
 - Do you see a section that you want to expand on?
 - Do you want to add a funny note, a song or a sarcastic vibe?
 
-Create a GitHub Issue in the appropriate documentation repository stating what you think should change. 
+Create a GitHub Issue in the appropriate documentation repository stating what you think should change.
 
 If you are creating an Issue on how you would like to contribute, include two short sample paragraphs of your writing.
 
@@ -173,13 +173,13 @@ Both can be freestyle. It could at first be a storytelling guide about how to co
 
 ### Commit Messages
 
-This repository uses Semver style commit messages, specifically from **[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)**. 
-This requirement exists to **faciliate automated versioning and changelog generation**. 
+This repository uses Semver style commit messages, specifically from **[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)**.
+This requirement exists to **faciliate automated versioning and changelog generation**.
 We do not expect perfection, but do your best to get comfortable with these conventions if you are not familiar with them.
 
 ## Join The Project Team
 
-Want to officially join the project? Message javalent#3452 on Discord. 
+Want to officially join the project? Message javalent#3452 on Discord.
 
 <!-- omit in toc -->
 ## Attribution

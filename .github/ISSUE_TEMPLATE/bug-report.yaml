@@ -51,7 +51,7 @@ body:
         Example of the level of detail needed to reproduce any bugs efficiently and reliably. 
         Without it, your issue may get worked on last.
         1. Launch Obsidian Sandbox via the `Open Sandbox Vault` command.
-        2. Install the Fantasy Statblocks plugin.
+        2. Install the Javalent plugin.
         3. Change the global filter to...
         4. Create a new note called `Demo problem`.
         5. Installed Dataview and Statblocks stopped working.
