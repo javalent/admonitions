@@ -18,7 +18,7 @@ Your PR helps us help you. 🎉.
 
 ## Important Links for Admonitions
 
-- **[Documentation](https://plugins.javalent.com/initiative-tracker)**
+- **[Documentation](https://plugins.javalent.com/admonitions)**
 - **[Submit an Issue](https://github.com/javalent/admonitions/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc)**
 - **[Bug Tracker](https://github.com/javalent/admonitions/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc+label%3Abug)**
 - **[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)**
