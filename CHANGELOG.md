@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [9.3.1](https://github.com/javalent/admonitions/compare/9.3.0...9.3.1) (2023-05-07)
+
+
+### Bug Fixes
+
+* update publish reference to scss ([bf949d7](https://github.com/javalent/admonitions/commit/bf949d7e8d2eaf8e4d1a78815197f78cb8d61bab))
+
 ## [9.3.0](https://github.com/javalent/admonitions/compare/9.2.3...9.3.0) (2023-05-07)
 
 
