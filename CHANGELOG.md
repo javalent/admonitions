@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [9.3.0](https://github.com/javalent/admonitions/compare/9.2.3...9.3.0) (2023-05-07)
+
+
+### Features
+
+* **Readme:** Update Readme to New Iteration ([49c151b](https://github.com/javalent/admonitions/commit/49c151b3ef980dd4a24e249e20afa95c05d01d34)), closes [#302](https://github.com/javalent/admonitions/issues/302)
+
+
+### Bug Fixes
+
+* fix several Live Preview / Reading discrepancies ([13dd599](https://github.com/javalent/admonitions/commit/13dd59939092bceae6c2d9500d11af32aee039aa))
+* improves consistency across different screen sizes ([13dd599](https://github.com/javalent/admonitions/commit/13dd59939092bceae6c2d9500d11af32aee039aa))
+* **issues:** Typo in bug-report.yml ([aceb2dc](https://github.com/javalent/admonitions/commit/aceb2dc1ecb9aced607b4e0ce3d0b901711f278b))
+* **issues:** Typo in contibuting.md ([5a7bc32](https://github.com/javalent/admonitions/commit/5a7bc32da1faa60e907f317977784e4ffd534f11))
+* settings ui fixes ([fd46a25](https://github.com/javalent/admonitions/commit/fd46a25e478cf85c9782934e60e21798418ef1a8))
+
 ## [9.2.3](https://github.com/valentine195/obsidian-admonition/compare/8.13.12...9.2.3) (2023-04-19)
 
 
