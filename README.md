@@ -4,8 +4,7 @@
 
 ---
 
-The Admonition plugin for Obsidian is a tool that allows you to create attention-grabbing callouts,
-tips, warnings and other informative blocks within your notes. The plugin provides a range of pre-defined icons to pick from, as well as the ability to create your own custom styles using CSS. You can customize and style to fit your specific needs, and can target each iteration independently using the `.callout` and `.admonition` selectors.
+The Admonition plugin for Obsidian is a tool that allows you to create attention-grabbing callouts, tips, warnings and other informative blocks within your notes. The plugin provides a range of pre-defined icons to pick from, as well as the ability to create your own custom styles using CSS. You can customize and style to fit your specific needs, and can target each iteration independently using the `.callout` and `.admonition` selectors.
 
 ## Features
 
