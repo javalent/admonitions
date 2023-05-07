@@ -1,4 +1,4 @@
-import "../assets/main.css";
+import "../assets/main.scss";
 
 function createEl<K extends keyof HTMLElementTagNameMap>(
     tag: K,
