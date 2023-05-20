@@ -1,6 +1,10 @@
 name: Code Report
 description: Report an Update to Code
-labels: ["type: Code"]
+labels: code
+title: "[Code]: "
+assignees:
+ - Sigrunixia
+ - Valentine195
 body:
   - type: markdown
     attributes:
