@@ -1,5 +1,6 @@
 import {
     addIcon,
+    Component,
     MarkdownPostProcessor,
     MarkdownPostProcessorContext,
     MarkdownPreviewRenderer,
@@ -391,7 +392,7 @@ ${editor.getDoc().getSelection()}
                 !title?.trim().length ? "no-title" : ""
             }`,
             attr: {
-                style: color ? `--callout-color: ${color};` : '',
+                style: color ? `--callout-color: ${color};` : "",
                 "data-callout": type,
                 "data-callout-fold": ""
             }
@@ -417,7 +418,12 @@ ${editor.getDoc().getSelection()}
             const titleInnerEl = titleEl.createDiv(
                 "callout-title-inner admonition-title-content"
             );
-            MarkdownRenderer.renderMarkdown(title, titleInnerEl, "", null);
+            MarkdownRenderer.renderMarkdown(
+                title,
+                titleInnerEl,
+                "",
+                new Component()
+            );
             if (
                 titleInnerEl.firstElementChild &&
                 titleInnerEl.firstElementChild instanceof HTMLParagraphElement
