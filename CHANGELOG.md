@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [9.3.2](https://github.com/javalent/admonitions/compare/9.3.1...9.3.2) (2023-05-30)
+
+
+### Bug Fixes
+
+* Pass component to renderMarkdown ([dfcf140](https://github.com/javalent/admonitions/commit/dfcf140e6f024ac8792292b771d9476f44fe3c20))
+
 ## [9.3.1](https://github.com/javalent/admonitions/compare/9.3.0...9.3.1) (2023-05-07)
 
 
