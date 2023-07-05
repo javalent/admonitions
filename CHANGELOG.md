@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [9.3.3](https://github.com/javalent/admonitions/compare/9.3.2...9.3.3) (2023-07-05)
+
+
+### Bug Fixes
+
+* propagate source to admonition element (close [#314](https://github.com/javalent/admonitions/issues/314)) ([f5ec0bb](https://github.com/javalent/admonitions/commit/f5ec0bbe172f57a9bdf0ea78313b53e37ba66cb7))
+
 ## [9.3.2](https://github.com/javalent/admonitions/compare/9.3.1...9.3.2) (2023-05-30)
 
 
