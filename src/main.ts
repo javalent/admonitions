@@ -328,7 +328,7 @@ ${editor.getDoc().getSelection()}
                     (admonition.injectColor ?? this.data.injectColor
                         ? admonition.color
                         : null),
-                collapse
+                collapse, sourcePath
             );
             this.renderAdmonitionContent(
                 admonitionElement,
@@ -385,7 +385,7 @@ ${editor.getDoc().getSelection()}
         title: string,
         icon: AdmonitionIconDefinition,
         color?: string,
-        collapse?: string
+        collapse?: string, source?: string
     ): HTMLElement {
         const admonition = createDiv({
             cls: `callout admonition admonition-${type} admonition-plugin ${
@@ -421,7 +421,7 @@ ${editor.getDoc().getSelection()}
             MarkdownRenderer.renderMarkdown(
                 title,
                 titleInnerEl,
-                "",
+                source ?? "",
                 new Component()
             );
             if (
