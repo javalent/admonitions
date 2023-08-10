@@ -848,60 +848,60 @@ export default class AdmonitionSetting extends PluginSettingTab {
                 });
             });
 
-        new Setting(containerEl)
-            .setName("Generate JS for Publish")
-            .setDesc(
-                createFragment((f) => {
-                    f.createSpan({
-                        text: "Generate a javascript file to place in your "
-                    });
-                    f.createEl("code", { text: "publish.js" });
-                    f.createSpan({ text: "file." });
-                    f.createEl("br");
-                    f.createEl("strong", {
-                        text: "Please note that this can only be done on custom domain publish sites."
-                    });
-                })
-            )
-            .addButton((b) => {
-                b.setButtonText("Generate");
-                b.onClick((evt) => {
-                    const admonition_icons: {
-                        [admonition_type: string]: {
-                            icon: string;
-                            color: string;
-                        };
-                    } = {};
-
-                    for (let key in this.plugin.admonitions) {
-                        const value = this.plugin.admonitions[key];
-
-                        admonition_icons[key] = {
-                            icon:
-                                this.plugin.iconManager.getIconNode(value.icon)
-                                    ?.outerHTML ?? "",
-                            color: value.color
-                        };
-                    }
-
-                    const js = CONTENT.replace(
-                        /ADMONITION_ICON_MAP\s?=\s?\{\}/,
-                        "ADMONITION_ICON_MAP=" +
-                            JSON.stringify(admonition_icons)
-                    );
-                    const file = new Blob([js], {
-                        type: "text/javascript"
-                    });
-                    const link = createEl("a", {
-                        href: URL.createObjectURL(file),
-                        attr: {
-                            download: "publish.admonition.js"
-                        }
-                    });
-                    link.click();
-                    link.detach();
-                });
-            });
+        // new Setting(containerEl)
+        //     .setName("Generate JS for Publish")
+        //     .setDesc(
+        //         createFragment((f) => {
+        //             f.createSpan({
+        //                 text: "Generate a javascript file to place in your "
+        //             });
+        //             f.createEl("code", { text: "publish.js" });
+        //             f.createSpan({ text: "file." });
+        //             f.createEl("br");
+        //             f.createEl("strong", {
+        //                 text: "Please note that this can only be done on custom domain publish sites."
+        //             });
+        //         })
+        //     )
+            // .addButton((b) => {
+            //     b.setButtonText("Generate");
+            //     b.onClick((evt) => {
+            //         const admonition_icons: {
+            //             [admonition_type: string]: {
+            //                 icon: string;
+            //                 color: string;
+            //             };
+            //         } = {};
+            //
+            //         for (let key in this.plugin.admonitions) {
+            //             const value = this.plugin.admonitions[key];
+            //
+            //             admonition_icons[key] = {
+            //                 icon:
+            //                     this.plugin.iconManager.getIconNode(value.icon)
+            //                         ?.outerHTML ?? "",
+            //                 color: value.color
+            //             };
+            //         }
+            //
+            //         const js = CONTENT.replace(
+            //             /ADMONITION_ICON_MAP\s?=\s?\{\}/,
+            //             "ADMONITION_ICON_MAP=" +
+            //                 JSON.stringify(admonition_icons)
+            //         );
+            //         const file = new Blob([js], {
+            //             type: "text/javascript"
+            //         });
+            //         const link = createEl("a", {
+            //             href: URL.createObjectURL(file),
+            //             attr: {
+            //                 download: "publish.admonition.js"
+            //             }
+            //         });
+            //         link.click();
+            //         link.detach();
+            //     });
+            // });
     }
 
     buildTypes() {

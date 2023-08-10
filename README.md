@@ -9,7 +9,7 @@
 > Due to a glut of high priority Javalent plugin projects, this plugin is now entering maintenance mode for the time being. This is **not** a permanent status.
 > - PR's will be reviewed.
 > - *Yay* bugs will be reviewed and worked if able.
-> - Feature Requests **will not** be worked.
+> - Feature Requests **will not** be worked.
 
 ---
 
