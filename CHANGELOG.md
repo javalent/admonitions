@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [10.0.0](https://github.com/javalent/admonitions/compare/9.3.3...10.0.0) (2023-08-10)
+
+
+### ⚠ BREAKING CHANGES
+
+* Publish.js creation removed from Admonition as this feature is depreciated.
+
+### Features
+
+* Publish.js creation removed from Admonition as this feature is depreciated. ([17db9dd](https://github.com/javalent/admonitions/commit/17db9dda0035965d26b00f77c13c7514aff829bd))
+
 ## [9.3.3](https://github.com/javalent/admonitions/compare/9.3.2...9.3.3) (2023-07-05)
 
 
