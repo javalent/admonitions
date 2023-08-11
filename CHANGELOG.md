@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [10.0.1](https://github.com/javalent/admonitions/compare/10.0.0...10.0.1) (2023-08-11)
+
+
+### Bug Fixes
+
+* remove publish build step ([fc9bbfc](https://github.com/javalent/admonitions/commit/fc9bbfcd09c9214b48df365552085128a6711a43))
+
 ## [10.0.0](https://github.com/javalent/admonitions/compare/9.3.3...10.0.0) (2023-08-10)
 
 
