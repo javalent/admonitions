@@ -367,8 +367,6 @@ ${editor.getDoc().getSelection()}
             el.replaceWith(admonitionElement);
 
             const view = app.workspace.getActiveViewOfType(MarkdownView);
-            //hack
-            //@ts-ignore
             if (view?.editor?.cm?.state?.field(editorLivePreviewField)) {
                 const editor = view.editor.cm;
                 admonitionElement.onClickEvent((ev) => {
