@@ -1,6 +1,8 @@
 import {
     addIcon,
     Component,
+    editorLivePreviewField,
+    livePreviewState,
     MarkdownPostProcessor,
     MarkdownPostProcessorContext,
     MarkdownPreviewRenderer,
@@ -71,6 +73,14 @@ declare module "obsidian" {
     namespace MarkdownPreviewRenderer {
         function unregisterCodeBlockPostProcessor(lang: string): void;
     }
+    interface Editor {
+        cm: {
+            state: EditorState;
+            focus: () => void;
+            posAtDOM: (el: HTMLElement) => number;
+            dispatch: (tr: TransactionSpec) => void;
+        };
+    }
 }
 
 import AdmonitionSetting from "./settings";
@@ -79,6 +89,7 @@ import { InsertAdmonitionModal } from "./modal";
 import { IconName } from "@fortawesome/fontawesome-svg-core";
 import CalloutManager from "./callout/manager";
 import { AdmonitionSuggest } from "./suggest/suggest";
+import { EditorState, TransactionSpec } from "@codemirror/state";
 
 const DEFAULT_APP_SETTINGS: AdmonitionSettings = {
     userAdmonitions: {},
@@ -354,6 +365,28 @@ ${editor.getDoc().getSelection()}
                 );
             }
             el.replaceWith(admonitionElement);
+
+            const view = app.workspace.getActiveViewOfType(MarkdownView);
+            //hack
+            //@ts-ignore
+            if (view?.editor?.cm?.state?.field(editorLivePreviewField)) {
+                const editor = view.editor.cm;
+                admonitionElement.onClickEvent((ev) => {
+                    if (ev.defaultPrevented || ev.detail > 1 || ev.shiftKey)
+                        return;
+                    try {
+                        const pos = editor.posAtDOM(admonitionElement);
+                        editor.focus();
+                        editor.dispatch({
+                            selection: {
+                                head: pos,
+                                anchor: pos
+                            }
+                        });
+                    } catch (e) {}
+                });
+            }
+
             return admonitionElement;
         } catch (e) {
             console.error(e);
