@@ -72,8 +72,9 @@ export default class CalloutManager extends Component {
             }
 
             if (
-                this.plugin.admonitions[type].copy ??
-                this.plugin.data.copyButton
+                content &&
+                (this.plugin.admonitions[type].copy ??
+                this.plugin.data.copyButton)
             ) {
                 let copy = content.createDiv("admonition-content-copy");
                 setIcon(copy, "copy");
