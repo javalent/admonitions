@@ -74,7 +74,7 @@ export default class CalloutManager extends Component {
             if (
                 content &&
                 (this.plugin.admonitions[type].copy ??
-                this.plugin.data.copyButton)
+                    this.plugin.data.copyButton)
             ) {
                 let copy = content.createDiv("admonition-content-copy");
                 setIcon(copy, "copy");
@@ -95,7 +95,14 @@ export default class CalloutManager extends Component {
         }
 
         if (admonition.noTitle && !callout.dataset.calloutFold) {
-            titleEl.addClass("no-title");
+            if (
+                titleEl
+                    .querySelector(".callout-title-inner")
+                    ?.textContent?.toLowerCase() ===
+                admonition.type.toLowerCase()
+            ) {
+                titleEl.addClass("no-title");
+            }
         }
         if (
             !admonition.noTitle &&
@@ -217,7 +224,9 @@ export default class CalloutManager extends Component {
         --callout-icon: "${(
             this.plugin.iconManager.getIconNode(admonition.icon)?.outerHTML ??
             ""
-        ).replace(/(width|height)=(\\?"|')\d+(\\?"|')/g, "").replace(/"/g, '\\"')}";
+        )
+            .replace(/(width|height)=(\\?"|')\d+(\\?"|')/g, "")
+            .replace(/"/g, '\\"')}";
     }`;
         }
         if (this.indexing.contains(admonition.type)) {
