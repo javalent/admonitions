@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [10.0.2](https://github.com/javalent/admonitions/compare/10.0.1...10.0.2) (2023-09-14)
+
+
+### Bug Fixes
+
+* Fixes CSS escaping for custom callouts in Obsidian installer 1.4+ ([523ca6a](https://github.com/javalent/admonitions/commit/523ca6a2874e7825e2151ccd2c83885e45b225ce))
+* fixes issue where trying to add a copy content button to a callout with no content ([10db45a](https://github.com/javalent/admonitions/commit/10db45aee7d13a926ba46ab91c1700e8dc120b17))
+
 ## [10.0.1](https://github.com/javalent/admonitions/compare/10.0.0...10.0.1) (2023-08-11)
 
 
