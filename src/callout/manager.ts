@@ -206,15 +206,17 @@ export default class CalloutManager extends Component {
         if (admonition.icon.type == "obsidian") {
             rule = `.callout[data-callout="${admonition.type.toLowerCase()}"] {
     ${color}
-    --callout-icon: ${admonition.icon.name};  /* Icon name from the Obsidian Icon Set */
+    --callout-icon: ${
+        admonition.icon.name
+    };  /* Icon name from the Obsidian Icon Set */
 }`;
         } else {
             rule = `.callout[data-callout="${admonition.type.toLowerCase()}"] {
        ${color}
-        --callout-icon: '${(
+        --callout-icon: "${(
             this.plugin.iconManager.getIconNode(admonition.icon)?.outerHTML ??
             ""
-        ).replace(/(width|height)=(\\?"|')\d+(\\?"|')/g, "")}';
+        ).replace(/(width|height)=(\\?"|')\d+(\\?"|')/g, "").replace(/"/g, '\\"')}";
     }`;
         }
         if (this.indexing.contains(admonition.type)) {
