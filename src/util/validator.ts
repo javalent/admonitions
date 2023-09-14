@@ -1,4 +1,4 @@
-import { Admonition } from "src/@types";
+import { Admonition, AdmonitionIconDefinition } from "src/@types";
 import { t } from "src/lang/helpers";
 import ObsidianAdmonition from "src/main";
 
@@ -104,7 +104,7 @@ export class AdmonitionValidator {
     static validate(
         plugin: ObsidianAdmonition,
         type: string,
-        icon: string,
+        icon: AdmonitionIconDefinition,
         oldType?: string
     ): Result {
         const validType = AdmonitionValidator.validateType(
@@ -155,17 +155,22 @@ export class AdmonitionValidator {
         return { success: true };
     }
     static validateIcon(
-        definition: string,
+        definition: AdmonitionIconDefinition,
         plugin: ObsidianAdmonition
     ): Result {
-        if (!definition.length) {
+        if (definition.type === "image") {
+            return {
+                success: true
+            };
+        }
+        if (!definition.name?.length) {
             return {
                 success: false,
                 message: t("Icon cannot be empty."),
                 failed: "icon"
             };
         }
-        const icon = plugin.iconManager.getIconType(definition);
+        const icon = plugin.iconManager.getIconType(definition.name);
         if (!icon) {
             return {
                 success: false,
