@@ -307,7 +307,7 @@ ${editor.getDoc().getSelection()}
                     : ctx?.sourcePath ??
                       this.app.workspace.getActiveFile()?.path ??
                       "";
-            let { title, collapse, content, icon, color } =
+            let { title, collapse, content, icon, color, metadata } =
                 getParametersFromSource(type, src, this.admonitions[type]);
 
             if (this.data.autoCollapse && !collapse) {
@@ -328,7 +328,9 @@ ${editor.getDoc().getSelection()}
                     (admonition.injectColor ?? this.data.injectColor
                         ? admonition.color
                         : null),
-                collapse, sourcePath
+                collapse,
+                sourcePath,
+                metadata
             );
             this.renderAdmonitionContent(
                 admonitionElement,
@@ -385,7 +387,9 @@ ${editor.getDoc().getSelection()}
         title: string,
         icon: AdmonitionIconDefinition,
         color?: string,
-        collapse?: string, source?: string
+        collapse?: string,
+        source?: string,
+        metadata?: string
     ): HTMLElement {
         const admonition = createDiv({
             cls: `callout admonition admonition-${type} admonition-plugin ${
@@ -394,7 +398,8 @@ ${editor.getDoc().getSelection()}
             attr: {
                 style: color ? `--callout-color: ${color};` : "",
                 "data-callout": type,
-                "data-callout-fold": ""
+                "data-callout-fold": "",
+                "data-callout-metadata": metadata ?? ""
             }
         });
         const titleEl = admonition.createDiv({
