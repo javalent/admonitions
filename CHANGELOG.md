@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [10.1.0](https://github.com/javalent/admonitions/compare/10.0.2...10.1.0) (2023-09-14)
+
+
+### Features
+
+* Enable `metadata` field on admonition codeblocks (close [#261](https://github.com/javalent/admonitions/issues/261)) ([9143f3f](https://github.com/javalent/admonitions/commit/9143f3f8741ab8c603cc2e88833681ad5c7daae2))
+
+
+### Bug Fixes
+
+* Click on Admonition codeblocks to edit in LP (close [#278](https://github.com/javalent/admonitions/issues/278)) ([4d993bb](https://github.com/javalent/admonitions/commit/4d993bb61b9042eb1cf2565d0205112f28dee508))
+* Explicitly set titles will override the no title setting in callouts (close [#284](https://github.com/javalent/admonitions/issues/284)) ([22f32d4](https://github.com/javalent/admonitions/commit/22f32d410b94aed961b57dba44c565877edce393))
+* Fixes incorrect error being displayed when using an image as an icon (close [#311](https://github.com/javalent/admonitions/issues/311)) ([099e84c](https://github.com/javalent/admonitions/commit/099e84cfb78e521d33044a005058b289fcc2d872))
+
 ## [10.0.2](https://github.com/javalent/admonitions/compare/10.0.1...10.0.2) (2023-09-14)
 
 
