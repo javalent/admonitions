@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [10.1.1](https://github.com/javalent/admonitions/compare/10.1.0...10.1.1) (2023-09-16)
+
+
+### Bug Fixes
+
+* delay live preview focus to allow for click events ([8739ad8](https://github.com/javalent/admonitions/commit/8739ad8a8c6a07ac134048a68209e10521df7adc))
+
 ## [10.1.0](https://github.com/javalent/admonitions/compare/10.0.2...10.1.0) (2023-09-14)
 
 
