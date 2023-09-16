@@ -373,14 +373,18 @@ ${editor.getDoc().getSelection()}
                     if (ev.defaultPrevented || ev.detail > 1 || ev.shiftKey)
                         return;
                     try {
-                        const pos = editor.posAtDOM(admonitionElement);
-                        editor.focus();
-                        editor.dispatch({
-                            selection: {
-                                head: pos,
-                                anchor: pos
-                            }
-                        });
+                        setTimeout(() => {
+                            try {
+                                const pos = editor.posAtDOM(admonitionElement);
+                                editor.focus();
+                                editor.dispatch({
+                                    selection: {
+                                        head: pos,
+                                        anchor: pos
+                                    }
+                                });
+                            } catch (e) {}
+                        }, 10);
                     } catch (e) {}
                 });
             }
