@@ -157,30 +157,37 @@ export default class CalloutManager extends Component {
             }
         }
         titleEl.onclick = (event: MouseEvent) => {
-            event.preventDefault();
-
-            function transitionEnd(evt: TransitionEvent) {
-                content.removeEventListener("transitionend", transitionEnd);
-                content.style.removeProperty("transition");
-            }
-            content.addEventListener("transitionend", transitionEnd);
-            content.style.setProperty(
-                "transition",
-                "all 100ms cubic-bezier(.02, .01, .47, 1)"
-            );
-            collapsed = callout.hasClass("is-collapsed");
-            if (event.button == 0) {
-                for (const prop of this.heights) {
-                    const heights = this.getComputedHeights(content);
-                    content.style.setProperty(
-                        prop,
-                        collapsed ? heights[prop] : "0px"
-                    );
-                }
-
-                callout.toggleClass("is-collapsed", !collapsed);
-            }
+            this.collapse(callout, event);
         };
+    }
+
+    collapse(callout: HTMLElement, event?: MouseEvent) {
+        event?.preventDefault();
+        const content =
+            callout.querySelector<HTMLDivElement>(".callout-content");
+
+        function transitionEnd(evt: TransitionEvent) {
+            content.removeEventListener("transitionend", transitionEnd);
+            content.style.removeProperty("transition");
+        }
+        content.addEventListener("transitionend", transitionEnd);
+        content.style.setProperty(
+            "transition",
+            "all 100ms cubic-bezier(.02, .01, .47, 1)"
+        );
+        let collapsed = callout.hasClass("is-collapsed");
+
+        if (!event || event.button == 0) {
+            const heights = this.getComputedHeights(content);
+            for (const prop of this.heights) {
+                content.style.setProperty(
+                    prop,
+                    collapsed ? heights[prop] : "0px"
+                );
+            }
+
+            callout.toggleClass("is-collapsed", !collapsed);
+        }
     }
 
     getComputedHeights(el: HTMLDivElement): Heights {

@@ -177,12 +177,13 @@ export default class ObsidianAdmonition extends Plugin {
                         this.app.workspace.getActiveViewOfType(MarkdownView);
                     if (!view || !(view instanceof MarkdownView)) return;
 
-                    let admonitions = view.contentEl.querySelectorAll(
-                        "details[open].admonition-plugin"
-                    );
+                    let admonitions =
+                        view.contentEl.querySelectorAll<HTMLElement>(
+                            ".callout.is-collapsible:not(.is-collapsed)"
+                        );
                     for (let i = 0; i < admonitions.length; i++) {
                         let admonition = admonitions[i];
-                        admonition.removeAttribute("open");
+                        this.calloutManager.collapse(admonition);
                     }
                 }
             });
@@ -201,12 +202,14 @@ export default class ObsidianAdmonition extends Plugin {
                         this.app.workspace.getActiveViewOfType(MarkdownView);
                     if (!view || !(view instanceof MarkdownView)) return;
 
-                    let admonitions = view.contentEl.querySelectorAll(
-                        "details:not([open]).admonition-plugin"
-                    );
+                    let admonitions =
+                        view.contentEl.querySelectorAll<HTMLElement>(
+                            ".callout.is-collapsible.is-collapsed"
+                        );
                     for (let i = 0; i < admonitions.length; i++) {
                         let admonition = admonitions[i];
-                        admonition.setAttribute("open", "open");
+
+                        this.calloutManager.collapse(admonition);
                     }
                 }
             });
