@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [10.1.2](https://github.com/javalent/admonitions/compare/10.1.1...10.1.2) (2024-01-30)
+
+
+### Bug Fixes
+
+* Fixes issue with Open/Collapse Admonition commands ([6d61851](https://github.com/javalent/admonitions/commit/6d618518d55fe47e47a66a7ad8bab7924dd205f4))
+* remove timestamp from auto-generated css (close [#327](https://github.com/javalent/admonitions/issues/327)) ([8952e8e](https://github.com/javalent/admonitions/commit/8952e8ef70bae7500b1f70445a96949621897317))
+
 ## [10.1.1](https://github.com/javalent/admonitions/compare/10.1.0...10.1.1) (2023-09-16)
 
 
