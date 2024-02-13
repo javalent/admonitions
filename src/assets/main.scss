@@ -311,9 +311,20 @@
   }
 }
 
-.admonition-suggester-icon {
-  svg {
-    width: 1em;
+.suggestion-container > .suggestion > .suggestion-item.admonition-suggester-item {
+  color: rgb(var(--callout-color));
+
+  &.is-selected {
+    background-color: rgba(var(--callout-color), 0.1);
+  }
+
+  .admonition-suggester-icon {
+    &:not(:empty) {
+      padding-right: var(--size-4-1);
+    }
+
+    display: inline-block;
+    vertical-align: middle;
   }
 }
 
