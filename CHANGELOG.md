@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [10.2.0](https://github.com/javalent/admonitions/compare/10.1.2...10.2.0) (2024-02-13)
+
+
+### Features
+
+* Better Autocompletion for Callouts (thanks [@heinrich26](https://github.com/heinrich26)) ([d367e05](https://github.com/javalent/admonitions/commit/d367e05e650989c17977c2959935fb6705057cef))
+
 ## [10.1.2](https://github.com/javalent/admonitions/compare/10.1.1...10.1.2) (2024-01-30)
 
 
