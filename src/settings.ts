@@ -1034,6 +1034,7 @@ class SettingsModal extends Modal {
     title: string;
     injectColor: boolean = this.plugin.data.injectColor;
     noTitle: boolean = false;
+    admonitionPreviewParent: HTMLElement;
     admonitionPreview: HTMLElement;
     copy: boolean;
     originalType: string;
@@ -1053,16 +1054,8 @@ class SettingsModal extends Modal {
         }
     }
 
-    async display() {
-        this.containerEl.addClass("admonition-settings-modal");
-        this.titleEl.setText(`${this.editing ? "Edit" : "Add"} Admonition`);
-        let { contentEl } = this;
-
-        contentEl.empty();
-
-        const settingDiv = contentEl.createDiv();
-        const title = this.title ?? this.type ?? "...";
-
+    setAdmonitionElement(title: string) {
+        this.admonitionPreviewParent.empty();
         this.admonitionPreview = this.plugin.getAdmonitionElement(
             this.type,
             title[0].toUpperCase() + title.slice(1).toLowerCase(),
@@ -1074,8 +1067,23 @@ class SettingsModal extends Modal {
             .createEl("p", {
                 text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla et euismod nulla."
             });
+        this.admonitionPreviewParent.appendChild(this.admonitionPreview);
+    }
+    async display() {
+        this.containerEl.addClass("admonition-settings-modal");
+        this.titleEl.setText(`${this.editing ? "Edit" : "Add"} Admonition`);
+        let { contentEl } = this;
 
-        contentEl.appendChild(this.admonitionPreview);
+        contentEl.empty();
+
+        const settingDiv = contentEl.createDiv();
+        const title = this.title ?? this.type ?? "...";
+
+        this.admonitionPreviewParent = contentEl.createDiv();
+        this.setAdmonitionElement(
+            title[0].toUpperCase() + title.slice(1).toLowerCase()
+        );
+
         let typeText: TextComponent;
         const typeSetting = new Setting(settingDiv)
             .setName(t("Admonition Type"))
@@ -1099,8 +1107,7 @@ class SettingsModal extends Modal {
 
                     this.type = v;
                     if (!this.title)
-                        this.updateTitle(
-                            this.admonitionPreview,
+                        this.setAdmonitionElement(
                             this.type?.[0].toUpperCase() +
                                 this.type?.slice(1).toLowerCase()
                         );
@@ -1133,8 +1140,7 @@ class SettingsModal extends Modal {
                 text.setValue(this.title).onChange((v) => {
                     if (!v.length) {
                         this.title = null;
-                        this.updateTitle(
-                            this.admonitionPreview,
+                        this.setAdmonitionElement(
                             this.type?.[0].toUpperCase() +
                                 title.slice(1).toLowerCase()
                         );
@@ -1142,7 +1148,7 @@ class SettingsModal extends Modal {
                     }
 
                     this.title = v;
-                    this.updateTitle(this.admonitionPreview, this.title);
+                    this.setAdmonitionElement(this.title);
                 });
             });
         new Setting(settingDiv)
@@ -1203,7 +1209,7 @@ class SettingsModal extends Modal {
 
                     SettingsModal.removeValidationError(text.inputEl);
                     const ic = this.plugin.iconManager.getIconType(v);
-                    this.icon = modal.icon ?? {
+                    this.icon = {
                         name: v as AdmonitionIconName,
                         type: ic as AdmonitionIconType
                     };
@@ -1217,9 +1223,17 @@ class SettingsModal extends Modal {
                             ?.outerHTML ?? "";
                 };
 
-                const modal = new IconSuggestionModal(this.plugin, text);
+                const modal = new IconSuggestionModal(
+                    this.plugin,
+                    text,
+                    this.plugin.iconManager.iconDefinitions
+                );
 
-                modal.onClose = validate;
+                modal.onSelect((item) => {
+                    text.inputEl.value = item.item.name;
+                    validate();
+                    modal.close();
+                });
 
                 text.inputEl.onblur = validate;
             })
@@ -1373,14 +1387,7 @@ class SettingsModal extends Modal {
                     })
             );
     }
-    updateTitle(admonitionPreview: HTMLElement, title: string) {
-        let titleSpan = admonitionPreview.querySelector(
-            ".admonition-title-content"
-        );
-        let iconEl = admonitionPreview.querySelector(".admonition-title-icon");
-        titleSpan.textContent = title;
-        titleSpan.prepend(iconEl);
-    }
+
     onOpen() {
         this.display();
     }
