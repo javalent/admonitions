@@ -2,7 +2,6 @@ import {
     addIcon,
     Component,
     editorLivePreviewField,
-    livePreviewState,
     MarkdownPostProcessor,
     MarkdownPostProcessorContext,
     MarkdownPreviewRenderer,
@@ -81,6 +80,9 @@ declare module "obsidian" {
             dispatch: (tr: TransactionSpec) => void;
         };
     }
+    interface Workspace {
+        iterateCodeMirrors(callback: (cm: CodeMirror.Editor) => void): void;
+    }
 }
 
 import AdmonitionSetting from "./settings";
@@ -90,6 +92,7 @@ import { IconName } from "@fortawesome/fontawesome-svg-core";
 import CalloutManager from "./callout/manager";
 import { AdmonitionSuggest } from "./suggest/suggest";
 import { EditorState, TransactionSpec } from "@codemirror/state";
+import CodeMirror from "codemirror";
 
 const DEFAULT_APP_SETTINGS: AdmonitionSettings = {
     userAdmonitions: {},
@@ -461,11 +464,12 @@ ${editor.getDoc().getSelection()}
             const titleInnerEl = titleEl.createDiv(
                 "callout-title-inner admonition-title-content"
             );
-            MarkdownRenderer.renderMarkdown(
+            MarkdownRenderer.render(
+                this.app,
                 title,
                 titleInnerEl,
                 source ?? "",
-                new Component()
+                this
             );
             if (
                 titleInnerEl.firstElementChild &&
