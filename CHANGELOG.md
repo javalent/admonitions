@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [10.3.0](https://github.com/javalent/admonitions/compare/10.2.0...10.3.0) (2024-05-23)
+
+
+### Features
+
+* Adds support for HSL, HSB, HSV, HEX and RGB colors in Admonition definitions (thanks [@x](https://github.com/x)Ryul ) ([a872858](https://github.com/javalent/admonitions/commit/a8728585e65e853d16eebebf52f33aa84755e9e4))
+
+
+### Bug Fixes
+
+* Improves appearance of Editor suggester ([7652ed0](https://github.com/javalent/admonitions/commit/7652ed08cc13cfea9f8fad0bae6473706991f286))
+* Improves appearance of suggesters (close [#338](https://github.com/javalent/admonitions/issues/338)) ([e36a4a8](https://github.com/javalent/admonitions/commit/e36a4a88fbb6590a4acbd78822ab5b6e7d203e36))
+* Improves behavior of Admonition edit modal ([72c2bc3](https://github.com/javalent/admonitions/commit/72c2bc3024957315e8b6c3e1693b59379962ad07))
+* Improves lifetime of Admonition rendered content ([a045776](https://github.com/javalent/admonitions/commit/a04577628731ced61b04e40d82afa86dd1c51c79))
+
 ## [10.2.0](https://github.com/javalent/admonitions/compare/10.1.2...10.2.0) (2024-02-13)
 
 
