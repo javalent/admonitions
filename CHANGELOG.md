@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [10.3.1](https://github.com/javalent/admonitions/compare/10.3.0...10.3.1) (2024-05-23)
+
+
+### Bug Fixes
+
+* Fixes @javalent/utilities dependency ([1bb3398](https://github.com/javalent/admonitions/commit/1bb339816a4f1e91e82bee16bcb245f36359946d))
+
 ## [10.3.0](https://github.com/javalent/admonitions/compare/10.2.0...10.3.0) (2024-05-23)
 
 
