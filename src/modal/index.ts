@@ -1,404 +1,75 @@
 import {
-    App,
-    Editor,
     FuzzyMatch,
-    FuzzySuggestModal,
     Modal,
     Notice,
-    Platform,
-    Scope,
+    SearchComponent,
     Setting,
-    SuggestModal,
-    TextComponent
+    TextComponent,
+    renderMatches,
+    setIcon
 } from "obsidian";
-import { createPopper, Instance as PopperInstance } from "@popperjs/core";
+
+import { FuzzyInputSuggest } from "@javalent/utilities";
 
 import { Admonition, AdmonitionIconDefinition } from "src/@types";
 import ObsidianAdmonition from "src/main";
 
-class Suggester<T> {
-    owner: SuggestModal<T>;
-    items: T[];
-    suggestions: HTMLDivElement[];
-    selectedItem: number;
-    containerEl: HTMLElement;
+export class IconSuggestionModal extends FuzzyInputSuggest<AdmonitionIconDefinition> {
     constructor(
-        owner: SuggestModal<T>,
-        containerEl: HTMLElement,
-        scope: Scope
+        public plugin: ObsidianAdmonition,
+        input: TextComponent | SearchComponent,
+        items: AdmonitionIconDefinition[]
     ) {
-        this.containerEl = containerEl;
-        this.owner = owner;
-        containerEl.on(
-            "click",
-            ".suggestion-item",
-            this.onSuggestionClick.bind(this)
-        );
-        containerEl.on(
-            "mousemove",
-            ".suggestion-item",
-            this.onSuggestionMouseover.bind(this)
-        );
-
-        scope.register([], "ArrowUp", () => {
-            this.setSelectedItem(this.selectedItem - 1, true);
-            return false;
-        });
-
-        scope.register([], "ArrowDown", () => {
-            this.setSelectedItem(this.selectedItem + 1, true);
-            return false;
-        });
-
-        scope.register([], "Enter", (evt) => {
-            this.useSelectedItem(evt);
-            return false;
-        });
-
-        scope.register([], "Tab", (evt) => {
-            this.useSelectedItem(evt);
-            return false;
-        });
+        super(plugin.app, input, items);
     }
-    chooseSuggestion(evt: KeyboardEvent | MouseEvent) {
-        if (!this.items || !this.items.length) return;
-        const currentValue = this.items[this.selectedItem];
-        if (currentValue) {
-            this.owner.selectSuggestion(currentValue, evt);
-        }
+    renderNote(
+        noteEL: HTMLElement,
+        result: FuzzyMatch<AdmonitionIconDefinition>
+    ): void {
+        noteEL.setText(this.plugin.iconManager.getIconModuleName(result.item));
     }
-    onSuggestionClick(event: MouseEvent, el: HTMLDivElement): void {
-        event.preventDefault();
-        if (!this.suggestions || !this.suggestions.length) return;
-
-        const item = this.suggestions.indexOf(el);
-        this.setSelectedItem(item, false);
-        this.useSelectedItem(event);
+    renderTitle(
+        titleEl: HTMLElement,
+        result: FuzzyMatch<AdmonitionIconDefinition>
+    ): void {
+        renderMatches(titleEl, result.item.name, result.match.matches);
     }
+    renderFlair(
+        flairEl: HTMLElement,
+        result: FuzzyMatch<AdmonitionIconDefinition>
+    ): void {
+        const { item } = result;
 
-    onSuggestionMouseover(event: MouseEvent, el: HTMLDivElement): void {
-        if (!this.suggestions || !this.suggestions.length) return;
-        const item = this.suggestions.indexOf(el);
-        this.setSelectedItem(item, false);
-    }
-    empty() {
-        this.containerEl.empty();
-    }
-    setSuggestions(items: T[]) {
-        this.containerEl.empty();
-        const els: HTMLDivElement[] = [];
-
-        items.forEach((item) => {
-            const suggestionEl = this.containerEl.createDiv("suggestion-item");
-            this.owner.renderSuggestion(item, suggestionEl);
-            els.push(suggestionEl);
-        });
-        this.items = items;
-        this.suggestions = els;
-        this.setSelectedItem(0, false);
-    }
-    useSelectedItem(event: MouseEvent | KeyboardEvent) {
-        if (!this.items || !this.items.length) return;
-        const currentValue = this.items[this.selectedItem];
-        if (currentValue) {
-            this.owner.selectSuggestion(currentValue, event);
-        }
-        if (Platform.isMobile) {
-            this.chooseSuggestion(event);
-        }
-    }
-    wrap(value: number, size: number): number {
-        return ((value % size) + size) % size;
-    }
-    setSelectedItem(index: number, scroll: boolean) {
-        const nIndex = this.wrap(index, this.suggestions.length);
-        const prev = this.suggestions[this.selectedItem];
-        const next = this.suggestions[nIndex];
-
-        if (prev) prev.removeClass("is-selected");
-        if (next) next.addClass("is-selected");
-
-        this.selectedItem = nIndex;
-
-        if (scroll) {
-            next.scrollIntoView(false);
-        }
-    }
-}
-
-export abstract class SuggestionModal<T> extends FuzzySuggestModal<T> {
-    items: T[] = [];
-    suggestions: HTMLDivElement[];
-    popper: PopperInstance;
-    scope: Scope = new Scope();
-    suggester: Suggester<FuzzyMatch<T>>;
-    suggestEl: HTMLDivElement;
-    promptEl: HTMLDivElement;
-    emptyStateText: string = "No match found";
-    limit: number = 100;
-    constructor(app: App, inputEl: HTMLInputElement, items: T[]) {
-        super(app);
-        this.inputEl = inputEl;
-        this.items = items;
-
-        this.suggestEl = createDiv("suggestion-container");
-
-        this.suggestEl.style.width = `${inputEl.clientWidth}px`;
-
-        this.contentEl = this.suggestEl.createDiv("suggestion");
-
-        this.suggester = new Suggester(this, this.contentEl, this.scope);
-
-        this.scope.register([], "Escape", this.close.bind(this));
-
-        this.inputEl.addEventListener("input", this.onInputChanged.bind(this));
-        this.inputEl.addEventListener("focus", this.onInputChanged.bind(this));
-        this.inputEl.addEventListener("blur", this.close.bind(this));
-        this.suggestEl.on(
-            "mousedown",
-            ".suggestion-container",
-            (event: MouseEvent) => {
-                event.preventDefault();
-            }
+        flairEl.appendChild(
+            this.plugin.iconManager.getIconNode(item) ?? createDiv()
         );
     }
-    empty() {
-        this.suggester.empty();
-    }
-    onInputChanged(): void {
-        const inputStr = this.modifyInput(this.inputEl.value);
-        const suggestions = this.getSuggestions(inputStr);
-        if (suggestions.length > 0) {
-            this.suggester.setSuggestions(suggestions.slice(0, this.limit));
-        } else {
-            this.onNoSuggestion();
-        }
-        this.open();
-    }
 
-    modifyInput(input: string): string {
-        return input;
-    }
-    onNoSuggestion() {
-        this.empty();
-        this.renderSuggestion(
-            null,
-            this.contentEl.createDiv("suggestion-item")
-        );
-    }
-    open(): void {
-        // TODO: Figure out a better way to do this. Idea from Periodic Notes plugin
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (<any>this.app).keymap.pushScope(this.scope);
-
-        document.body.appendChild(this.suggestEl);
-        this.popper = createPopper(this.inputEl, this.suggestEl, {
-            placement: "bottom-start",
-            modifiers: [
-                {
-                    name: "offset",
-                    options: {
-                        offset: [0, 10]
-                    }
-                },
-                {
-                    name: "flip",
-                    options: {
-                        fallbackPlacements: ["top"]
-                    }
-                }
-            ]
-        });
-    }
-
-    close(): void {
-        // TODO: Figure out a better way to do this. Idea from Periodic Notes plugin
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (<any>this.app).keymap.popScope(this.scope);
-
-        this.suggester.setSuggestions([]);
-        if (this.popper) {
-            this.popper.destroy();
-        }
-
-        this.suggestEl.detach();
-    }
-    createPrompt(prompts: HTMLSpanElement[]) {
-        if (!this.promptEl)
-            this.promptEl = this.suggestEl.createDiv("prompt-instructions");
-        let prompt = this.promptEl.createDiv("prompt-instruction");
-        for (let p of prompts) {
-            prompt.appendChild(p);
-        }
-    }
-    abstract onChooseItem(item: T, evt: MouseEvent | KeyboardEvent): void;
-    abstract getItemText(arg: T): string;
-    abstract getItems(): T[];
-}
-
-export class IconSuggestionModal extends SuggestionModal<AdmonitionIconDefinition> {
-    icons: AdmonitionIconDefinition[];
-    icon: AdmonitionIconDefinition;
-    text: TextComponent;
-    constructor(public plugin: ObsidianAdmonition, input: TextComponent) {
-        super(
-            plugin.app,
-            input.inputEl,
-            plugin.iconManager.iconDefinitions
-        );
-        this.icons = plugin.iconManager.iconDefinitions;
-        this.text = input;
-
-        this.createPrompts();
-
-        this.inputEl.addEventListener("input", this.getItem.bind(this));
-    }
-    createPrompts() {}
-    getItem() {
-        const v = this.inputEl.value,
-            icon = this.icons.find((iconName) => iconName.name === v.trim());
-        if (icon == this.icon) return;
-        this.icon = icon;
-        if (this.icons) this.onInputChanged();
-    }
     getItemText(item: AdmonitionIconDefinition) {
         return item.name;
     }
-    onChooseItem(item: AdmonitionIconDefinition) {
-        this.text.setValue(item.name);
-        this.icon = item;
-    }
-    selectSuggestion({ item }: FuzzyMatch<AdmonitionIconDefinition>) {
-        this.text.setValue(item.name);
-        this.icon = item;
-        this.onClose();
-
-        this.close();
-    }
-    renderSuggestion(
-        result: FuzzyMatch<AdmonitionIconDefinition>,
-        el: HTMLElement
-    ) {
-        let { item, match: matches } = result || {};
-        let content = el.createDiv({
-            cls: "suggestion-content icon"
-        });
-        
-        if (!item) {
-            content.setText(this.emptyStateText);
-            content.parentElement.addClass("is-selected");
-            return;
-        }
-
-        const matchElements = matches.matches.map((m) => {
-            return createSpan("suggestion-highlight");
-        });
-        for (let i = 0; i < item.name.length; i++) {
-            let match = matches.matches.find((m) => m[0] === i);
-            if (match) {
-                let element = matchElements[matches.matches.indexOf(match)];
-                content.appendChild(element);
-                element.appendText(item.name.substring(match[0], match[1]));
-
-                i += match[1] - match[0] - 1;
-                continue;
-            }
-
-            content.appendText(item.name[i]);
-        }
-
-        const iconDiv = createDiv("suggestion-flair admonition-suggester-icon");
-        iconDiv.appendChild(
-            this.plugin.iconManager.getIconNode(item) ?? createDiv()
-        );
-        content.prepend(iconDiv);
-        content.createDiv({
-            cls: "suggestion-note",
-            text: this.plugin.iconManager.getIconModuleName(item)
-        });
-    }
-    getItems() {
-        return this.icons;
-    }
 }
-class AdmonitionSuggestionModal extends SuggestionModal<Admonition> {
-    admonitions: Admonition[];
-    admonition: Admonition;
-    text: TextComponent;
+class AdmonitionSuggestionModal extends FuzzyInputSuggest<Admonition> {
     constructor(
         public plugin: ObsidianAdmonition,
-        input: TextComponent,
+        input: TextComponent | SearchComponent,
         items: Admonition[]
     ) {
-        super(plugin.app, input.inputEl, items);
-        this.admonitions = [...items];
-        this.text = input;
-
-        this.createPrompts();
-
-        this.inputEl.addEventListener("input", this.getItem.bind(this));
+        super(plugin.app, input, items);
     }
-    createPrompts() {}
-    getItem() {
-        const v = this.inputEl.value,
-            admonition = this.admonitions.find(
-                (admonition) => admonition.type === v.trim()
-            );
-        if (admonition == this.admonition) return;
-        this.admonition = admonition;
-        if (this.admonitions) this.onInputChanged();
+    renderTitle(titleEl: HTMLElement, result: FuzzyMatch<Admonition>): void {
+        renderMatches(titleEl, result.item.type, result.match.matches);
     }
-    getItemText(item: Admonition) {
-        return item.type;
-    }
-    onChooseItem(item: Admonition) {
-        this.text.setValue(item.type);
-        this.admonition = item;
-    }
-    selectSuggestion({ item }: FuzzyMatch<Admonition>) {
-        this.text.setValue(item.type);
-        this.onClose();
-        this.close();
-    }
-    renderSuggestion(result: FuzzyMatch<Admonition>, el: HTMLElement) {
-        let { item, match: matches } = result || {};
-        let content = el.createDiv({
-            cls: "suggestion-content icon"
-        });
-        if (!item) {
-            content.setText(this.emptyStateText);
-            content.parentElement.addClass("is-selected");
-            return;
-        }
-
-        const matchElements = matches.matches.map((m) => {
-            return createSpan("suggestion-highlight");
-        });
-        for (let i = 0; i < item.type.length; i++) {
-            let match = matches.matches.find((m) => m[0] === i);
-            if (match) {
-                let element = matchElements[matches.matches.indexOf(match)];
-                content.appendChild(element);
-                element.appendText(item.type.substring(match[0], match[1]));
-
-                i += match[1] - match[0] - 1;
-                continue;
-            }
-
-            content.appendText(item.type[i]);
-        }
-
-        const iconDiv = createDiv("suggestion-flair admonition-suggester-icon");
-        iconDiv
+    renderFlair(flairEl: HTMLElement, result: FuzzyMatch<Admonition>): void {
+        const { item } = result;
+        flairEl
             .appendChild(
                 this.plugin.iconManager.getIconNode(item.icon) ?? createDiv()
             )
             .setAttribute("color", `rgb(${item.color})`);
-
-        content.prepend(iconDiv);
     }
-    getItems() {
-        return this.admonitions;
+    getItemText(item: Admonition) {
+        return item.type;
     }
 }
 
@@ -456,11 +127,11 @@ export class InsertAdmonitionModal extends Modal {
 
             t.inputEl.onblur = build;
 
-            modal.onClose = build;
-            if (focus) {
-                modal.open();
-                t.inputEl.focus();
-            }
+            modal.onSelect((item) => {
+                t.inputEl.value = item.item.type;
+                build();
+                modal.close();
+            });
         });
 
         let titleInput: TextComponent;

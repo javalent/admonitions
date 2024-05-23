@@ -20,6 +20,7 @@
         "@fortawesome/fontawesome-svg-core": "^1.2.32",
         "@fortawesome/free-regular-svg-icons": "^5.15.3",
         "@fortawesome/free-solid-svg-icons": "^5.15.1",
+        "@javalent/utilities": "file:../obsidian-utilities",
         "@popperjs/core": "^2.9.2",
         "@primer/octicons": "^16.3.1",
         "@types/node": "^14.14.2",
@@ -30,7 +31,7 @@
         "esbuild-sass-plugin": "^2.2.4",
         "monkey-around": "^2.3.0",
         "object.fromentries": "^2.0.4",
-        "obsidian": "^1.1.1",
+        "obsidian": "^1.5.7-1",
         "tslib": "^2.0.3",
         "typescript": "^4.0.3"
     },
