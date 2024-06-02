@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [10.3.2](https://github.com/javalent/admonitions/compare/10.3.1...10.3.2) (2024-06-01)
+
+
+### Bug Fixes
+
+* Fixes issue where the admonition suggester crashed (close [#342](https://github.com/javalent/admonitions/issues/342), close [#343](https://github.com/javalent/admonitions/issues/343)) ([3356aaf](https://github.com/javalent/admonitions/commit/3356aafa89216077f41df5b52261afb6d0397e84))
+
 ## [10.3.1](https://github.com/javalent/admonitions/compare/10.3.0...10.3.1) (2024-05-23)
 
 
